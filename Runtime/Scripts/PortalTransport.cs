@@ -34,6 +34,7 @@ public class PortalTransport : MonoBehaviour
         if (objectCrossing.GetComponent<Rigidbody>() == null)
             return;
         
+        // var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
         var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
         
         clone.GetComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;

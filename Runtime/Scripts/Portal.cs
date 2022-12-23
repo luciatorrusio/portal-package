@@ -1,5 +1,4 @@
 
-using System;
 using GizmosExtendedNamespace;
 using JetBrains.Annotations;
 using UnityEditor.Experimental.GraphView;
@@ -27,28 +26,17 @@ public class Portal : MonoBehaviour
     // [SerializeField]private bool isInPortal;
     
     // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.Not, nameof(isInPortal))]
-    private Transform cameraBeingReplicated;
+    // [SerializeField] private Transform cameraBeingReplicated;
     
     // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(isInPortal))]
     // [SerializeField] [CanBeNull] private OutPortal linkedOutPortal = null;
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
-    
-    
-    
+    [SerializeField] private PortalManager _portalManager;
     void Start()
     {
-        GetMainCamera();
         if (linkedOutPortal != null)
             SetAsInPortal();
         
-    }
-
-    private void GetMainCamera()
-    {
-        var camera = Camera.main;
-        if (camera == null)
-            throw new Exception("no Main Camera found in the scene");
-        cameraBeingReplicated = camera.transform;
     }
 
     public InPortal SetAsInPortal()
@@ -72,7 +60,7 @@ public class Portal : MonoBehaviour
     {
         // OutPortal
         _outPortal.enabled = true;
-        cameraOutMovement.SetCameraBeingReplicated(cameraBeingReplicated);
+        cameraOutMovement.SetCameraBeingReplicated(_portalManager.GetMainCamera());
         cameraOutMovement.gameObject.SetActive(true);
         return _outPortal;
     }
@@ -93,7 +81,7 @@ public class Portal : MonoBehaviour
         
         // OutPortal
         _outPortal.enabled = !isInPortal;
-        cameraOutMovement.SetCameraBeingReplicated(cameraBeingReplicated);
+        cameraOutMovement.SetCameraBeingReplicated(_portalManager.GetMainCamera());
         cameraOutMovement.gameObject.SetActive(!isInPortal);
     }
     

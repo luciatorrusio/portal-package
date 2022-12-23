@@ -10,27 +10,27 @@ public class PortalManager : MonoBehaviour
     public static List<InPortal> AllInPortals = new List<InPortal>();
     public static List<OutPortal> AllOutPortals = new List<OutPortal>();
     
-    // [NotNull] private Transform mainCamera;
-    //
-    // void Awake()
-    // {
-    //     var camera = Camera.main;
-    //
-    //     if (camera != null)
-    //     {
-    //         print("found camera");
-    //         mainCamera = camera.transform;
-    //     }
-    //         
-    // }
-    //
-    // public Transform GetMainCamera()
-    // {
-    //     print(mainCamera);
-    //     if (mainCamera == null)
-    //         throw new Exception("no main camera found in the scene");
-    //     return mainCamera;
-    // }
+    [NotNull] private Transform mainCamera;
+
+    void Awake()
+    {
+        var camera = Camera.main;
+
+        if (camera != null)
+        {
+            print("found camera");
+            mainCamera = camera.transform;
+        }
+            
+    }
+
+    public Transform GetMainCamera()
+    {
+        print(mainCamera);
+        if (mainCamera == null)
+            throw new Exception("no main camera found in the scene");
+        return mainCamera;
+    }
     
     private void OnDrawGizmosSelected()
     {
