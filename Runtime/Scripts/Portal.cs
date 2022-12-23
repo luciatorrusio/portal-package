@@ -31,7 +31,6 @@ public class Portal : MonoBehaviour
 
         if (camera != null)
         {
-            print("found camera");
             mainCamera = camera.transform;
         }
             

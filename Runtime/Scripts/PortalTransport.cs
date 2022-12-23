@@ -34,20 +34,22 @@ public class PortalTransport : MonoBehaviour
         if (objectCrossing.GetComponent<Rigidbody>() == null)
             return;
         
-        // var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        CreateClone(objectCrossing);
+
+    }
+
+    private void CreateClone(GameObject objectCrossing)
+    {
         var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
         
         clone.GetComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;
         clone.GetComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
         CopyComponent(objectCrossing.GetComponent<Collider>(), clone);
         clone.layer = LayerMask.NameToLayer("transitioningObject");
-        // EventForwarder eventForwarder = clone.AddComponent<EventForwarder>();
-        
-        // var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn, eventForwarder);
-        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn);
-        
+        EventForwarder eventForwarder = clone.AddComponent<EventForwarder>();
+        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn, eventForwarder);
         _objectsOnPortal.Add(objectOnPortal);
-
+        
     }
     
 
@@ -56,7 +58,6 @@ public class PortalTransport : MonoBehaviour
         if(portalIn == null || portalOut == null)
             return;
         TransitioningObject? leavingPortal = GetObjectOnPortalLeaving(other.gameObject);
-        print("name of on trigger exit: "+other.name);
         if (leavingPortal == null)
             return;
         _objectsOnPortal.Remove(leavingPortal);

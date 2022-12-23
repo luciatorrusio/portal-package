@@ -1,8 +1,5 @@
-using JetBrains.Annotations;
 using PortalExtensionMethods;
-// using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
-using UnityEngine.AI;
 using Utils;
 
 public class TransitioningObject 
@@ -14,7 +11,7 @@ public class TransitioningObject
     private readonly Transform _portalIn;
     private EventForwarder _eventForwarder;
 
-    public TransitioningObject(Transform original,Transform clone, Transform portalIn)
+    public TransitioningObject(Transform original,Transform clone, Transform portalIn, EventForwarder eventForwarder)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -23,6 +20,8 @@ public class TransitioningObject
         if (!(_mainCamera == null)) 
             _mainCamera.SetActive(false);
         _portalIn = portalIn;
+        _eventForwarder = eventForwarder;
+        _eventForwarder.OnCollisionStayEvent += HandleCollisionStayEvent;
     }
 
     public void Transport()
@@ -59,5 +58,9 @@ public class TransitioningObject
         return _clone;
     }
     
+    private void HandleCollisionStayEvent(Collision collision)
+    {
+        // do something with original
+    }
     
 }
