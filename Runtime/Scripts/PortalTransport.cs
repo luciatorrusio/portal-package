@@ -34,12 +34,12 @@ public class PortalTransport : MonoBehaviour
         if (objectCrossing.GetComponent<Rigidbody>() == null)
             return;
         
-        var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
-        // var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        // var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
         
-        // clone.AddComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;
-        // clone.AddComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
-        
+        clone.GetComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;
+        clone.GetComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
+        CopyComponent(objectCrossing.GetComponent<Collider>(), clone);
         clone.layer = LayerMask.NameToLayer("transitioningObject");
         // EventForwarder eventForwarder = clone.AddComponent<EventForwarder>();
         
@@ -109,6 +109,18 @@ public class PortalTransport : MonoBehaviour
         transitioningObject.GetClone().rotation = portalOut.rotation * relativeRot;
     }
     
+    public Component CopyComponent(Component original, GameObject destination)
+    {
+        System.Type type = original.GetType();
+        Component copy = destination.AddComponent(type);
+        // Copied fields can be restricted with BindingFlags
+        System.Reflection.FieldInfo[] fields = type.GetFields(); 
+        foreach (System.Reflection.FieldInfo field in fields)
+        {
+            field.SetValue(copy, field.GetValue(original));
+        }
+        return copy;
+    }
 
     
     
