@@ -27,7 +27,7 @@ public class TransitioningObject
 
     public void Transport()
     {
-        
+        _clone.gameObject.SetActive(false);
         var anglesDifferencePerAxis  = Quaternion.FromToRotation(_original.forward, _clone.forward).eulerAngles;
         _originalRigidbody.velocity =   Quaternion.AngleAxis(anglesDifferencePerAxis.y, Vector3.up) * Quaternion.AngleAxis(anglesDifferencePerAxis.z, Vector3.forward) *
                                         Quaternion.AngleAxis(anglesDifferencePerAxis.x, Vector3.right) * _originalRigidbody.velocity; ;
