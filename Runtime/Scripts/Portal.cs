@@ -1,6 +1,7 @@
 
 using GizmosExtendedNamespace;
 using JetBrains.Annotations;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Utils;
 
@@ -22,45 +23,57 @@ public class Portal : MonoBehaviour
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private CameraOutMovement cameraOutMovement;
     
-    // SET BY USER
-    // todo isTwoWay
-    // [SerializeField]private bool isTwoWay;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(isOneWay))]
-    [SerializeField]private bool isInPortal;
+    // [SerializeField]private bool isInPortal;
     
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.Not, nameof(isInPortal))]
-    [SerializeField] private Transform cameraBeingReplicated;
+    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.Not, nameof(isInPortal))]
+    // [SerializeField] private Transform cameraBeingReplicated;
     
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(isInPortal))]
-    [SerializeField] [CanBeNull] private OutPortal linkedOutPortal = null;
+    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(isInPortal))]
+    // [SerializeField] [CanBeNull] private OutPortal linkedOutPortal = null;
+    [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
     
     void Start()
     {
-        Setup(isInPortal);
+        if (linkedOutPortal != null)
+            SetAsInPortal();
+        
     }
 
     public InPortal SetAsInPortal()
     {
-        Setup(true);
+        // InPortal
+        _inPortal.enabled = true;
+        if (linkedOutPortal != null)
+        {
+            portalTextureSetup.SetCameraOut(linkedOutPortal.GetCamera());
+            _inPortal.SetLinkedOutPortal(linkedOutPortal.GetOutPortal());
+        }
+
+        portalTextureSetup.gameObject.SetActive(true);
+        transport.SetActive(true);
+        linkedOutPortal.SetAsOutPortal();
+        
         return _inPortal;
     }
 
     public OutPortal SetAsOutPortal()
     {
-        Setup(false);
+        // OutPortal
+        _outPortal.enabled = true;
+        cameraOutMovement.SetCameraBeingReplicated(PortalManager.cameraBeingReplicated);
+        cameraOutMovement.gameObject.SetActive(true);
         return _outPortal;
     }
 
     private void Setup(bool isInPortal)
     {
-        this.isInPortal = isInPortal;
         // InPortal
         _inPortal.enabled = isInPortal;
         linkedOutPortal = isInPortal ? linkedOutPortal: null;
         if (linkedOutPortal != null)
         {
             portalTextureSetup.SetCameraOut(linkedOutPortal.GetCamera());
-            _inPortal.SetLinkedOutPortal(linkedOutPortal);
+            _inPortal.SetLinkedOutPortal(linkedOutPortal.GetOutPortal());
         }
 
         portalTextureSetup.gameObject.SetActive(isInPortal);
@@ -68,14 +81,14 @@ public class Portal : MonoBehaviour
         
         // OutPortal
         _outPortal.enabled = !isInPortal;
-        cameraOutMovement.SetCameraBeingReplicated(cameraBeingReplicated);
+        cameraOutMovement.SetCameraBeingReplicated(PortalManager.cameraBeingReplicated);
         cameraOutMovement.gameObject.SetActive(!isInPortal);
     }
     
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
-        if (linkedOutPortal != null && isInPortal)
+        if (linkedOutPortal != null)
         {
             GizmosExtended.DrawPlane(transform, new Vector2(2,3), Color.green);
             GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(2,3), Color.red);
@@ -85,5 +98,16 @@ public class Portal : MonoBehaviour
         }
             
         
+    }
+
+
+    public Camera GetCamera()
+    {
+        return _outPortal.GetCamera();
+    }
+
+    public OutPortal GetOutPortal()
+    {
+        return _outPortal;
     }
 }
