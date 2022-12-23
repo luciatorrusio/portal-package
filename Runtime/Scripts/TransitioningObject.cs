@@ -9,7 +9,6 @@ public class TransitioningObject
 {
     private readonly Transform _original;
     private readonly Rigidbody _originalRigidbody;
-    [CanBeNull] private readonly NavMeshAgent _originalNavMeshAgent;
     private readonly Transform _clone;
     private readonly GameObject _mainCamera;
     private readonly Transform _portalIn;
@@ -18,8 +17,7 @@ public class TransitioningObject
     public TransitioningObject(Transform original,Transform clone, Transform portalIn, EventForwarder eventForwarder)
     {
         _original = original;
-        _originalRigidbody = _original.GetComponent<Rigidbody>();;
-        _originalNavMeshAgent = _original.GetComponent<NavMeshAgent>();;
+        _originalRigidbody = _original.GetComponent<Rigidbody>();
         _clone = clone;
         _mainCamera = _clone.GetMainCamera();
         if (!(_mainCamera == null)) 
@@ -27,7 +25,16 @@ public class TransitioningObject
         _portalIn = portalIn;
         _eventForwarder = eventForwarder;
         // Listen for it to start
-        _eventForwarder.OnCollisionStayEvent += HandleCollisionStayEvent;
+        DeleteAllComponents();
+    }
+
+    private void DeleteAllComponents()
+    {
+        // var components = _clone.GetComponents(typeof(Component));
+        // foreach (var component in components)
+        // {
+        //     
+        // }
     }
     public void Transport()
     {
@@ -38,12 +45,6 @@ public class TransitioningObject
         
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
-        if (_originalNavMeshAgent != null)
-        {
-            _originalNavMeshAgent.enabled = false;
-            _original.position = _clone.position;
-            _originalNavMeshAgent.enabled = true;
-        }
         _original.position = _clone.position;
         
     }
@@ -69,10 +70,5 @@ public class TransitioningObject
         return _clone;
     }
     
-    private void HandleCollisionStayEvent(Collision collision)
-    {
-        // Do something in response to the event
-        var impulse = collision.impulse;
-        Debug.Log("impulse= "+impulse);
-    }
+    
 }

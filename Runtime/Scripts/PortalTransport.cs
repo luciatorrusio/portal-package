@@ -11,6 +11,7 @@ public class PortalTransport : MonoBehaviour
     private Transform? portalOut;
     [SerializeField] private Transform? portalIn;
     private List<TransitioningObject> _objectsOnPortal;
+    private GameObject emptyClone;
 
     private void Start()
     {
@@ -32,9 +33,16 @@ public class PortalTransport : MonoBehaviour
             return;
         if (objectCrossing.GetComponent<Rigidbody>() == null)
             return;
-        var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        
+        // var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        
+        clone.AddComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;
+        clone.AddComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
+        
         clone.layer = LayerMask.NameToLayer("transitioningObject");
         EventForwarder eventForwarder = clone.AddComponent<EventForwarder>();
+        
         var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn, eventForwarder);
         
         _objectsOnPortal.Add(objectOnPortal);
