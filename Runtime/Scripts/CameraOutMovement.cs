@@ -33,22 +33,22 @@ public class CameraOutMovement : MonoBehaviour
     }
     private void Update()
     {
+        // version 2
+        if(portalIn == null)
+            return;
+        if(cameraBeingReplicated == null)
+            return;
+        if (!cameraBeingReplicated.IsInFrontOf(portalIn))
+        {
+            _camera.enabled = false;
+            return;
+        }
+        _camera.enabled = true; 
+        SetPosition();
         
-        // if(portalIn == null)
-        //     return;
-        // if(cameraBeingReplicated == null)
-        //     return;
-        // if (!cameraBeingReplicated.IsInFrontOf(portalIn))
-        // {
-        //     _camera.enabled = false;
-        //     return;
-        // }
-        // _camera.enabled = true; 
-        // SetPosition();
-        //
-        // SetAngle();
-        //
-        // SetNearClippingPlane();
+        SetAngle();
+        
+        SetNearClippingPlane();
     }
 
     private void SetPosition()
