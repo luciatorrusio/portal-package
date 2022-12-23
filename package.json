@@ -1,0 +1,16 @@
+{
+  "name": "com.alset-r-games.portal",
+  "displayName": "Portal",
+  "version": "1.0.1",
+  "unity": "2021.3",
+  "dependencies": {
+    "com.unity.visualscripting":  "1.7.8"
+  },
+  "description": "Portal is a tool that helps you to have portals in your game easily.",
+  "author": {
+    "name": "Lucia Torrusio",
+    "email": "lucia.torrusio@gmail.com",
+    "url": "https://github.com/luciatorrusio"
+  },
+  "keywords": ["portal", "tool"]
+}

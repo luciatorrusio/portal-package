@@ -1,0 +1,4 @@
+{
+	"name": "com.alset-r-games.portal.Editor",
+	"references":[ "com.alset-r-games.portal" ]
+}
