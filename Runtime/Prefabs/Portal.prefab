@@ -71,7 +71,7 @@ GameObject:
   - component: {fileID: 7499457454019592069}
   - component: {fileID: 7499457454019592070}
   - component: {fileID: 7499457454019592071}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RenderPlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 7499457455350203051}
   - component: {fileID: 7499457455350203060}
   - component: {fileID: 7499457455350203062}
+  - component: {fileID: 9072269988670837148}
   m_Layer: 0
   m_Name: Camera_Out
   m_TagString: Untagged
@@ -321,7 +322,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2147483647
+    m_Bits: 55
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 8400000, guid: e3f98822c7fb2b44dbfb05aa36519f16, type: 2}
   m_TargetDisplay: 0
@@ -354,6 +355,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   portalOut: {fileID: 7499457455819743511}
+--- !u!114 &9072269988670837148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7499457455350203056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!1 &7499457455710848391
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,7 +639,6 @@ MonoBehaviour:
   portalTextureSetup: {fileID: 7499457454019592071}
   transport: {fileID: 7499457453767952702}
   cameraOutMovement: {fileID: 7499457455350203062}
-  isInPortal: 0
   cameraBeingReplicated: {fileID: 0}
   linkedOutPortal: {fileID: 0}
 --- !u!114 &8685845199385058116
