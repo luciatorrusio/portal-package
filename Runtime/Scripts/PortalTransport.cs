@@ -11,7 +11,7 @@ public class PortalTransport : MonoBehaviour
     private Transform? portalOut;
     [SerializeField] private Transform? portalIn;
     private List<TransitioningObject> _objectsOnPortal;
-    private GameObject emptyClone;
+    [SerializeField] private GameObject emptyClone;
 
     private void Start()
     {
