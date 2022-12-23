@@ -123,8 +123,5 @@ public class PortalTransport : MonoBehaviour
         return copy;
     }
 
-    
-    
-    
 }
 
