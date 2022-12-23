@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PortalManager : MonoBehaviour
@@ -14,13 +15,20 @@ public class PortalManager : MonoBehaviour
     void Start()
     {
         var camera = Camera.main;
-        print("found camera");
+
         if (camera != null)
+        {
+            print("found camera");
             mainCamera = camera.transform;
+        }
+            
     }
 
     public Transform GetMainCamera()
     {
+        print(mainCamera);
+        if (mainCamera == null)
+            throw new Exception("no main camera found in the scene");
         return mainCamera;
     }
     
