@@ -33,7 +33,7 @@ public class CameraOutMovement : MonoBehaviour
     }
     private void Update()
     {
-        // version 2
+        
         if(portalIn == null)
             return;
         if(cameraBeingReplicated == null)
