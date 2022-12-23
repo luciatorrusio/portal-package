@@ -14,7 +14,7 @@ public class TransitioningObject
     private readonly Transform _portalIn;
     private EventForwarder _eventForwarder;
 
-    public TransitioningObject(Transform original,Transform clone, Transform portalIn, EventForwarder eventForwarder)
+    public TransitioningObject(Transform original,Transform clone, Transform portalIn)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -23,19 +23,8 @@ public class TransitioningObject
         if (!(_mainCamera == null)) 
             _mainCamera.SetActive(false);
         _portalIn = portalIn;
-        _eventForwarder = eventForwarder;
-        // Listen for it to start
-        DeleteAllComponents();
     }
 
-    private void DeleteAllComponents()
-    {
-        // var components = _clone.GetComponents(typeof(Component));
-        // foreach (var component in components)
-        // {
-        //     
-        // }
-    }
     public void Transport()
     {
         

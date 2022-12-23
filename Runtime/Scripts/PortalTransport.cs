@@ -41,9 +41,10 @@ public class PortalTransport : MonoBehaviour
         clone.AddComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
         
         clone.layer = LayerMask.NameToLayer("transitioningObject");
-        EventForwarder eventForwarder = clone.AddComponent<EventForwarder>();
+        // EventForwarder eventForwarder = clone.AddComponent<EventForwarder>();
         
-        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn, eventForwarder);
+        // var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn, eventForwarder);
+        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn);
         
         _objectsOnPortal.Add(objectOnPortal);
 
@@ -55,6 +56,7 @@ public class PortalTransport : MonoBehaviour
         if(portalIn == null || portalOut == null)
             return;
         TransitioningObject? leavingPortal = GetObjectOnPortalLeaving(other.gameObject);
+        print("name of on trigger exit: "+other.name);
         if (leavingPortal == null)
             return;
         _objectsOnPortal.Remove(leavingPortal);
