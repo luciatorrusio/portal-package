@@ -2,11 +2,8 @@
 using System;
 using GizmosExtendedNamespace;
 using JetBrains.Annotations;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Utils;
-
-// using Utils;
 
 public class Portal : MonoBehaviour
 {
@@ -23,23 +20,11 @@ public class Portal : MonoBehaviour
     [SerializeField] private GameObject transport;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private CameraOutMovement cameraOutMovement;
-    
-    // [SerializeField]private bool isInPortal;
-    
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.Not, nameof(isInPortal))]
-    // [SerializeField] private Transform cameraBeingReplicated;
-    
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(isInPortal))]
-    // [SerializeField] [CanBeNull] private OutPortal linkedOutPortal = null;
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
     [SerializeField] private PortalManager _portalManager;
-    void Start()
-    {
-        if (linkedOutPortal != null)
-            SetAsInPortal();
-        
-    }
     [NotNull] private Transform mainCamera;
+    
+    
     void Awake()
     {
         var camera = Camera.main;
@@ -50,6 +35,12 @@ public class Portal : MonoBehaviour
             mainCamera = camera.transform;
         }
             
+    }
+    void Start()
+    {
+        if (linkedOutPortal != null)
+            SetAsInPortal();
+        
     }
 
     public Transform GetMainCamera()

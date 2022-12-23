@@ -10,10 +10,6 @@ public class PortalManager : MonoBehaviour
     public static List<InPortal> AllInPortals = new List<InPortal>();
     public static List<OutPortal> AllOutPortals = new List<OutPortal>();
     
-    
-
-    
-    
     private void OnDrawGizmosSelected()
     {
         foreach (var inPortal in AllInPortals)
