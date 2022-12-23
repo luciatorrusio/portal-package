@@ -14,6 +14,7 @@ public class PortalManager : MonoBehaviour
     void Start()
     {
         var camera = Camera.main;
+        print("found camera");
         if (camera != null)
             mainCamera = camera.transform;
     }
