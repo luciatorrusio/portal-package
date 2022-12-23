@@ -26,12 +26,12 @@ public class Portal : MonoBehaviour
     // [SerializeField]private bool isInPortal;
     
     // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.Not, nameof(isInPortal))]
-    [SerializeField] private Transform cameraBeingReplicated;
+    // [SerializeField] private Transform cameraBeingReplicated;
     
     // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(isInPortal))]
     // [SerializeField] [CanBeNull] private OutPortal linkedOutPortal = null;
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
-    
+    [SerializeField] private PortalManager _portalManager;
     void Start()
     {
         if (linkedOutPortal != null)
@@ -60,7 +60,7 @@ public class Portal : MonoBehaviour
     {
         // OutPortal
         _outPortal.enabled = true;
-        cameraOutMovement.SetCameraBeingReplicated(cameraBeingReplicated);
+        cameraOutMovement.SetCameraBeingReplicated(_portalManager.GetMainCamera());
         cameraOutMovement.gameObject.SetActive(true);
         return _outPortal;
     }
@@ -81,7 +81,7 @@ public class Portal : MonoBehaviour
         
         // OutPortal
         _outPortal.enabled = !isInPortal;
-        cameraOutMovement.SetCameraBeingReplicated(cameraBeingReplicated);
+        cameraOutMovement.SetCameraBeingReplicated(_portalManager.GetMainCamera());
         cameraOutMovement.gameObject.SetActive(!isInPortal);
     }
     
