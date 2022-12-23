@@ -13,17 +13,18 @@ public class CameraOutMovement : MonoBehaviour
     [SerializeField] private Transform portalOut;
     private Transform portalIn;
     private Renderer portalInRenderer;
-    private Camera _camera;
+    [SerializeField] private Camera _camera;
     
     private void Start()
     {
-        _camera = GetComponent<Camera>();
+        // _camera = GetComponent<Camera>();
         
     }
 
-    public void SetCameraBeingReplicated(Transform cameraBeingReplicated)
+    public void SetCameraBeingReplicated(Camera cameraBeingReplicated)
     {
-        this.cameraBeingReplicated = cameraBeingReplicated;
+        this.cameraBeingReplicated = cameraBeingReplicated.transform;
+        _camera.fieldOfView = cameraBeingReplicated.fieldOfView;
     }
 
     public void SetPortalIn(Transform portalIn, Renderer portalInRenderer)

@@ -22,7 +22,7 @@ public class Portal : MonoBehaviour
     [SerializeField] private CameraOutMovement cameraOutMovement;
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
     [SerializeField] private PortalManager _portalManager;
-    [NotNull] private Transform mainCamera;
+    [NotNull] private Camera mainCamera;
     
     
     void Awake()
@@ -31,7 +31,7 @@ public class Portal : MonoBehaviour
 
         if (camera != null)
         {
-            mainCamera = camera.transform;
+            mainCamera = camera;
         }
             
     }
@@ -42,9 +42,8 @@ public class Portal : MonoBehaviour
         
     }
 
-    public Transform GetMainCamera()
+    public Camera GetMainCamera()
     {
-        print(mainCamera);
         if (mainCamera == null)
             throw new Exception("no main camera found in the scene");
         return mainCamera;
