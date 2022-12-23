@@ -12,7 +12,7 @@ public class PortalManager : MonoBehaviour
     
     [NotNull] private Transform mainCamera;
 
-    void Start()
+    void Awake()
     {
         var camera = Camera.main;
 
