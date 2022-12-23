@@ -24,7 +24,6 @@ public class CameraOutMovement : MonoBehaviour
     public void SetCameraBeingReplicated(Transform cameraBeingReplicated)
     {
         this.cameraBeingReplicated = cameraBeingReplicated;
-        _camera.fieldOfView = this.cameraBeingReplicated.GetComponent<Camera>().fieldOfView;
     }
 
     public void SetPortalIn(Transform portalIn, Renderer portalInRenderer)
