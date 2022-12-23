@@ -1,4 +1,5 @@
 
+using System;
 using GizmosExtendedNamespace;
 using JetBrains.Annotations;
 using UnityEditor.Experimental.GraphView;
@@ -38,6 +39,26 @@ public class Portal : MonoBehaviour
             SetAsInPortal();
         
     }
+    [NotNull] private Transform mainCamera;
+    void Awake()
+    {
+        var camera = Camera.main;
+
+        if (camera != null)
+        {
+            print("found camera");
+            mainCamera = camera.transform;
+        }
+            
+    }
+
+    public Transform GetMainCamera()
+    {
+        print(mainCamera);
+        if (mainCamera == null)
+            throw new Exception("no main camera found in the scene");
+        return mainCamera;
+    }
 
     public InPortal SetAsInPortal()
     {
@@ -60,7 +81,7 @@ public class Portal : MonoBehaviour
     {
         // OutPortal
         _outPortal.enabled = true;
-        cameraOutMovement.SetCameraBeingReplicated(_portalManager.GetMainCamera());
+        cameraOutMovement.SetCameraBeingReplicated(GetMainCamera());
         cameraOutMovement.gameObject.SetActive(true);
         return _outPortal;
     }
@@ -81,7 +102,7 @@ public class Portal : MonoBehaviour
         
         // OutPortal
         _outPortal.enabled = !isInPortal;
-        cameraOutMovement.SetCameraBeingReplicated(_portalManager.GetMainCamera());
+        cameraOutMovement.SetCameraBeingReplicated(GetMainCamera());
         cameraOutMovement.gameObject.SetActive(!isInPortal);
     }
     
