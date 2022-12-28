@@ -1,6 +1,6 @@
 #nullable enable
 using System.Collections.Generic;
-using PortalExtensionMethods;
+using Scripts;
 using UnityEngine;
 using Utils;
 
@@ -46,7 +46,11 @@ public class PortalTransport : MonoBehaviour
         clone.GetComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
         CopyComponent(objectCrossing.GetComponent<Collider>(), clone);
         clone.layer = LayerMask.NameToLayer("transitioningObject");
-        EventForwarder eventForwarder = clone.AddComponent<EventForwarder>();
+        
+        var eventForwarder = clone.AddComponent<EventForwarder>();
+        var eventListener = objectCrossing.AddComponent<EventListener>();
+        eventListener.SetEventForwarder(eventForwarder);
+        
         var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn, eventForwarder);
         _objectsOnPortal.Add(objectOnPortal);
         

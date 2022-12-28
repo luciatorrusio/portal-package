@@ -59,7 +59,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   portalIn: {fileID: 7499457455819743511}
-  emptyClone: {fileID: 0}
+  emptyClone: {fileID: 4902045438121372265, guid: 5c85837552bc0c442b8771b53f754277,
+    type: 3}
 --- !u!1 &7499457454019592065
 GameObject:
   m_ObjectHideFlags: 0
@@ -642,7 +643,6 @@ MonoBehaviour:
   transport: {fileID: 7499457453767952702}
   cameraOutMovement: {fileID: 7499457455350203062}
   linkedOutPortal: {fileID: 0}
-  _portalManager: {fileID: 0}
 --- !u!114 &8685845199385058116
 MonoBehaviour:
   m_ObjectHideFlags: 0

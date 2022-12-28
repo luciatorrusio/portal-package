@@ -21,7 +21,7 @@ public class Portal : MonoBehaviour
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private CameraOutMovement cameraOutMovement;
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
-    [SerializeField] private PortalManager _portalManager;
+    
     [NotNull] private Camera mainCamera;
     
     

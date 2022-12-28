@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace PortalExtensionMethods
+namespace Scripts
 {
     public static class ExtensionMethods
     {
