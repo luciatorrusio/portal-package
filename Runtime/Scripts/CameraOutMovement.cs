@@ -13,12 +13,6 @@ public class CameraOutMovement : MonoBehaviour
     private Transform portalIn;
     private Renderer portalInRenderer;
     [SerializeField] private Camera _camera;
-    
-    private void Start()
-    {
-        // _camera = GetComponent<Camera>();
-        
-    }
 
     public void SetCameraBeingReplicated(Camera cameraBeingReplicated)
     {
@@ -56,12 +50,18 @@ public class CameraOutMovement : MonoBehaviour
         var playerToPortal = portalIn.InverseTransformDirection(cameraBeingReplicated.position - portalIn.position);
         Debug.DrawRay(portalIn.position, cameraBeingReplicated.position - portalIn.position, Color.green);
         Debug.DrawRay(portalOut.position, playerToPortal, Color.green);
-        transform.localPosition = playerToPortal;
+        // transform.localPosition = playerToPortal;
+        transform.localPosition = new Vector3(-playerToPortal.x, playerToPortal.y, -playerToPortal.z) ;
+        
     }
 
     private void SetAngle()
     {
-        Quaternion relativeRot = Quaternion.Inverse(portalIn.rotation) * cameraBeingReplicated.rotation;
+        // var portalInRotation = portalIn.rotation;
+        Quaternion rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
+            
+        // Quaternion relativeRot = Quaternion.Inverse(portalIn.rotation) * cameraBeingReplicated.rotation;
+        Quaternion relativeRot = Quaternion.Inverse(rotation) * cameraBeingReplicated.rotation;
         transform.rotation = portalOut.rotation * relativeRot;
         Debug.DrawRay(transform.position, transform.forward *10, Color.red);
         Debug.DrawRay(cameraBeingReplicated.position, cameraBeingReplicated.forward * 10, Color.red);

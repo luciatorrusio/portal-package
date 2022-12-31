@@ -9,9 +9,9 @@ public class TransitioningObject
     private readonly Transform _clone;
     private readonly GameObject _mainCamera;
     private readonly Transform _portalIn;
-    private EventForwarder _eventForwarder;
+    private readonly Transform _portalOut;
 
-    public TransitioningObject(Transform original,Transform clone, Transform portalIn, EventForwarder eventForwarder)
+    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -20,16 +20,16 @@ public class TransitioningObject
         if (!(_mainCamera == null)) 
             _mainCamera.SetActive(false);
         _portalIn = portalIn;
-        _eventForwarder = eventForwarder;
-        _eventForwarder.OnCollisionStayEvent += HandleCollisionStayEvent;
+        _portalOut = portalOut;
     }
 
     public void Transport()
     {
-        // _clone.gameObject.SetActive(false);
-        var anglesDifferencePerAxis  = Quaternion.FromToRotation(_original.forward, _clone.forward).eulerAngles;
-        _originalRigidbody.velocity =   Quaternion.AngleAxis(anglesDifferencePerAxis.y, Vector3.up) * Quaternion.AngleAxis(anglesDifferencePerAxis.z, Vector3.forward) *
-                                        Quaternion.AngleAxis(anglesDifferencePerAxis.x, Vector3.right) * _originalRigidbody.velocity; ;
+        var anglesDifferencePerAxis  = Quaternion.FromToRotation(_portalOut.forward, _portalIn.forward);
+        
+        var newVelocity = anglesDifferencePerAxis * Quaternion.AngleAxis( 180,  _portalOut.up)* _originalRigidbody.velocity;
+        
+        _originalRigidbody.velocity =  newVelocity ;
         
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
@@ -56,11 +56,6 @@ public class TransitioningObject
     public Transform GetClone()
     {
         return _clone;
-    }
-    
-    private void HandleCollisionStayEvent(Collision collision)
-    {
-        // do something with original
     }
     
 }

@@ -40,18 +40,19 @@ public class PortalTransport : MonoBehaviour
 
     private void CreateClone(GameObject objectCrossing)
     {
-        var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        // var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
         
-        clone.GetComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;
-        clone.GetComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
-        CopyComponent(objectCrossing.GetComponent<Collider>(), clone);
+        // clone.GetComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;
+        // clone.GetComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
+        // CopyComponent(objectCrossing.GetComponent<Collider>(), clone);
         clone.layer = LayerMask.NameToLayer("transitioningObject");
         
         var eventForwarder = clone.AddComponent<EventForwarder>();
         var eventListener = objectCrossing.AddComponent<EventListener>();
         eventListener.SetEventForwarder(eventForwarder);
         
-        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn, eventForwarder);
+        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,portalOut );
         _objectsOnPortal.Add(objectOnPortal);
         
     }
@@ -105,12 +106,13 @@ public class PortalTransport : MonoBehaviour
     private void SetPosition(TransitioningObject transitioningObject)
     {
         var objectToPortal = portalIn.InverseTransformDirection(transitioningObject.GetOriginal().position - portalIn.gameObject.transform.position);
-        transitioningObject.GetClone().localPosition = objectToPortal;
+        transitioningObject.GetClone().localPosition = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
     }
 
     private void SetAngle(TransitioningObject transitioningObject)
     {
-        Quaternion relativeRot = Quaternion.Inverse(portalIn.rotation) * transitioningObject.GetOriginal().rotation;
+        Quaternion rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
+        Quaternion relativeRot = Quaternion.Inverse(rotation) * transitioningObject.GetOriginal().rotation;
         transitioningObject.GetClone().rotation = portalOut.rotation * relativeRot;
     }
     
