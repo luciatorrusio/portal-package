@@ -27,7 +27,7 @@ public class PortalTransport : MonoBehaviour
         if(portalOut == null)
             return;
         var objectCrossing = other.gameObject;
-        if (objectCrossing.layer == LayerMask.NameToLayer("transitioningObject"))
+        if (IsClone(objectCrossing))
             return;
         if(!objectCrossing.transform.IsInFrontOf(portalIn))
             return;
@@ -38,6 +38,11 @@ public class PortalTransport : MonoBehaviour
 
     }
 
+    private bool IsClone(GameObject go)
+    {
+        return _objectsOnPortal.FindIndex(item => item.GetClone().gameObject.Equals(go) ) != -1;
+    }    
+
     private void CreateClone(GameObject objectCrossing)
     {
         // var clone = Instantiate(emptyClone, portalOut.position, objectCrossing.transform.rotation, portalOut);
@@ -46,7 +51,8 @@ public class PortalTransport : MonoBehaviour
         // clone.GetComponent<MeshRenderer>().sharedMaterials = objectCrossing.GetComponent<MeshFilter>().GetComponent<MeshRenderer>().sharedMaterials;
         // clone.GetComponent<MeshFilter>().sharedMesh = Instantiate(objectCrossing.GetComponent<MeshFilter>().sharedMesh);
         // CopyComponent(objectCrossing.GetComponent<Collider>(), clone);
-        clone.layer = LayerMask.NameToLayer("transitioningObject");
+        // clone.tag = "transitioningObject";
+        
         
         var eventForwarder = clone.AddComponent<EventForwarder>();
         var eventListener = objectCrossing.AddComponent<EventListener>();
