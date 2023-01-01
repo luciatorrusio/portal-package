@@ -57,19 +57,20 @@ public class CameraOutMovement : MonoBehaviour
 
     private void SetAngle()
     {
-        // var portalInRotation = portalIn.rotation;
         Quaternion rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
-            
-        // Quaternion relativeRot = Quaternion.Inverse(portalIn.rotation) * cameraBeingReplicated.rotation;
         Quaternion relativeRot = Quaternion.Inverse(rotation) * cameraBeingReplicated.rotation;
         transform.rotation = portalOut.rotation * relativeRot;
+        
+        // var difRotation = Quaternion.FromToRotation(portalOut.forward, portalIn.forward);
+        // transform.rotation = difRotation * transform.rotation;
+        
         Debug.DrawRay(transform.position, transform.forward *10, Color.red);
         Debug.DrawRay(cameraBeingReplicated.position, cameraBeingReplicated.forward * 10, Color.red);
     }
 
     private void SetNearClippingPlane()
     {
-        if (!_camera.transform.IsInFrontOfWithError(portalOut, 0.5f))
+        if (_camera.transform.IsInFrontOfWithError(portalOut, 0.5f))
             return;
         var p = new Plane(-portalOut.forward, portalOut.position);
         var clipPlane = new Vector4(p.normal.x, p.normal.y, p.normal.z, p.distance);
