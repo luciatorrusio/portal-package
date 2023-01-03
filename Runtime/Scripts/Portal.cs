@@ -42,7 +42,7 @@ public class Portal : MonoBehaviour
         
     }
 
-    public Camera GetMainCamera()
+    private Camera GetMainCamera()
     {
         if (mainCamera == null)
             throw new Exception("no main camera found in the scene");

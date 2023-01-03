@@ -10,8 +10,9 @@ public class TransitioningObject
     private readonly GameObject _mainCamera;
     private readonly Transform _portalIn;
     private readonly Transform _portalOut;
+    private readonly bool _implementsIPortal;
 
-    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut)
+    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut, bool implementsIPortal)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -21,6 +22,7 @@ public class TransitioningObject
             _mainCamera.SetActive(false);
         _portalIn = portalIn;
         _portalOut = portalOut;
+        _implementsIPortal = implementsIPortal;
     }
 
     public void Transport()
@@ -34,7 +36,6 @@ public class TransitioningObject
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
         _original.position = _clone.position;
-        
     }
     
 
@@ -56,6 +57,11 @@ public class TransitioningObject
     public Transform GetClone()
     {
         return _clone;
+    }
+
+    public bool GetImplementsIPortal()
+    {
+        return _implementsIPortal;
     }
     
 }
