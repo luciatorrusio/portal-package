@@ -1,5 +1,6 @@
 using Scripts;
 using UnityEngine;
+using Utils;
 using Matrix4x4 = UnityEngine.Matrix4x4;
 using Plane = UnityEngine.Plane;
 using Quaternion = UnityEngine.Quaternion;
@@ -9,9 +10,12 @@ using Vector4 = UnityEngine.Vector4;
 public class CameraOutMovement : MonoBehaviour
 {
     private Transform cameraBeingReplicated;
+    private bool notBlocked = false;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private Transform portalOut;
     private Transform portalIn;
     private Renderer portalInRenderer;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private Camera _camera;
 
     public void SetCameraBeingReplicated(Camera cameraBeingReplicated)

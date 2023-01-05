@@ -1,5 +1,7 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Scripts;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -11,25 +13,28 @@ public class PortalTransport : MonoBehaviour
 {
     
     
-    private Transform? portalOut;
-    [SerializeField] private Transform? portalIn;
-    private List<TransitioningObject> _objectsOnPortal;
-    [SerializeField] private GameObject emptyClone;
+    private Transform? _portalOut;
+    private bool _notBlocked = false;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [SerializeField] private Transform portalIn;
+    private readonly List<TransitioningObject> _objectsOnPortal  = new List<TransitioningObject>();
+    // [SerializeField] private GameObject emptyClone;
 
 
 
     private void Start()
     {
-        _objectsOnPortal = new List<TransitioningObject>();
+        if (portalIn == null)
+            throw new Exception("Portal In must be initialized in editor");
     }
 
     public void SetPortalOut(Transform portalOut)
     {
-        this.portalOut = portalOut;
+        this._portalOut = portalOut;
     }
     private void OnTriggerEnter(Collider other)
     {
-        if(portalOut == null)
+        if(_portalOut == null)
             return;
         var objectCrossing = other.gameObject;
         if (IsClone(objectCrossing))
@@ -46,6 +51,7 @@ public class PortalTransport : MonoBehaviour
     {
         if(objectCrossing.GetImplementsIPortal())
             objectCrossing.GetOriginal().SendMessage("OnPortalEnter", portalIn.gameObject);
+        //todo onPortalEnter general
     }
     private bool IsClone(GameObject go)
     {
@@ -54,11 +60,13 @@ public class PortalTransport : MonoBehaviour
 
     private void CreateClone(GameObject objectCrossing)
     {
-        var clone = Instantiate(objectCrossing, portalOut.position, objectCrossing.transform.rotation, portalOut);
+        if(_portalOut==null)
+            return;
+        var clone = Instantiate(objectCrossing, _portalOut.position, objectCrossing.transform.rotation, _portalOut);
         //todo create object tree
         ForwardEvents(clone, objectCrossing);
         var iPortal = objectCrossing.GetComponent<IPortal>();
-        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,portalOut, iPortal!=null );
+        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,_portalOut, iPortal!=null );
         _objectsOnPortal.Add(objectOnPortal);
         TriggerOnPortalEnter(objectOnPortal);
         
@@ -74,7 +82,7 @@ public class PortalTransport : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if(portalIn == null || portalOut == null)
+        if(portalIn == null || _portalOut == null)
             return;
         TransitioningObject? leavingPortal = GetObjectOnPortalLeaving(other.gameObject);
         if (leavingPortal == null)
@@ -95,12 +103,15 @@ public class PortalTransport : MonoBehaviour
     {
         if(leavingPortal.GetImplementsIPortal())
             leavingPortal.GetOriginal().SendMessage("OnPortalExit", portalIn.gameObject);
+        //todo onPortalExit general
     }
     
     private void TriggerOnPortalTransitioning(TransitioningObject leavingPortal)
     {
+        // todo send message o directamente llamar la funcion... como es un interface
         if(leavingPortal.GetImplementsIPortal())
             leavingPortal.GetOriginal().SendMessage("OnPortalTransitioning", portalIn.gameObject);
+        //todo onPortalTransitioning general
     }
 
     private TransitioningObject? GetObjectOnPortalLeaving(GameObject o)
@@ -111,6 +122,8 @@ public class PortalTransport : MonoBehaviour
 
     private void Update()
     {
+        if(_portalOut == null)
+            return;
         foreach (var t in _objectsOnPortal)
         {
             ReplicateTransform(t);
@@ -125,9 +138,7 @@ public class PortalTransport : MonoBehaviour
             }
         }
     }
-
     
-
     private void ReplicateTransform(TransitioningObject transitioningObject)
     {
         SetPosition(transitioningObject);
@@ -143,26 +154,13 @@ public class PortalTransport : MonoBehaviour
 
     private void SetAngle(TransitioningObject transitioningObject)
     {
+        if (_portalOut == null) 
+            return;
         Quaternion rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
         Quaternion relativeRot = Quaternion.Inverse(rotation) * transitioningObject.GetOriginal().rotation;
-        transitioningObject.GetClone().rotation = portalOut.rotation * relativeRot;
+        transitioningObject.GetClone().rotation = _portalOut.rotation * relativeRot;
     }
-    
-    public Component CopyComponent(Component original, GameObject destination)
-    {
-        System.Type type = original.GetType();
-        Component copy = destination.AddComponent(type);
-        // Copied fields can be restricted with BindingFlags
-        System.Reflection.FieldInfo[] fields = type.GetFields(); 
-        foreach (System.Reflection.FieldInfo field in fields)
-        {
-            field.SetValue(copy, field.GetValue(original));
-        }
-        return copy;
-    }
-    
-    
-    
-    
+
+
 }
 

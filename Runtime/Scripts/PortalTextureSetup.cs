@@ -1,13 +1,18 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
+using Utils;
+
 [RequireComponent(typeof(Renderer))] 
 public class PortalTextureSetup : MonoBehaviour
 {
-    [SerializeField][NotNull]private  Camera cameraOut;
+    private  Camera cameraOut;
     private Material _portalInMat;
     [SerializeField] private Material _defaultMaterial;
+    private bool notBlocked = false;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private Shader shader;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private InPortal inPortal;
     public void SetCameraMaterial()
     {

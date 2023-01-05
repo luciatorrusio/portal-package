@@ -103,7 +103,7 @@ public class Portal : MonoBehaviour
             GizmosExtended.DrawPlane(transform, new Vector2(2,3), Color.green);
             GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(2,3), Color.red);
             GizmosExtended.DrawArrow(transform.position,linkedOutPortal.transform.position- transform.position, Color.yellow, 2f, 40f);
-            GizmosExtended.DrawArrow(linkedOutPortal.transform.position,-linkedOutPortal.transform.forward , Color.red);
+            GizmosExtended.DrawArrow(linkedOutPortal.transform.position ,linkedOutPortal.transform.forward , Color.red);
             GizmosExtended.DrawArrow(transform.position+(transform.forward* 1f), -transform.forward, Color.green);
         }
             
@@ -119,5 +119,10 @@ public class Portal : MonoBehaviour
     public OutPortal GetOutPortal()
     {
         return _outPortal;
+    }
+    
+    public Portal GetLinkedOutPortal()
+    {
+        return linkedOutPortal;
     }
 }
