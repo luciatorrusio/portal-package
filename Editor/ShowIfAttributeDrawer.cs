@@ -129,11 +129,6 @@ namespace TutorialInfo.Scripts.Editor
 
             if (!meetsCondition && showIfAttribute.Action == ActionOnConditionFail.DontDraw)
                 return 0;
-            if (!meetsCondition && showIfAttribute.Action == ActionOnConditionFail.Empty)
-            {
-                showIfAttribute.Portal.SetAsInPortal();
-                return 0;
-            }
                 
             // just disable
             return base.GetPropertyHeight(property, label);

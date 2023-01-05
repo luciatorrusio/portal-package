@@ -18,8 +18,6 @@ namespace Utils
         DontDraw,
         // If condition(s) are false, just set the field as disabled.
         JustDisable,
-        // If condition(s) are false, just set the field as disabled.
-        Empty,
     }
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
     public class ShowIfAttribute : PropertyAttribute
@@ -27,20 +25,12 @@ namespace Utils
         public ActionOnConditionFail Action {get;private set;}
         public ConditionOperator Operator {get;private set;}
         public string[] Conditions {get;private set;}
-        public Portal Portal {get;private set;}
 
         public ShowIfAttribute(ActionOnConditionFail action, ConditionOperator conditionOperator, params string[] conditions)
         {
             Action  = action;
             Operator = conditionOperator;
             Conditions = conditions;
-        }
-        public ShowIfAttribute(ActionOnConditionFail action, ConditionOperator conditionOperator,  Portal outPortal, params string[] conditions)
-        {
-            Action  = action;
-            Operator = conditionOperator;
-            Conditions = conditions;
-            this.Portal = outPortal;
         }
     }
 

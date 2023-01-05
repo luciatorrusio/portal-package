@@ -132,6 +132,7 @@ namespace Scripts
             return PortalRaycast(newOrigin, newDirection, out hitInfo,maxDistance - hitInfo.distance);
 
         }
+        
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
