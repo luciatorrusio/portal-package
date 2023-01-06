@@ -138,13 +138,13 @@ namespace Scripts
             Vector3 direction,
             out RaycastHit hitInfo)
         {
-            Debug.DrawRay(origin, direction *100, Color.blue);
+            
             var didHit = UnityEngine.Physics.Raycast(origin, direction, out  hitInfo);
             if (!didHit)
             {
                 return false;
             }
-                
+            Debug.DrawRay(origin, direction *hitInfo.distance, Color.blue);  
             var portal = hitInfo.collider.gameObject.GetComponent<Portal>();
             if (portal == null)
                 return true;

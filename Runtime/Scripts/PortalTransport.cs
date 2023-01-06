@@ -1,10 +1,8 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Scripts;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 using Utils;
 
 
@@ -18,7 +16,7 @@ public class PortalTransport : MonoBehaviour
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Transform portalIn;
     private readonly List<TransitioningObject> _objectsOnPortal  = new List<TransitioningObject>();
-    // [SerializeField] private GameObject emptyClone;
+    
 
 
 
@@ -62,14 +60,75 @@ public class PortalTransport : MonoBehaviour
     {
         if(_portalOut==null)
             return;
-        var clone = Instantiate(objectCrossing, _portalOut.position, objectCrossing.transform.rotation, _portalOut);
+        // var clone = Instantiate(objectCrossing, _portalOut.position, objectCrossing.transform.rotation, _portalOut);
         //todo create object tree
+        var clone = CreateGameObjectTree(objectCrossing, _portalOut);
         ForwardEvents(clone, objectCrossing);
         var iPortal = objectCrossing.GetComponent<IPortal>();
         var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,_portalOut, iPortal!=null );
         _objectsOnPortal.Add(objectOnPortal);
         TriggerOnPortalEnter(objectOnPortal);
         
+    }
+
+    private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent)
+    {
+        
+        var clone = Instantiate(new GameObject(), _portalOut.position, objectCrossing.transform.rotation, parent);
+        clone.name = objectCrossing.name + ("(Portal)");
+        DuplicateMesh(objectCrossing, clone);
+        for (int i = 0; i < objectCrossing.transform.childCount; i++)
+        {
+            CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform);
+        }
+        return clone;
+    }
+
+    private void DuplicateMesh(TransitioningObject transitioningObject)
+    {
+        //todo
+        // vertices, triangles,  uv, uv2, normal, tangent, colors
+        transitioningObject.GetClone().GetComponent<MeshRenderer>().sharedMaterials =  transitioningObject.GetOriginal().GetComponent<MeshRenderer>()?.sharedMaterials;
+    }
+    private static void DuplicateMesh(GameObject original, GameObject clone)
+    {
+        //todo
+        // vertices, triangles,  uv, uv2, normal, tangent, colors
+        CopyTransform(original.transform, clone.transform);
+        CopyMesh(original, clone);
+        CopyCollider(original, clone);
+    }
+
+    private static void CopyMesh(GameObject original, GameObject clone)
+    {
+        var originalMesh = original.GetComponent<MeshRenderer>();
+        if(originalMesh == null)
+            return;
+        var cloneMesh = clone.AddComponent<MeshRenderer>();
+        cloneMesh.sharedMaterials = originalMesh.sharedMaterials;
+        var originalMeshFilter = original.GetComponent<MeshFilter>();
+        if(originalMeshFilter == null)
+            return;
+        var cloneMeshFilter = clone.AddComponent<MeshFilter>();
+        cloneMeshFilter.sharedMesh = Instantiate(originalMeshFilter.sharedMesh);
+    }
+
+    private static void CopyTransform(Transform original, Transform clone)
+    {
+        clone.localScale = original.localScale;
+        clone.position = original.position;
+    }
+
+    private static void CopyCollider(GameObject original, GameObject clone)
+    {
+        Collider originalCollider = original.GetComponent<Collider>();
+        
+        if(originalCollider == null)
+            return;
+        var cloneCollider =(Collider) clone.AddComponent(originalCollider.GetType());
+        cloneCollider.material = originalCollider.material;
+        cloneCollider.contactOffset = originalCollider.contactOffset;
+        // CopyComponent(original.GetComponent<Collider>(), clone);
     }
 
     private void ForwardEvents(GameObject clone, GameObject objectCrossing)
@@ -143,7 +202,6 @@ public class PortalTransport : MonoBehaviour
     {
         SetPosition(transitioningObject);
         SetAngle(transitioningObject);
-        
     }
 
     private void SetPosition(TransitioningObject transitioningObject)
@@ -162,5 +220,17 @@ public class PortalTransport : MonoBehaviour
     }
 
 
+    private static Component CopyComponent(Component original, GameObject destination)
+    {
+        System.Type type = original.GetType();
+        Component copy = destination.AddComponent(type);
+        // Copied fields can be restricted with BindingFlags
+        System.Reflection.FieldInfo[] fields = type.GetFields(); 
+        foreach (System.Reflection.FieldInfo field in fields)
+        {
+            field.SetValue(copy, field.GetValue(original));
+        }
+        return copy;
+    }
 }
 

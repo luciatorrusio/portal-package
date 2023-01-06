@@ -76,7 +76,7 @@ public class CameraOutMovement : MonoBehaviour
     {
         if (_camera.transform.IsInFrontOfWithError(portalOut, 0.5f))
             return;
-        var p = new Plane(-portalOut.forward, portalOut.position);
+        var p = new Plane(portalOut.forward, portalOut.position);
         var clipPlane = new Vector4(p.normal.x, p.normal.y, p.normal.z, p.distance);
         var clipPlaneCameraSpace = Matrix4x4.Transpose(Matrix4x4.Inverse(_camera.worldToCameraMatrix)) * clipPlane;
         var newMatrix = _camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
