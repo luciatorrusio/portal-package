@@ -44,7 +44,19 @@ namespace Scripts
             return PortalRaycast(newOrigin, newDirection, maxDistance - hit.distance, layerMask, queryTriggerInteraction);
             
         }
-
+        
+        /// <summary>
+        ///   <para>Casts a ray, from point origin, in direction direction, of length maxDistance, against all colliders in the Scene. Can pass through portals</para>
+        /// </summary>
+        /// <param name="origin">The starting point of the ray in world coordinates.</param>
+        /// <param name="direction">The direction of the ray.</param>
+        /// <param name="hitInfo">RaycastHit info</param>
+        /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
+        /// <param name="layerMask">A that is used to selectively ignore Colliders when casting a ray.</param>
+        /// <param name="queryTriggerInteraction">Specifies whether this query should hit Triggers.</param>
+        /// <returns>
+        ///   <para>Returns true if the ray intersects with a Collider, otherwise false.</para>
+        /// </returns>
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
@@ -77,6 +89,17 @@ namespace Scripts
 
         }
         
+        /// <summary>
+        ///   <para>Casts a ray, from point origin, in direction direction, of length maxDistance, against all colliders in the Scene. Can pass through portals</para>
+        /// </summary>
+        /// <param name="origin">The starting point of the ray in world coordinates.</param>
+        /// <param name="direction">The direction of the ray.</param>
+        /// <param name="hitInfo">RaycastHit info</param>
+        /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
+        /// <param name="layerMask">A that is used to selectively ignore Colliders when casting a ray.</param>
+        /// <returns>
+        ///   <para>Returns true if the ray intersects with a Collider, otherwise false.</para>
+        /// </returns>
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
@@ -105,6 +128,17 @@ namespace Scripts
             return PortalRaycast(newOrigin, newDirection, out hitInfo,maxDistance - hitInfo.distance, layerMask);
 
         }
+        
+        /// <summary>
+        ///   <para>Casts a ray, from point origin, in direction direction, of length maxDistance, against all colliders in the Scene. Can pass through portals</para>
+        /// </summary>
+        /// <param name="origin">The starting point of the ray in world coordinates.</param>
+        /// <param name="direction">The direction of the ray.</param>
+        /// <param name="hitInfo">RaycastHit info</param>
+        /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
+        /// <returns>
+        ///   <para>Returns true if the ray intersects with a Collider, otherwise false.</para>
+        /// </returns>
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
@@ -133,6 +167,15 @@ namespace Scripts
 
         }
         
+        /// <summary>
+        ///   <para>Casts a ray, from point origin, in direction direction, of length maxDistance, against all colliders in the Scene. Can pass through portals</para>
+        /// </summary>
+        /// <param name="origin">The starting point of the ray in world coordinates.</param>
+        /// <param name="direction">The direction of the ray.</param>
+        /// <param name="hitInfo">RaycastHit info</param>
+        /// <returns>
+        ///   <para>Returns true if the ray intersects with a Collider, otherwise false.</para>
+        /// </returns>
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
@@ -152,8 +195,9 @@ namespace Scripts
             if (!origin.IsInFrontOf(portal.transform) || portal.GetLinkedOutPortal() == null)
             {
                 //nuevo raycast en el mismo mundo desde el portal
-                return PortalRaycast(hitInfo.point, direction, out hitInfo);
+                return PortalRaycast(hitInfo.point + direction, direction, out hitInfo);
             }
+            
             // hit portal, we have to cast a new raycast from outPortal
             var newOrigin = GetRelativeWorldPos(hitInfo.point, portal.transform, portal.GetLinkedOutPortal().transform);
             var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);

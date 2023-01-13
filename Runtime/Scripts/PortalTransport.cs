@@ -16,7 +16,7 @@ public class PortalTransport : MonoBehaviour
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Transform portalIn;
     private readonly List<TransitioningObject> _objectsOnPortal  = new List<TransitioningObject>();
-    
+    [SerializeField] private GameObject emptyClone;
 
 
 
@@ -41,7 +41,7 @@ public class PortalTransport : MonoBehaviour
             return;
         if (objectCrossing.GetComponent<Rigidbody>() == null)
             return;
-        // todo se esta haciendo un clon del clon, hay que checkear
+        // todo se esta haciendo un clon del clon no se cuando, hay que checkear
         CreateClone(objectCrossing);
     }
 
@@ -73,8 +73,7 @@ public class PortalTransport : MonoBehaviour
 
     private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent)
     {
-        
-        var clone = Instantiate(new GameObject(), _portalOut.position, objectCrossing.transform.rotation, parent);
+        var clone = Instantiate(emptyClone, _portalOut.position, objectCrossing.transform.rotation, parent);
         clone.name = objectCrossing.name + ("(Portal)");
         DuplicateMesh(objectCrossing, clone);
         for (int i = 0; i < objectCrossing.transform.childCount; i++)
@@ -82,13 +81,6 @@ public class PortalTransport : MonoBehaviour
             CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform);
         }
         return clone;
-    }
-
-    private void DuplicateMesh(TransitioningObject transitioningObject)
-    {
-        //todo
-        // vertices, triangles,  uv, uv2, normal, tangent, colors
-        transitioningObject.GetClone().GetComponent<MeshRenderer>().sharedMaterials =  transitioningObject.GetOriginal().GetComponent<MeshRenderer>()?.sharedMaterials;
     }
     private static void DuplicateMesh(GameObject original, GameObject clone)
     {
