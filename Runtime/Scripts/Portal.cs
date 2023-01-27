@@ -21,6 +21,15 @@ public class Portal : MonoBehaviour
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private CameraOutMovement cameraOutMovement;
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [SerializeField] private Transform renderPlane;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [SerializeField] private Transform frame;
+
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [SerializeField] private BoxCollider _collider;
+    
+    [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
     
     [NotNull] private Camera mainCamera;
     
@@ -124,5 +133,13 @@ public class Portal : MonoBehaviour
     public Portal GetLinkedOutPortal()
     {
         return linkedOutPortal;
+    }
+
+    public void SetScale()
+    {
+        renderPlane.localScale = new Vector3(scale.x * 0.18f, 1, scale.y * 0.246f);
+        frame.localScale = scale;
+        _collider.center = new Vector3(0, 0, (scale.z * 0.33f) / 2);
+        _collider.size =  new Vector3(scale.x * 1.8f, scale.y * 2.5f, scale.z * 0.33f);
     }
 }

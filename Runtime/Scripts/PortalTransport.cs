@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Scripts;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Utils;
 
@@ -28,7 +29,7 @@ public class PortalTransport : MonoBehaviour
 
     public void SetPortalOut(Transform portalOut)
     {
-        this._portalOut = portalOut;
+        _portalOut = portalOut;
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -41,14 +42,13 @@ public class PortalTransport : MonoBehaviour
             return;
         if (objectCrossing.GetComponent<Rigidbody>() == null)
             return;
-        // todo se esta haciendo un clon del clon no se cuando, hay que checkear
         CreateClone(objectCrossing);
     }
 
     private void TriggerOnPortalEnter(TransitioningObject objectCrossing)
     {
         if(objectCrossing.GetImplementsIPortal())
-            objectCrossing.GetOriginal().SendMessage("OnPortalEnter", portalIn.gameObject);
+            objectCrossing.GetOriginal().SendMessage("OnPortalEnter", portalIn.gameObject.GetComponent<Portal>());
         //todo onPortalEnter general
     }
     private bool IsClone(GameObject go)
@@ -60,9 +60,21 @@ public class PortalTransport : MonoBehaviour
     {
         if(_portalOut==null)
             return;
-        // var clone = Instantiate(objectCrossing, _portalOut.position, objectCrossing.transform.rotation, _portalOut);
-        //todo create object tree
-        var clone = CreateGameObjectTree(objectCrossing, _portalOut);
+        var customClone = objectCrossing.GetComponent<ICustomClone>();
+        
+        var cloneMode = customClone == null ? PortalUtils.CloneMode.AUTOMATIC : customClone.GetMode();
+        
+        GameObject clone;
+        switch (cloneMode)
+        {
+            case PortalUtils.CloneMode.CUSTOM:
+                clone = customClone.GetClone();
+                break;
+            default:
+                clone = CreateGameObjectTree(objectCrossing, _portalOut);
+                break;
+        }
+        
         ForwardEvents(clone, objectCrossing);
         var iPortal = objectCrossing.GetComponent<IPortal>();
         var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,_portalOut, iPortal!=null );
@@ -139,6 +151,7 @@ public class PortalTransport : MonoBehaviour
         if (leavingPortal == null)
             return;
         _objectsOnPortal.Remove(leavingPortal);
+        
         if (leavingPortal.EnteredPortal())
         {
             leavingPortal.Transport();
@@ -146,14 +159,14 @@ public class PortalTransport : MonoBehaviour
         }
             
         Destroy(leavingPortal.GetClone().gameObject);
-        
+        Destroy(leavingPortal.GetOriginal().GetComponent<EventListener>());
         
     }
     
     private void TriggerOnPortalExit(TransitioningObject leavingPortal)
     {
         if(leavingPortal.GetImplementsIPortal())
-            leavingPortal.GetOriginal().SendMessage("OnPortalExit", portalIn.gameObject);
+            leavingPortal.GetOriginal().SendMessage("OnPortalExit", portalIn.gameObject.GetComponent<Portal>());
         //todo onPortalExit general
     }
     
@@ -161,8 +174,8 @@ public class PortalTransport : MonoBehaviour
     {
         // todo send message o directamente llamar la funcion... como es un interface
         if(leavingPortal.GetImplementsIPortal())
-            leavingPortal.GetOriginal().SendMessage("OnPortalTransitioning", portalIn.gameObject);
-        //todo onPortalTransitioning general
+            leavingPortal.GetOriginal().SendMessage("OnPortalTransitioning", portalIn.gameObject.GetComponent<Portal>());
+        
     }
 
     private TransitioningObject? GetObjectOnPortalLeaving(GameObject o)
@@ -177,8 +190,16 @@ public class PortalTransport : MonoBehaviour
             return;
         foreach (var t in _objectsOnPortal)
         {
-            ReplicateTransform(t);
-            TriggerOnPortalTransitioning(t);
+            
+            // var center = t.GetOriginal().position + t.GetOriginalRigidbody().centerOfMass;
+            // Debug.DrawRay(center, Vector3.up*10, Color.magenta);
+            // if (!center.IsInFrontOf(portalIn))
+            // {
+            //         
+            //     t.Transport();
+            //     TriggerOnPortalExit(t);
+            // }   
+            // else 
             if (t.GetMainCamera() != null)
             {
                 if (!t.GetOriginal().GetMainCamera().transform.IsInFrontOf(portalIn))
@@ -186,6 +207,11 @@ public class PortalTransport : MonoBehaviour
                     t.Transport();
                     TriggerOnPortalExit(t);
                 }
+            }
+            else
+            {
+                ReplicateTransform(t);
+                TriggerOnPortalTransitioning(t);
             }
         }
     }

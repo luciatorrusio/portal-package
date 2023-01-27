@@ -14,7 +14,11 @@ namespace Utils
         public static Vector3 GetRelativeWorldDirection(Vector3 currentDirection, Transform portalIn, Transform portalOut)
         {
             var anglesDifferencePerAxis  = Quaternion.FromToRotation(portalIn.forward, portalOut.forward);
-            return anglesDifferencePerAxis * Quaternion.AngleAxis( 180,  portalOut.up) * currentDirection;
+            return anglesDifferencePerAxis  * Quaternion.AngleAxis( 180,  portalOut.up) * currentDirection;
+        }
+        public enum CloneMode
+        {
+            AUTOMATIC,CUSTOM
         }
     }
 }

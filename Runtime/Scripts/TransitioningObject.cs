@@ -27,15 +27,14 @@ public class TransitioningObject
 
     public void Transport()
     {
-        var anglesDifferencePerAxis  = Quaternion.FromToRotation(_portalOut.forward, _portalIn.forward);
-        
-        var newVelocity = anglesDifferencePerAxis * Quaternion.AngleAxis( 180,  _portalOut.up)* _originalRigidbody.velocity;
-        
-        _originalRigidbody.velocity =  newVelocity ;
         
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
         _original.position = _clone.position;
+        var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn, _portalOut);
+        _originalRigidbody.velocity =  newVelocity ;
+        _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn, _portalOut); ;
+
     }
     
 
@@ -62,6 +61,11 @@ public class TransitioningObject
     public bool GetImplementsIPortal()
     {
         return _implementsIPortal;
+    }
+
+    public Rigidbody GetOriginalRigidbody()
+    {
+        return _originalRigidbody;
     }
     
 }

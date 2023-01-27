@@ -3,10 +3,10 @@ using UnityEngine;
 public interface IPortal
 {
 
-    void OnPortalEnter(GameObject portal);
+    void OnPortalEnter(Portal portal);
 
-    void OnPortalTransitioning(GameObject portal);
+    void OnPortalTransitioning(Portal portal);
 
-    void OnPortalExit(GameObject portal);
+    void OnPortalExit(Portal portal);
 
 }
