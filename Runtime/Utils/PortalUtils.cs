@@ -13,8 +13,12 @@ namespace Utils
         }
         public static Vector3 GetRelativeWorldDirection(Vector3 currentDirection, Transform portalIn, Transform portalOut)
         {
-            var anglesDifferencePerAxis  = Quaternion.FromToRotation(portalIn.forward, portalOut.forward);
-            return anglesDifferencePerAxis  * Quaternion.AngleAxis( 180,  portalOut.up) * currentDirection;
+            // var anglesDifferencePerAxis  = Quaternion.FromToRotation(portalIn.forward, portalOut.forward);
+            // return anglesDifferencePerAxis  * Quaternion.AngleAxis( 180,  portalOut.up) * currentDirection;
+            
+            Quaternion rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
+            Quaternion relativeRot = Quaternion.Inverse(rotation) ;
+            return portalOut.rotation * relativeRot * currentDirection;
         }
         public enum CloneMode
         {

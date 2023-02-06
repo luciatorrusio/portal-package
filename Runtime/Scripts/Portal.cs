@@ -139,7 +139,7 @@ public class Portal : MonoBehaviour
     {
         renderPlane.localScale = new Vector3(scale.x * 0.18f, 1, scale.y * 0.246f);
         frame.localScale = scale;
-        _collider.center = new Vector3(0, 0, (scale.z * 0.33f) / 2);
-        _collider.size =  new Vector3(scale.x * 1.8f, scale.y * 2.5f, scale.z * 0.33f);
+        _collider.center = new Vector3(0, 0, (scale.z * 1.67f) / 2);
+        _collider.size =  new Vector3(scale.x * 1.8f, scale.y * 2.5f, scale.z * 1.67f);
     }
 }

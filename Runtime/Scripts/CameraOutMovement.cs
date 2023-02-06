@@ -20,7 +20,7 @@ public class CameraOutMovement : MonoBehaviour
 
     public void SetCameraBeingReplicated(Camera cameraBeingReplicated)
     {
-        this._cameraBeingReplicated = cameraBeingReplicated.transform;
+        _cameraBeingReplicated = cameraBeingReplicated.transform;
         _camera.fieldOfView = cameraBeingReplicated.fieldOfView;
     }
 
@@ -73,4 +73,5 @@ public class CameraOutMovement : MonoBehaviour
         var newMatrix = _camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
         _camera.projectionMatrix = newMatrix;
     }
+    
 }
