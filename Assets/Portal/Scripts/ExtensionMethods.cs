@@ -45,7 +45,8 @@ namespace Scripts
                 if (plane.GetDistanceToPoint(point) < 0)
                     return false;
             }
-            return true;
+            
+            return camera.transform.IsInFrontOf(o.transform);
             
             // Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
             // return GeometryUtility.TestPlanesAABB(planes , o.GetComponent<Collider>().bounds);

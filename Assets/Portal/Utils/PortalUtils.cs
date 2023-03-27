@@ -7,6 +7,7 @@ namespace Utils
         
         public static Vector3 GetRelativeWorldPos(Vector3 currentPosition, Transform portalIn, Transform portalOut)
         {
+
             var objectToPortal = portalIn.InverseTransformDirection(currentPosition - portalIn.position);
             var portalOutPosition = portalOut.position;
             return new Vector3(portalOutPosition.x -objectToPortal.x,portalOutPosition.y + objectToPortal.y, portalOutPosition.z -objectToPortal.z);
@@ -15,6 +16,8 @@ namespace Utils
         {
             // var anglesDifferencePerAxis  = Quaternion.FromToRotation(portalIn.forward, portalOut.forward);
             // return anglesDifferencePerAxis  * Quaternion.AngleAxis( 180,  portalOut.up) * currentDirection;
+            
+            
             
             Quaternion rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
             Quaternion relativeRot = Quaternion.Inverse(rotation) ;

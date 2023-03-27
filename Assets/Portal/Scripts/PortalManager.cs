@@ -41,8 +41,6 @@ public class PortalManager : MonoBehaviour
     void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
         
-        // if(camera ==  _camera)
-        //     print(camera.name + " rendering in pos: "+_camera.transform.position+" rot: "+_camera.transform.rotation );
         if(camera.CompareTag("MainCamera"))
         {
             foreach (var portal in allPortals)
@@ -50,6 +48,7 @@ public class PortalManager : MonoBehaviour
 
                 if (camera.IsLooking(portal.gameObject) && portal.GetLinkedOutPortal() != null)
                 {
+                    print("main camera can see: "+ portal.name);
                     _camera.targetTexture = portal.GetRenderTexture();
 
                     for (int i = 0; i <= recursiveIterations; i++)
@@ -81,7 +80,10 @@ public class PortalManager : MonoBehaviour
             cameraOutMovement.SetPortalOut( inPortal.GetLinkedOutPortal().transform);
             cameraOutMovement.SetPositionAndAngle();
             cameraOutMovement.SetNearClippingPlane();
-            RenderCamera(inPortal.GetLinkedOutPortal(), iterationID, context, _camera);
+            if (_camera.IsLooking(inPortal.GetLinkedOutPortal().gameObject) && inPortal.GetLinkedOutPortal().GetLinkedOutPortal() != null)
+            {
+                RenderCamera(inPortal.GetLinkedOutPortal(), iterationID, context, _camera);
+            }
         }
         
         
