@@ -62,10 +62,6 @@ public class CameraOutMovement : MonoBehaviour
 
     private void SetPosition()
     {
-        // var playerToPortal = _portalIn.InverseTransformDirection(_cameraBeingReplicated.position - _portalIn.position);
-        // var localPosition = new Vector3(-playerToPortal.x, playerToPortal.y, -playerToPortal.z) ;
-        //
-        // transform.position = transform.TransformPoint(localPosition);
         Gizmos.color = Color.red;
         Debug.DrawRay(_portalIn.position, _portalIn.position -_cameraBeingReplicated.position  , Color.green);
         Vector3 relativePos = _portalIn.InverseTransformPoint(_cameraBeingReplicated.position);

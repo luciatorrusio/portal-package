@@ -38,19 +38,11 @@ namespace Scripts
         }
         public static bool IsLooking(this Camera camera, GameObject o)
         {
-            var planes = GeometryUtility.CalculateFrustumPlanes(camera);
-            var point = o.transform.position;
-            foreach (var plane in planes)
-            {
-                if (plane.GetDistanceToPoint(point) < 0)
-                    return false;
-            }
-            
-            return camera.transform.IsInFrontOf(o.transform);
-            
-            // Plane[] planes = GeometryUtility.CalculateFrustumPlanes(_camera);
-            // return GeometryUtility.TestPlanesAABB(planes , o.GetComponent<Collider>().bounds);
-        
+            Vector3 viewportPos = camera.WorldToViewportPoint(o.transform.position);
+            // Check if the object is within the camera's viewport
+            bool isVisible = (viewportPos.x > 0 && viewportPos.x < 1 && viewportPos.y > 0 && viewportPos.y < 1 && viewportPos.z > 0);
+            return isVisible;
+
         }
     }
 }

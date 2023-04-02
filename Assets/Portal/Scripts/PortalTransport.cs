@@ -102,7 +102,6 @@ public class PortalTransport : MonoBehaviour
             CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform);
         }
         return clone;
-        return new GameObject();
     }
     private static void DuplicateMesh(GameObject original, GameObject clone)
     {
