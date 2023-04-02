@@ -8,7 +8,7 @@ using UnityEngine.Rendering.Universal;
 using RenderPipeline = UnityEngine.Rendering.RenderPipelineManager;
 
 
-public class PortalManager : MonoBehaviour
+public class PortalRecursion : MonoBehaviour
 {
     private static  List<Portal> allPortals = new List<Portal>();
     private static Camera _camera;
@@ -48,7 +48,6 @@ public class PortalManager : MonoBehaviour
 
                 if (camera.IsLooking(portal.gameObject) && portal.GetLinkedOutPortal() != null)
                 {
-                    print("main camera can see: "+ portal.name);
                     _camera.targetTexture = portal.GetRenderTexture();
 
                     for (int i = 0; i <= recursiveIterations; i++)

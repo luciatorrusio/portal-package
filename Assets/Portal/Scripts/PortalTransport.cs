@@ -76,6 +76,7 @@ public class PortalTransport : MonoBehaviour
         }
         
         ForwardEvents(clone, objectCrossing);
+        IgnoreCollision( objectCrossing);
         var iPortal = objectCrossing.GetComponent<IPortal>();
         var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,_portalOut, iPortal!=null );
         _objectsOnPortal.Add(objectOnPortal);
@@ -83,9 +84,17 @@ public class PortalTransport : MonoBehaviour
         
     }
 
+    private void IgnoreCollision(GameObject objectCrossing)
+    {
+        var collisionHandlerIn = objectCrossing.AddComponent<CollisionHandler>();
+        collisionHandlerIn.SetPortal(portalIn);
+    }
+
     private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent)
     {
-        var clone = Instantiate(emptyClone, _portalOut.position, objectCrossing.transform.rotation, parent);
+        var objectToPortal = portalIn.InverseTransformDirection(objectCrossing.transform.position - portalIn.gameObject.transform.position);
+        var localPosition = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
+        var clone = Instantiate(emptyClone, _portalOut.position + localPosition, objectCrossing.transform.rotation, parent);
         clone.name = objectCrossing.name + ("(Portal)");
         DuplicateMesh(objectCrossing, clone);
         for (int i = 0; i < objectCrossing.transform.childCount; i++)
@@ -93,6 +102,7 @@ public class PortalTransport : MonoBehaviour
             CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform);
         }
         return clone;
+        return new GameObject();
     }
     private static void DuplicateMesh(GameObject original, GameObject clone)
     {
@@ -120,7 +130,7 @@ public class PortalTransport : MonoBehaviour
     private static void CopyTransform(Transform original, Transform clone)
     {
         clone.localScale = original.localScale;
-        clone.position = original.position;
+        // clone.localPosition = original.localPosition;
     }
 
     private static void CopyCollider(GameObject original, GameObject clone)
@@ -141,33 +151,41 @@ public class PortalTransport : MonoBehaviour
         var eventListener = objectCrossing.AddComponent<EventListener>();
         eventListener.SetEventForwarder(eventForwarder);
     }
-    
 
-    private void OnTriggerExit(Collider other)
+    private void ExitPortal(TransitioningObject leavingPortal)
     {
-        if(portalIn == null || _portalOut == null)
+        if(leavingPortal.GetClone() == null)
             return;
-        TransitioningObject? leavingPortal = GetObjectOnPortalLeaving(other.gameObject);
-        if (leavingPortal == null)
-            return;
-        _objectsOnPortal.Remove(leavingPortal);
-        
+
         if (leavingPortal.EnteredPortal())
         {
             leavingPortal.Transport();
             TriggerOnPortalExit(leavingPortal);
         }
-            
-        Destroy(leavingPortal.GetClone().gameObject);
+        Destroy(leavingPortal.GetClone().gameObject);  
         Destroy(leavingPortal.GetOriginal().GetComponent<EventListener>());
+        Destroy(leavingPortal.GetOriginal().GetComponent<CollisionHandler>());
+    }
+    
+    
+    private void OnTriggerExit(Collider other)
+    {
         
+        if(portalIn == null || _portalOut == null)
+            return;
+        TransitioningObject? leavingPortal = GetObjectOnPortalLeaving(other.gameObject);
+        if (leavingPortal == null ||  leavingPortal.GetClone()==null)
+            return;
+        _objectsOnPortal.Remove(leavingPortal);
+
+        ExitPortal(leavingPortal);
+
     }
     
     private void TriggerOnPortalExit(TransitioningObject leavingPortal)
     {
         if(leavingPortal.GetImplementsIPortal())
             leavingPortal.GetOriginal().SendMessage("OnPortalExit", portalIn.gameObject.GetComponent<Portal>());
-        //todo onPortalExit general
     }
     
     private void TriggerOnPortalTransitioning(TransitioningObject leavingPortal)
@@ -184,42 +202,46 @@ public class PortalTransport : MonoBehaviour
         return objectOnPortalLeavingIndex == -1 ? null : _objectsOnPortal[objectOnPortalLeavingIndex];
     }
 
+    
     private void Update()
     {
         if(_portalOut == null)
             return;
-        foreach (var t in _objectsOnPortal)
+        for (int j = 0; j < _objectsOnPortal.Count ; j++)
         {
+            var t = _objectsOnPortal[j];
+            var center = t.GetOriginal().position + t.GetOriginalRigidbody().centerOfMass;
             
-            // var center = t.GetOriginal().position + t.GetOriginalRigidbody().centerOfMass;
-            // Debug.DrawRay(center, Vector3.up*10, Color.magenta);
-            // if (!center.IsInFrontOf(portalIn))
-            // {
-            //         
-            //     t.Transport();
-            //     TriggerOnPortalExit(t);
-            // }   
-            // else 
+            if (!center.IsInFrontOf(portalIn))
+            {
+                _objectsOnPortal.Remove(t);
+                ExitPortal(t);
+                return;
+                
+            } 
             if (t.GetMainCamera() != null)
             {
                 if (!t.GetOriginal().GetMainCamera().transform.IsInFrontOf(portalIn))
                 {
-                    t.Transport();
-                    TriggerOnPortalExit(t);
+                    _objectsOnPortal.Remove(t);
+                    ExitPortal(t);
+                    return;
                 }
             }
-            else
-            {
-                ReplicateTransform(t);
-                TriggerOnPortalTransitioning(t);
-            }
+             
+            ReplicateTransform(t);
+            TriggerOnPortalTransitioning(t);
         }
+        
     }
     
     private void ReplicateTransform(TransitioningObject transitioningObject)
     {
-        SetPosition(transitioningObject);
-        SetAngle(transitioningObject);
+        if(transitioningObject.GetClone()!= null )
+        {
+            SetPosition(transitioningObject);
+            SetAngle(transitioningObject);
+        }
     }
 
     private void SetPosition(TransitioningObject transitioningObject)

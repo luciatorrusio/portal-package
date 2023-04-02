@@ -1,3 +1,4 @@
+using Codice.Client.BaseCommands;
 using Scripts;
 using UnityEngine;
 using Utils;
@@ -27,7 +28,6 @@ public class TransitioningObject
 
     public void Transport()
     {
-        
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
         _original.position = _clone.position;

@@ -145,11 +145,11 @@ public class Portal : MonoBehaviour
     
     private void OnEnable()
     {
-        PortalManager.AddPortal(this);
+        PortalRecursion.AddPortal(this);
     }
     private void OnDisable()
     {
-        PortalManager.RemovePortal(this);
+        PortalRecursion.RemovePortal(this);
     }
 
     public bool isVisible()

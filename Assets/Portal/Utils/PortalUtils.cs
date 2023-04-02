@@ -21,7 +21,8 @@ namespace Utils
             
             Quaternion rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
             Quaternion relativeRot = Quaternion.Inverse(rotation) ;
-            return portalOut.rotation * relativeRot * currentDirection;
+            var direction = portalOut.rotation * relativeRot * currentDirection;
+            return direction;
         }
         public enum CloneMode
         {

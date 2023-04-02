@@ -23,7 +23,7 @@ public class OutPortal : MonoBehaviour
             return;
         }
            
-        _camera = PortalManager.GetPortalCamera();
+        _camera = PortalRecursion.GetPortalCamera();
         // _cameraOutMovement.SetPortalIn(linkedInPortal.transform);
     }
     private void OnDrawGizmosSelected()
@@ -43,7 +43,7 @@ public class OutPortal : MonoBehaviour
     public void SetLinkedInPortal(InPortal inPortal)
     {
         linkedInPortal = inPortal;
-        _camera = PortalManager.GetPortalCamera();
+        _camera = PortalRecursion.GetPortalCamera();
         // _cameraOutMovement.SetPortalIn(linkedInPortal.transform);
     }
 
@@ -65,7 +65,7 @@ public class OutPortal : MonoBehaviour
     public void Visible()
     {
         // _cameraOutMovement.enabled = true;
-        _camera=  PortalManager.GetPortalCamera();
+        _camera=  PortalRecursion.GetPortalCamera();
     }
 
     public void NotVisible()
