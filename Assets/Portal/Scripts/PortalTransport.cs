@@ -71,7 +71,7 @@ public class PortalTransport : MonoBehaviour
                 clone = customClone.GetClone();
                 break;
             default:
-                clone = CreateGameObjectTree(objectCrossing, _portalOut);
+                clone = CreateGameObjectTree(objectCrossing, _portalOut, true);
                 break;
         }
         
@@ -90,24 +90,24 @@ public class PortalTransport : MonoBehaviour
         collisionHandlerIn.SetPortal(portalIn);
     }
 
-    private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent)
+    private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent, bool firstIteration)
     {
         var objectToPortal = portalIn.InverseTransformDirection(objectCrossing.transform.position - portalIn.gameObject.transform.position);
         var localPosition = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
         var clone = Instantiate(emptyClone, _portalOut.position + localPosition, objectCrossing.transform.rotation, parent);
         clone.name = objectCrossing.name + ("(Portal)");
-        DuplicateMesh(objectCrossing, clone);
+        DuplicateMesh(objectCrossing, clone, firstIteration);
         for (int i = 0; i < objectCrossing.transform.childCount; i++)
         {
-            CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform);
+            CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform, false);
         }
         return clone;
     }
-    private static void DuplicateMesh(GameObject original, GameObject clone)
+    private static void DuplicateMesh(GameObject original, GameObject clone, bool firstIteration)
     {
         //todo
         // vertices, triangles,  uv, uv2, normal, tangent, colors
-        CopyTransform(original.transform, clone.transform);
+        CopyTransform(original.transform, clone.transform, firstIteration);
         CopyMesh(original, clone);
         CopyCollider(original, clone);
     }
@@ -126,10 +126,12 @@ public class PortalTransport : MonoBehaviour
         cloneMeshFilter.sharedMesh = Instantiate(originalMeshFilter.sharedMesh);
     }
 
-    private static void CopyTransform(Transform original, Transform clone)
+    private static void CopyTransform(Transform original, Transform clone, bool firstIteration)
     {
         clone.localScale = original.localScale;
-        // clone.localPosition = original.localPosition;
+        if(firstIteration)
+            return;
+        clone.position = original.position;
     }
 
     private static void CopyCollider(GameObject original, GameObject clone)
