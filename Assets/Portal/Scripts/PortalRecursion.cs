@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Scripts;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -40,25 +41,16 @@ public class PortalRecursion : MonoBehaviour
     // OPCION 1
     void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
-        
-        if(camera.CompareTag("MainCamera"))
+        if (!camera.CompareTag("MainCamera")) 
+            return;
+        foreach (var portal in allPortals.Where(portal => camera.IsLooking(portal.GetRenderPlane().gameObject) && portal.GetLinkedOutPortal() != null))
         {
-            foreach (var portal in allPortals)
+            print(portal.name +"is seen by "+ camera.name);
+            for (var i = 0; i <= recursiveIterations; i++)
             {
-
-                if (camera.IsLooking(portal.gameObject) && portal.GetLinkedOutPortal() != null)
-                {
-                    _camera.targetTexture = portal.GetRenderTexture();
-
-                    for (int i = 0; i <= recursiveIterations; i++)
-                    {
-                        RenderCamera(portal, i, context, camera);
-                    }
-
-                }
+                RenderCamera(portal, i, context, camera);
             }
         }
-    
     }
     
     private void RenderCamera(Portal inPortal, int iterationID, ScriptableRenderContext context, Camera cameraBeingReplicated)
@@ -71,21 +63,31 @@ public class PortalRecursion : MonoBehaviour
             return;
         }
         
-        iterationID++;
-        
-        if (  inPortal.GetLinkedOutPortal()!= null)
+        var lookingAtEachOther = true;
+        var portalIn = inPortal;
+        for (var i = iterationID; i < recursiveIterations && lookingAtEachOther; i++)
         {
-            cameraOutMovement.SetPortalIn(inPortal.transform);
-            cameraOutMovement.SetPortalOut( inPortal.GetLinkedOutPortal().transform);
+            if (portalIn.GetLinkedOutPortal() == null) 
+                return;
+            cameraOutMovement.SetPortalIn(portalIn.transform);
+            cameraOutMovement.SetPortalOut( portalIn.GetLinkedOutPortal().transform);
             cameraOutMovement.SetPositionAndAngle();
             cameraOutMovement.SetNearClippingPlane();
-            if (_camera.IsLooking(inPortal.GetLinkedOutPortal().gameObject) && inPortal.GetLinkedOutPortal().GetLinkedOutPortal() != null)
-            {
-                RenderCamera(inPortal.GetLinkedOutPortal(), iterationID, context, _camera);
-            }
+            
+            if (_camera.IsLooking(portalIn.GetRenderPlane().gameObject) && _camera.transform.IsInFrontOf(portalIn.transform)&&
+                portalIn.GetLinkedOutPortal() != null)
+                cameraOutMovement.SetCameraBeingReplicated(_camera);
+            else 
+                lookingAtEachOther = false;
         }
-        
-        
+
+        if (!lookingAtEachOther) 
+            return;
+        _camera.targetTexture =  portalIn.GetRenderTexture();
+        UniversalRenderPipeline.RenderSingleCamera(context, _camera);
+
+
+
     }
     
 

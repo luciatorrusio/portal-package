@@ -13,7 +13,7 @@ public class CameraOutMovement : MonoBehaviour
     private bool _notBlocked = false;
     private Transform _portalOut;
     private Transform _portalIn;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Camera _camera;
 
     public void SetCameraBeingReplicated(Camera cameraBeingReplicated)
@@ -29,21 +29,6 @@ public class CameraOutMovement : MonoBehaviour
     public void SetPortalOut(Transform portalOut)
     {
         _portalOut = portalOut;
-    }
-    public void Render()
-    {
-        
-        if(_portalIn == null)
-            return;
-        if(_cameraBeingReplicated == null)
-            return;
-        if (!_cameraBeingReplicated.IsInFrontOf(_portalIn))
-            return;
-        SetPosition();
-        
-        SetAngle();
-        
-        SetNearClippingPlane();
     }
     public void SetPositionAndAngle()
     {
@@ -63,12 +48,12 @@ public class CameraOutMovement : MonoBehaviour
     private void SetPosition()
     {
         Gizmos.color = Color.red;
-        Debug.DrawRay(_portalIn.position, _portalIn.position -_cameraBeingReplicated.position  , Color.green);
+        Debug.DrawRay(_portalIn.position, _cameraBeingReplicated.position - _portalIn.position   , Color.green);
         Vector3 relativePos = _portalIn.InverseTransformPoint(_cameraBeingReplicated.position);
         relativePos = Quaternion.Euler(0.0f, 180.0f, 0.0f) * relativePos;
         
         _camera.transform.position = _portalOut.TransformPoint(relativePos);
-        Debug.DrawRay(_portalIn.position, _portalIn.position -_camera.transform.position  , Color.green);
+        Debug.DrawRay(_portalOut.position, _camera.transform.position - _portalOut.position  , Color.blue);
     }
 
     private void SetAngle()

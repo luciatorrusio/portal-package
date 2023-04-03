@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace Scripts
 {
@@ -10,7 +9,7 @@ namespace Scripts
         {
             
             var toOther = one.position - other.position;
-            var dot = Vector3.Dot(other.forward, toOther);
+            var dot = Vector3.Dot(other.forward, toOther.normalized);
             return dot > 0;
         }
         
@@ -38,10 +37,10 @@ namespace Scripts
         }
         public static bool IsLooking(this Camera camera, GameObject o)
         {
-            Vector3 viewportPos = camera.WorldToViewportPoint(o.transform.position);
-            // Check if the object is within the camera's viewport
-            bool isVisible = (viewportPos.x > 0 && viewportPos.x < 1 && viewportPos.y > 0 && viewportPos.y < 1 && viewportPos.z > 0);
-            return isVisible;
+            var bounds = o.GetComponent<Renderer>().bounds;
+            var planes = GeometryUtility.CalculateFrustumPlanes(camera);
+
+            return GeometryUtility.TestPlanesAABB(planes, bounds);
 
         }
     }
