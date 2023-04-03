@@ -63,32 +63,24 @@ public class PortalRecursion : MonoBehaviour
             return;
         }
         
-        var lookingAtEachOther = true;
-        var portalIn = inPortal;
-        for (var i = iterationID; i < recursiveIterations && lookingAtEachOther; i++)
+        iterationID++;
+        
+        if (  inPortal.GetLinkedOutPortal()!= null)
         {
-            if (portalIn.GetLinkedOutPortal() == null) 
-                return;
-            cameraOutMovement.SetPortalIn(portalIn.transform);
-            cameraOutMovement.SetPortalOut( portalIn.GetLinkedOutPortal().transform);
+            cameraOutMovement.SetPortalIn(inPortal.transform);
+            cameraOutMovement.SetPortalOut( inPortal.GetLinkedOutPortal().transform);
             cameraOutMovement.SetPositionAndAngle();
             cameraOutMovement.SetNearClippingPlane();
-            
-            if (_camera.IsLooking(portalIn.GetRenderPlane().gameObject) && _camera.transform.IsInFrontOf(portalIn.transform)&&
-                portalIn.GetLinkedOutPortal() != null)
-                cameraOutMovement.SetCameraBeingReplicated(_camera);
-            else 
-                lookingAtEachOther = false;
+            if (_camera.IsLooking(inPortal.GetRenderPlane().gameObject) && _camera.transform.IsInFrontOf(inPortal.transform)&&   inPortal.GetLinkedOutPortal() != null)
+            {
+                RenderCamera(inPortal, iterationID, context, _camera);
+            }
         }
-
-        if (!lookingAtEachOther) 
-            return;
-        _camera.targetTexture =  portalIn.GetRenderTexture();
-        UniversalRenderPipeline.RenderSingleCamera(context, _camera);
-
-
-
+        
+        
     }
+    
+    
     
 
     void OnDestroy()
