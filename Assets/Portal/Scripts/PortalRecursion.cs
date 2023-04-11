@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Scripts;
@@ -45,7 +46,6 @@ public class PortalRecursion : MonoBehaviour
             return;
         foreach (var portal in allPortals.Where(portal => camera.IsLooking(portal.GetRenderPlane().gameObject) && portal.GetLinkedOutPortal() != null))
         {
-            print(portal.name +"is seen by "+ camera.name);
             for (var i = 0; i <= recursiveIterations; i++)
             {
                 RenderCamera(portal, i, context, camera);
@@ -79,9 +79,8 @@ public class PortalRecursion : MonoBehaviour
         
         
     }
-    
-    
-    
+
+
 
     void OnDestroy()
     {

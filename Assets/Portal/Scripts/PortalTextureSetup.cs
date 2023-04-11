@@ -40,14 +40,4 @@ public class PortalTextureSetup : MonoBehaviour
     {
         renderer.material = _defaultMaterial;
     }
-
-    // private void OnBecameInvisible()
-    // {
-    //     inPortal.NotVisible();
-    // }
-    //
-    // private void OnBecameVisible()
-    // {
-    //     inPortal.Visible();
-    // }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Codice.Client.BaseCommands;
 using Scripts;
 using UnityEngine;
@@ -12,8 +13,9 @@ public class TransitioningObject
     private readonly Transform _portalIn;
     private readonly Transform _portalOut;
     private readonly bool _implementsIPortal;
+    private readonly List<KeyValuePair<Transform, Transform>> _originalToCloneList = new List<KeyValuePair<Transform, Transform>>();
 
-    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut, bool implementsIPortal)
+    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut,List<KeyValuePair<Transform, Transform>> originalToCloneList, bool implementsIPortal)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -23,6 +25,7 @@ public class TransitioningObject
             _mainCamera.SetActive(false);
         _portalIn = portalIn;
         _portalOut = portalOut;
+        _originalToCloneList.AddRange(originalToCloneList);
         _implementsIPortal = implementsIPortal;
     }
 
@@ -67,5 +70,25 @@ public class TransitioningObject
     {
         return _originalRigidbody;
     }
-    
+
+    public Transform GetPortalIn()
+    {
+        return _portalIn;
+    }
+
+    public Transform GetPortalOut()
+    {
+        return _portalOut;
+    }
+
+    public List<KeyValuePair<Transform, Transform>> GetOriginalToCloneList()
+    {
+        return _originalToCloneList;
+    }
+
+    public IEnumerable<( Transform original, Transform clone)> GetOriginalToCloneList2()
+    {
+        return null;
+            //todo
+    }
 }

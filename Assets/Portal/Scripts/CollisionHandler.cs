@@ -31,7 +31,6 @@ public class CollisionHandler : MonoBehaviour
     {
         foreach (var c in ignoredColliders)
         {
-            print(c);
             Physics.IgnoreCollision( _collider, c, false);    
         }
         

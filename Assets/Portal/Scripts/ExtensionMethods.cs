@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UnityEngine;
 
 namespace Scripts
@@ -10,7 +11,7 @@ namespace Scripts
             
             var toOther = one.position - other.position;
             var dot = Vector3.Dot(other.forward, toOther.normalized);
-            return dot > 0;
+            return dot >= 0;
         }
         
         public static bool IsInFrontOf(this Vector3 one, Transform other)
@@ -24,6 +25,11 @@ namespace Scripts
         {
             var toOther = one.position - other.position;
             return Vector3.Dot(other.forward, toOther) > error ;
+        }
+        public static bool IsInFrontOfWithError(this Vector3 one, Transform other, float error)
+        {
+            var toOther = one - other.position;
+            return Vector3.Dot(other.forward, toOther) > -error ;
         }
         public static GameObject GetMainCamera(this Transform o)
         {
@@ -43,5 +49,6 @@ namespace Scripts
             return GeometryUtility.TestPlanesAABB(planes, bounds);
 
         }
+        
     }
 }
