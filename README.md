@@ -25,4 +25,10 @@ https://github.com/luciatorrusio/portal-package.git?path=Assets
 # How do I use Portal-Package?
 
 Currently this tool is developed for URP. 
+Head over to the prefabs folder in the portal package. Here you will find PortalManager prefab and a portal prefab.
+The PortalManager will have to be present anywhere in the Hierarchy for portals to work. 
+
+The portal prefab you should simply drag it wherever you want in the scene.
+
+Es necesario que tengan las mismas dimensiones el portal de entrada como el de salida.
 

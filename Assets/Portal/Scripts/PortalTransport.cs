@@ -16,6 +16,7 @@ public class PortalTransport : MonoBehaviour
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Transform portalIn;
     private readonly List<TransitioningObject> _objectsOnPortal = new List<TransitioningObject>();
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private GameObject emptyClone;
 
 
@@ -80,7 +81,7 @@ public class PortalTransport : MonoBehaviour
         switch (cloneMode)
         {
             case PortalUtils.CloneMode.CUSTOM:
-                clone = customClone.GetClone();
+                clone = customClone.CreateClone(objectCrossing, portalIn, _portalOut);
                 break;
             default:
                 clone = CreateGameObjectTree(objectCrossing, _portalOut, originalToClone, true);
@@ -88,6 +89,7 @@ public class PortalTransport : MonoBehaviour
         }
         
         ForwardEvents(clone, objectCrossing);
+        // todo
         // IgnoreCollision( objectCrossing);
         var iPortal = objectCrossing.GetComponent<IPortal>();
         var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,_portalOut, originalToClone, iPortal!=null );
@@ -187,14 +189,61 @@ public class PortalTransport : MonoBehaviour
 
     private static void CopyCollider(GameObject original, GameObject clone)
     {
-        Collider originalCollider = original.GetComponent<Collider>();
+        var originalCollider = original.GetComponent<Collider>();
         
         if(originalCollider == null)
             return;
-        var cloneCollider =(Collider) clone.AddComponent(originalCollider.GetType());
-        cloneCollider.material = originalCollider.material;
-        cloneCollider.contactOffset = originalCollider.contactOffset;
-        // CopyComponent(original.GetComponent<Collider>(), clone);
+        var cloneCollider = (Collider)clone.AddComponent(originalCollider.GetType());
+        cloneCollider.enabled = ((BoxCollider)originalCollider).enabled;
+        cloneCollider.material = ((BoxCollider)originalCollider).material;
+        cloneCollider.isTrigger = ((BoxCollider)originalCollider).isTrigger;
+        cloneCollider.sharedMaterial = ((BoxCollider)originalCollider).sharedMaterial;
+        
+        if (cloneCollider.GetType() == typeof(MeshCollider))
+        {
+            var mesh = (MeshCollider)cloneCollider;
+            mesh.sharedMesh = ((MeshCollider)originalCollider).sharedMesh;
+            mesh.convex = ((MeshCollider)originalCollider).convex;
+
+        }
+        else if(cloneCollider.GetType() == typeof(BoxCollider))
+        {
+            var mesh = (BoxCollider)cloneCollider;
+            mesh.center = ((BoxCollider)originalCollider).center;
+            mesh.size = ((BoxCollider)originalCollider).size;
+            
+        }
+        else if(cloneCollider.GetType() == typeof(CapsuleCollider))
+        {
+            var mesh = (CapsuleCollider)cloneCollider;
+            mesh.center = ((CapsuleCollider)originalCollider).center;
+            mesh.direction = ((CapsuleCollider)originalCollider).direction;
+            mesh.height = ((CapsuleCollider)originalCollider).height;
+            mesh.radius = ((CapsuleCollider)originalCollider).radius;
+            
+        }
+        else if(cloneCollider.GetType() == typeof(SphereCollider))
+        {
+            var mesh = (SphereCollider)cloneCollider;
+            mesh.center = ((SphereCollider)originalCollider).center;
+            mesh.radius = ((SphereCollider)originalCollider).radius;
+        }
+        else if(cloneCollider.GetType() == typeof(WheelCollider))
+        {
+            var mesh = (WheelCollider)cloneCollider;
+            mesh.center = ((WheelCollider)originalCollider).center;
+            mesh.radius = ((WheelCollider)originalCollider).radius;
+            mesh.mass = ((WheelCollider)originalCollider).mass;
+            mesh.brakeTorque = ((WheelCollider)originalCollider).brakeTorque;
+            mesh.forwardFriction = ((WheelCollider)originalCollider).forwardFriction;
+            mesh.motorTorque = ((WheelCollider)originalCollider).motorTorque;
+            mesh.sidewaysFriction = ((WheelCollider)originalCollider).sidewaysFriction;
+            mesh.sprungMass = ((WheelCollider)originalCollider).sprungMass;
+            mesh.steerAngle = ((WheelCollider)originalCollider).steerAngle;
+            mesh.suspensionDistance = ((WheelCollider)originalCollider).suspensionDistance;
+            mesh.wheelDampingRate = ((WheelCollider)originalCollider).wheelDampingRate;
+            mesh.forceAppPointDistance = ((WheelCollider)originalCollider).forceAppPointDistance;
+        }
     }
 
     private void ForwardEvents(GameObject clone, GameObject objectCrossing)

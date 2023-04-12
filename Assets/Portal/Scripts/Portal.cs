@@ -18,7 +18,6 @@ public class Portal : MonoBehaviour
     [SerializeField] private PortalTextureSetup portalTextureSetup;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private GameObject transport;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Transform renderPlane;
@@ -31,6 +30,7 @@ public class Portal : MonoBehaviour
     [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
     
     [NotNull] private Camera mainCamera;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Renderer _renderer;
     
     void Awake()

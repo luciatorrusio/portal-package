@@ -1,5 +1,5 @@
 # PORTAL
-by Lucia Torrusio and Rodrigo Rearden
+by Lucia Torrusio tutored by Rodrigo Rearden
 
 
 Only objects with Rigidbody component can go through portals.

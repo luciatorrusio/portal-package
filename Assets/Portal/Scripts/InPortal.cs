@@ -7,11 +7,11 @@ public class InPortal : MonoBehaviour
 {
     [CanBeNull] private OutPortal linkedOutPortal = null;
     private bool notBlocked = false;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] [NotNull]private PortalTransport _portalTransport;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] [NotNull]private PortalTextureSetup _portalTextureSetup;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField][NotNull] private Renderer _portalInRenderer;
     
     private void OnEnable()

@@ -5,8 +5,7 @@ using Scripts;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-
-
+using Utils;
 using RenderPipeline = UnityEngine.Rendering.RenderPipelineManager;
 
 
@@ -14,6 +13,8 @@ public class PortalRecursion : MonoBehaviour
 {
     private static  List<Portal> allPortals = new List<Portal>();
     private static Camera _camera;
+    private bool _notBlocked = false;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private CameraOutMovement cameraOutMovement;
     [SerializeField] private int recursiveIterations;
     private int _currentIterations = 0;

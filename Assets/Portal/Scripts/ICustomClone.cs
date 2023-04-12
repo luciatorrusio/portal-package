@@ -5,7 +5,7 @@ namespace Scripts
 {
     public interface ICustomClone
     {
-        GameObject GetClone();
+        GameObject CreateClone(GameObject original, Transform portalIn,Transform portalOut);
         PortalUtils.CloneMode GetMode();
     }
 }

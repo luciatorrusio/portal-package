@@ -10,8 +10,6 @@ public class OutPortal : MonoBehaviour
 {
     [CanBeNull] private InPortal linkedInPortal;
     private bool notBlocked = false;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
-    // [SerializeField] private CameraOutMovement _cameraOutMovement;
     private Camera _camera;
     
     
