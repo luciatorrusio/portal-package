@@ -14,8 +14,10 @@ public class TransitioningObject
     private readonly Transform _portalOut;
     private readonly bool _implementsIPortal;
     private readonly List<KeyValuePair<Transform, Transform>> _originalToCloneList = new List<KeyValuePair<Transform, Transform>>();
+    private readonly List<Material> _originalMaterials = new List<Material>();
+    private readonly List<Material> _cloneMaterials = new List<Material>();
 
-    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut,List<KeyValuePair<Transform, Transform>> originalToCloneList, bool implementsIPortal)
+    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut,List<KeyValuePair<Transform, Transform>> originalToCloneList,  bool implementsIPortal)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -27,6 +29,8 @@ public class TransitioningObject
         _portalOut = portalOut;
         _originalToCloneList.AddRange(originalToCloneList);
         _implementsIPortal = implementsIPortal;
+        _cloneMaterials.AddRange(SetMaterials(clone.gameObject));
+        _originalMaterials.AddRange(SetMaterials(original.gameObject));
     }
 
     public void Transport()
@@ -90,5 +94,28 @@ public class TransitioningObject
     {
         return null;
             //todo
+    }
+
+    public List<Material> GetCloneMaterials()
+    {
+        return _cloneMaterials;
+    }
+    public List<Material> GetOriginalMaterials()
+    {
+        return _originalMaterials;
+    }
+    
+    private List<Material> SetMaterials (GameObject g) {
+        // todo check skinned mesh renderer
+        var renderers = g.GetComponentsInChildren<MeshRenderer> ();
+        var matList = new List<Material> ();
+        foreach (var renderer in renderers) {
+            foreach (var mat in renderer.materials) {
+                matList.Add (mat);
+            }
+        }
+
+        return matList;
+
     }
 }

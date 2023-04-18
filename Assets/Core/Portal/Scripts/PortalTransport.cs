@@ -33,7 +33,7 @@ public class PortalTransport : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        print("onTriggerEnter " + portalIn.name);
+        print("onTriggerEnter: entetring " + portalIn.name + ", object: " + other.name);
         if(_portalOut == null)
         {
             print("no linked out portal");
@@ -45,16 +45,16 @@ public class PortalTransport : MonoBehaviour
             print(objectCrossing.name + " is a clone");
             return;
         }
+        print(objectCrossing.name + " is not a clone");
 
         var rigidbody = objectCrossing.GetComponent<Rigidbody>();
         if (rigidbody== null)
             return;
-        if(!rigidbody.worldCenterOfMass.IsInFrontOfWithError(portalIn, 0.2f))
+        if(!rigidbody.worldCenterOfMass.IsInFrontOf(portalIn))
         {
             print( objectCrossing.name + " not in front of " + portalIn.name);
             return;
         }
-        
         CreateClone(objectCrossing);
     }
 
@@ -78,13 +78,15 @@ public class PortalTransport : MonoBehaviour
         
         GameObject clone;
         var originalToClone = new List<KeyValuePair<Transform, Transform>>();
+        var originalMaterials = new List<Material>();
+        var cloneMaterials = new List<Material>();
         switch (cloneMode)
         {
             case PortalUtils.CloneMode.CUSTOM:
                 clone = customClone.CreateClone(objectCrossing, portalIn, _portalOut);
                 break;
             default:
-                clone = CreateGameObjectTree(objectCrossing, _portalOut, originalToClone, true);
+                clone = CreateGameObjectTree(objectCrossing, _portalOut, originalToClone, originalMaterials, cloneMaterials, true);
                 break;
         }
         
@@ -104,21 +106,21 @@ public class PortalTransport : MonoBehaviour
         collisionHandlerIn.SetPortal(portalIn);
     }
 
-    private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent,List<KeyValuePair<Transform, Transform>> originalToClone,  bool firstIteration)
+    private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent,List<KeyValuePair<Transform, Transform>> originalToClone, List<Material> originalMaterials, List<Material> cloneMaterial,  bool firstIteration)
     {
         var objectToPortal = portalIn.InverseTransformDirection(objectCrossing.transform.position - portalIn.gameObject.transform.position);
         var localPosition = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
         var clone = Instantiate(emptyClone, _portalOut.position + localPosition, objectCrossing.transform.localRotation, parent);
         originalToClone.Add( new KeyValuePair<Transform, Transform>(objectCrossing.transform, clone.transform));
         clone.name = objectCrossing.name + ("(Portal)");
-        DuplicateMesh(objectCrossing, clone, originalToClone, firstIteration);
+        DuplicateMesh(objectCrossing, clone, originalToClone,originalMaterials, cloneMaterial, firstIteration);
         for (int i = 0; i < objectCrossing.transform.childCount; i++)
         {
-            CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform, originalToClone, false);
+            CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform, originalToClone,originalMaterials, cloneMaterial, false);
         }
         return clone;
     }
-    private static void DuplicateMesh(GameObject original, GameObject clone,List<KeyValuePair<Transform, Transform>> originalToClone,  bool firstIteration)
+    private static void DuplicateMesh(GameObject original, GameObject clone,List<KeyValuePair<Transform, Transform>> originalToClone, List<Material> originalMaterials, List<Material> cloneMaterial,  bool firstIteration)
     {
         
         CopyTransform(original.transform, clone.transform, firstIteration);
@@ -147,6 +149,7 @@ public class PortalTransport : MonoBehaviour
         newRenderer.forceMatrixRecalculationPerRender = true;
         newRenderer.sharedMesh = originalRenderer.sharedMesh;
         newRenderer.materials = originalRenderer.materials;
+        
         var bones = new List<Transform>();
         foreach (var bone in originalRenderer.bones)
         {
@@ -161,7 +164,6 @@ public class PortalTransport : MonoBehaviour
         
 
         newRenderer.bones = bones.ToArray();
-        print(newRenderer.bones.Length);
         newRenderer.rootBone = originalToClone.Find(x => x.Key == originalRenderer.rootBone ).Value;
         newRenderer.quality = originalRenderer.quality;
         newRenderer.updateWhenOffscreen = originalRenderer.updateWhenOffscreen;
@@ -172,6 +174,8 @@ public class PortalTransport : MonoBehaviour
     {
         var cloneMesh = clone.AddComponent<MeshRenderer>();
         cloneMesh.sharedMaterials = originalMesh.sharedMaterials;
+        // cloneMesh.materials = originalMesh.materials;
+        
         var originalMeshFilter = original.GetComponent<MeshFilter>();
         if(originalMeshFilter == null)
             return;
@@ -264,13 +268,19 @@ public class PortalTransport : MonoBehaviour
             TriggerOnPortalExit(leavingPortal);
         }
         Destroy(leavingPortal.GetClone().gameObject);  
-        Destroy(leavingPortal.GetOriginal().GetComponent<EventListener>());
-        Destroy(leavingPortal.GetOriginal().GetComponent<CollisionHandler>());
+        DestroyAddedComponents(leavingPortal.GetOriginal());
+    }
+
+    private void DestroyAddedComponents(Transform original)
+    {
+        Destroy(original.GetComponent<EventListener>());
+        Destroy(original.GetComponent<CollisionHandler>());
     }
     
     
     private void OnTriggerExit(Collider other)
     {
+        print("onTriggerExit: portal" + portalIn.name + ", objrct: " + other.name);
         
         if(portalIn == null || _portalOut == null)
             return;
@@ -314,7 +324,7 @@ public class PortalTransport : MonoBehaviour
 
             if (!t.GetOriginalRigidbody().worldCenterOfMass.IsInFrontOf(portalIn))
             {
-                // todo intercambiar de lugar con clon
+                
                 _objectsOnPortal.Remove(t);
                 ExitPortal(t);
                 
@@ -342,6 +352,7 @@ public class PortalTransport : MonoBehaviour
         if(transitioningObject.GetClone()!= null )
         {
             SetPosition(transitioningObject);
+            CropMaterial(transitioningObject);   
         }
     }
 
@@ -352,11 +363,15 @@ public class PortalTransport : MonoBehaviour
         {
             if (keyValuePair.Value.parent == transitioningObject.GetPortalOut())
             {
+                //scale
                 keyValuePair.Value.localScale = keyValuePair.Key.localScale;
                
+                // position
                 var objectToPortal = portalIn.InverseTransformDirection(keyValuePair.Key.position - portalIn.gameObject.transform.position);
                 var localPos = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
                 keyValuePair.Value.position = _portalOut.TransformPoint(localPos);
+                
+                //rotation
                 var rotation = Quaternion.LookRotation(-portalIn.forward, portalIn.up);
                 var relativeRot = Quaternion.Inverse(rotation) * keyValuePair.Key.rotation;
                 keyValuePair.Value.rotation =_portalOut.rotation * relativeRot;
@@ -367,10 +382,27 @@ public class PortalTransport : MonoBehaviour
                 keyValuePair.Value.localRotation = keyValuePair.Key.localRotation;
                 keyValuePair.Value.localPosition = keyValuePair.Key.localPosition;
             }
-                
+        }
+
+    }
+
+    private void CropMaterial(TransitioningObject transitioningObject)
+    {
+        print("cropMaterial" + transitioningObject.GetCloneMaterials().Count );
+        for (int i = 0; i < transitioningObject.GetCloneMaterials().Count; i++)
+        {
+            transitioningObject.GetCloneMaterials()[i].SetVector ("_portalCenter", _portalOut.position);
+            transitioningObject.GetCloneMaterials()[i].SetVector ("_portalNormal", _portalOut.forward);
+            // // todo ponerlo solo una vez en enter y en exit
+            // transitioningObject.GetCloneMaterials()[i].SetFloat("_transitioning", 1f);
+            
+            transitioningObject.GetOriginalMaterials()[i].SetVector ("_portalCenter", portalIn.position);
+            transitioningObject.GetOriginalMaterials()[i].SetVector ("_portalNormal", portalIn.forward);
+            // // todo ponerlo solo una vez en enter y en exit
+            // transitioningObject.GetOriginalMaterials()[i].SetFloat("_transitioning", 1f);
+        
             
         }
-        
     }
 }
 
