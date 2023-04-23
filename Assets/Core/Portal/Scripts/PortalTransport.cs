@@ -198,10 +198,10 @@ public class PortalTransport : MonoBehaviour
         if(originalCollider == null)
             return;
         var cloneCollider = (Collider)clone.AddComponent(originalCollider.GetType());
-        cloneCollider.enabled = ((BoxCollider)originalCollider).enabled;
-        cloneCollider.material = ((BoxCollider)originalCollider).material;
-        cloneCollider.isTrigger = ((BoxCollider)originalCollider).isTrigger;
-        cloneCollider.sharedMaterial = ((BoxCollider)originalCollider).sharedMaterial;
+        cloneCollider.enabled = originalCollider.enabled;
+        cloneCollider.material = originalCollider.material;
+        cloneCollider.isTrigger =originalCollider.isTrigger;
+        cloneCollider.sharedMaterial = originalCollider.sharedMaterial;
         
         if (cloneCollider.GetType() == typeof(MeshCollider))
         {
