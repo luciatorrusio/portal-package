@@ -21,12 +21,13 @@ public class Portal : MonoBehaviour
     [SerializeField] private Transform renderPlane;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Transform frame;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private PortalTransport portalTransport;
 
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private BoxCollider _collider;
-    
+
+    [SerializeField] private Vector3 colliderScaleMultiplier = new Vector3(1, 1, 1);
     [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
     
     [NotNull] private Camera mainCamera;
@@ -129,10 +130,10 @@ public class Portal : MonoBehaviour
 
     public void SetScale()
     {
-        renderPlane.localScale = new Vector3(scale.x * 0.18f, 1, scale.y * 0.246f);
+        renderPlane.localScale =scale;
         frame.localScale = scale;
-        _collider.center = new Vector3(0, 0, (scale.z * 1.67f) / 2);
-        _collider.size =  new Vector3(scale.x * 1.8f, scale.y * 2.5f, scale.z * 1.67f);
+        _collider.center = new Vector3(0, 0, (scale.z*colliderScaleMultiplier.z)/ 2);
+        _collider.size =  new Vector3(scale.x * colliderScaleMultiplier.x , scale.y*colliderScaleMultiplier.y , scale.z*colliderScaleMultiplier.z);
     }
     
     private void OnEnable()

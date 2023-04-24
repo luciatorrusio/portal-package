@@ -10,12 +10,11 @@ public class PortalTextureSetup : MonoBehaviour
     private Material _portalInMat;
     [SerializeField] private Material _defaultMaterial;
     private bool notBlocked = false;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private Shader shader;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
-    [SerializeField] private InPortal inPortal;
 
     private RenderTexture _targetTexture;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] private Renderer renderer;
     
     // crea el material que tendra el plano y se lo pone al plano
