@@ -50,7 +50,6 @@ public class PortalTransport : MonoBehaviour
         {
             return;
         }
-        print("entering portal: "+portalIn.name);
         CreateClone(objectCrossing);
     }
 
@@ -140,7 +139,7 @@ public class PortalTransport : MonoBehaviour
             CopyRenderer(originalMesh, clone, original);
         else if(originalMesh.GetType() == typeof(SkinnedMeshRenderer))
         {
-            print("Skinned mesh renderer");
+            // print("Skinned mesh renderer");
             CopySkinnedMeshRenderer((SkinnedMeshRenderer)originalMesh, clone, originalToClone);
         }
         
@@ -286,7 +285,7 @@ public class PortalTransport : MonoBehaviour
         TransitioningObject? leavingPortal = GetObjectOnPortalLeaving(other.gameObject);
         if (leavingPortal == null ||  leavingPortal.GetClone()==null)
             return;
-        print("exiting "+portalIn.name );
+        // print("exiting "+portalIn.name );
         _objectsOnPortal.Remove(leavingPortal);
 
         ExitPortal(leavingPortal);
@@ -324,7 +323,7 @@ public class PortalTransport : MonoBehaviour
 
             if (!t.GetOriginalRigidbody().worldCenterOfMass.IsInFrontOfWithError(portalIn.transform, 0.5f))
             {
-                print("changing from "+portalIn.name +" to "+_portalOut.name);
+                // print("changing from "+portalIn.name +" to "+_portalOut.name);
                 t.GetPortalOut().AddTransitioningObject(t);
                 t.SwitchPortals( _portalOut,portalIn);
                 _objectsOnPortal.Remove(t);
@@ -359,7 +358,7 @@ public class PortalTransport : MonoBehaviour
 
     private void SetPosition(TransitioningObject transitioningObject)
     {
-        print("portal that has transitioningObject: "+portalIn.name);
+        // print("portal that has transitioningObject: "+portalIn.name);
         foreach (var keyValuePair in transitioningObject.GetOriginalToCloneList())
         {
             if (keyValuePair.Value.parent == transitioningObject.GetPortalOut().transform)
@@ -377,8 +376,6 @@ public class PortalTransport : MonoBehaviour
                 var relativeRot = Quaternion.Inverse(rotation) * keyValuePair.Key.rotation;
                 keyValuePair.Value.rotation =_portalOut.transform.rotation * relativeRot;
             }
-            else if(keyValuePair.Value.parent == transitioningObject.GetPortalIn().transform)
-                print("wrooooooooong");
             else
             {
                 keyValuePair.Value.localScale = keyValuePair.Key.localScale;

@@ -1,17 +1,16 @@
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+﻿#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
 float4 _ColorTint;
 // Textures
 TEXTURE2D(_ColorMap); //RGB = albedo, A = alpha
 SAMPLER(sampler_ColorMap);
 float4 _ColorMap_ST; // This is automatically set by unity. Used in TRANSFORM_TEX to apply UV tiling
-float _Smoothness;
 
 // World space normal of slice, anything along this direction from centre will be invisible
 float3 _portalNormal;
 // World space centre of slice
 float3 _portalCenter;
-
+// float _transitioning;
 
 
 // This attributes struct recieves data about the mesh were currently rendering
@@ -19,7 +18,6 @@ float3 _portalCenter;
 struct Attributes
 {
     float3 position : POSITION; //Position in object space(local space) "POSITION" is the semantics and its the important part
-    float3 normalOS : NORMAL;
     float2 uv : TEXCOORD0; // Material texture UVs
 };
 
@@ -33,8 +31,6 @@ struct Interpolators
     // The following variables will retain their values from the vertex stage, except the
     // resterizer will interpolate between vertices
     float2 uv : TEXCOORD0;  // Material texture UVs
-    float3 normalWS : TEXCOORD1;
-    
     float3 positionWS : TEXCOORD2; 
 };
 
@@ -45,18 +41,13 @@ Interpolators Vertex(const Attributes input)
     // These helper functions, found in URP/ShaderLib/ShaderVariablesFunctions.hlsl
     // transform object space values into world and clip space
     const VertexPositionInputs position_inputs = GetVertexPositionInputs(input.position);
-    VertexNormalInputs normInputs = GetVertexNormalInputs(input.normalOS);
-    
+
     // Pass position and orientation data to the fragment function
     const float4 position_clip_space = position_inputs.positionCS;
-    output.positionCS = position_clip_space;
-    output.uv = TRANSFORM_TEX(input.uv, _ColorMap);
-    output.normalWS = normInputs.normalWS;
-
-    // Needed for portal
     const float3 position_world_space = position_inputs.positionWS;
+    output.positionCS = position_clip_space;
     output.positionWS = position_world_space;
-    
+    output.uv = TRANSFORM_TEX(input.uv, _ColorMap);
     return  output;
     
 }
@@ -65,28 +56,11 @@ Interpolators Vertex(const Attributes input)
 // It must output the final color of this pixel
 float4 Fragment(Interpolators input) : SV_TARGET
 {
-    // needed for portal
     float3 vectorToCenter = _portalCenter - input.positionWS;
     if( dot(vectorToCenter, _portalNormal) > 0)
         discard;
     
     float2 uv = input.uv;
     float4 colorSample = SAMPLE_TEXTURE2D(_ColorMap, sampler_ColorMap, uv);
-
-    InputData lightingInput  =(InputData) 0;
-    lightingInput.normalWS = normalize(input.normalWS);
-    lightingInput.positionWS = input.positionWS;
-    lightingInput.viewDirectionWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
-    lightingInput.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
-    
-    
-    SurfaceData surfaceInput = (SurfaceData)0;
-    surfaceInput.albedo = colorSample.rgb * _ColorTint.rgb;
-    surfaceInput.alpha = colorSample.a *_ColorTint.a;
-    surfaceInput.specular = 1;
-    surfaceInput.smoothness = _Smoothness;
-    
-    
-    return UniversalFragmentBlinnPhong(lightingInput, surfaceInput);
-    
+    return  colorSample * _ColorTint;
 }

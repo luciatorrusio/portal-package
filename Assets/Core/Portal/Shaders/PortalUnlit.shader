@@ -1,4 +1,4 @@
-Shader "Portal/Lit"
+Shader "Portal/Unlit"
 {
     // Properties are options set per material, exposed by the material inspector
     Properties{
@@ -6,7 +6,6 @@ Shader "Portal/Lit"
         [MainColor] _ColorTint("Tint", Color) = (1,1,1,1)
         // allows Material.mainTexture
         [MainTexture] _ColorMap("Color", 2D) = "white" {}
-        _Smoothness("Smoothness", Float) = 0
         
         // Portal variables
         _portalNormal("normal", Vector) = (0,0,0,0)
@@ -28,29 +27,12 @@ Shader "Portal/Lit"
             // "UniversalForward" tells Unity this is the main lighting pass of this shader
             
             HLSLPROGRAM // Begin HLSL code
-
-            #define _SPECULAR_COLOR
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
-            #pragma multi_compile_fragment _ _SHADOWS_SOFT
             // Register our programmable stage functions
             #pragma vertex Vertex
             #pragma fragment Fragment
 
             // Include our code file
-            #include "PortalLitHlsl.hlsl"
-            ENDHLSL
-        }
-        
-        Pass{
-            Name "ShadowCaster"
-            Tags {"LightMode" = "ShadowCaster"}
-            
-            ColorMask 0
-            
-            HLSLPROGRAM
-            #pragma vertex Vertex
-            #pragma fragment Fragment
-            #include "PortalLitShadowCasterHlsl.hlsl"
+            #include "PortalUnlitHlsl.hlsl"
             ENDHLSL
         }
     }
