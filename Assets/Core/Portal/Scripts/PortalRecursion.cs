@@ -72,7 +72,9 @@ public class PortalRecursion : MonoBehaviour
             cameraOutMovement.SetPortalOut( inPortal.GetLinkedOutPortal().transform);
             cameraOutMovement.SetPositionAndAngle();
             cameraOutMovement.SetNearClippingPlane();
-            if (_camera.IsLooking(inPortal.GetRenderPlane().gameObject) && _camera.transform.IsInFrontOf(inPortal.transform)&&   inPortal.GetLinkedOutPortal() != null)
+
+            // if (!_camera.transform.IsInFrontOf(inPortal.transform))
+            if ( _camera.IsLooking(inPortal.GetRenderPlane().gameObject) && inPortal.GetLinkedOutPortal() != null)
             {
                 RenderCamera(inPortal, iterationID, context, _camera);
             }

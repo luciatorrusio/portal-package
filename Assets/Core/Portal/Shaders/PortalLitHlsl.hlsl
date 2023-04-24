@@ -57,8 +57,7 @@ Interpolators Vertex(const Attributes input)
 float4 Fragment(Interpolators input) : SV_TARGET
 {
     float3 vectorToCenter = _portalCenter - input.positionWS;
-    // if( _transitioning == 1 && dot(vectorToCenter, _portalNormal) > 0)
-    if( dot(vectorToCenter, _portalNormal) > 0)
+    if( dot(vectorToCenter, _portalNormal) > 0.1)
         discard;
     
     float2 uv = input.uv;

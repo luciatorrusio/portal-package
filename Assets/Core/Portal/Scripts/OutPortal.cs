@@ -9,6 +9,9 @@ using Utils;
 public class OutPortal : MonoBehaviour
 {
     [CanBeNull] private InPortal linkedInPortal;
+    private bool _notBlocked = false;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [SerializeField] private Portal _portal;
     private bool notBlocked = false;
     private Camera _camera;
     
@@ -22,7 +25,11 @@ public class OutPortal : MonoBehaviour
         }
            
         _camera = PortalRecursion.GetPortalCamera();
-        // _cameraOutMovement.SetPortalIn(linkedInPortal.transform);
+    }
+
+    public Portal GetPortal()
+    {
+        return _portal;
     }
     private void OnDrawGizmosSelected()
     {

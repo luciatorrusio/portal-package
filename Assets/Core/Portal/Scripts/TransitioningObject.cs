@@ -1,23 +1,24 @@
 using System.Collections.Generic;
 using Codice.Client.BaseCommands;
 using Scripts;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Utils;
 
 public class TransitioningObject 
 {
-    private readonly Transform _original;
-    private readonly Rigidbody _originalRigidbody;
-    private readonly Transform _clone;
+    private  Transform _original;
+    private  Rigidbody _originalRigidbody;
+    private  Transform _clone;
     private readonly GameObject _mainCamera;
-    private readonly Transform _portalIn;
-    private readonly Transform _portalOut;
+    private  Portal  _portalIn;
+    private Portal _portalOut;
     private readonly bool _implementsIPortal;
     private readonly List<KeyValuePair<Transform, Transform>> _originalToCloneList = new List<KeyValuePair<Transform, Transform>>();
     private readonly List<Material> _originalMaterials = new List<Material>();
     private readonly List<Material> _cloneMaterials = new List<Material>();
 
-    public TransitioningObject(Transform original,Transform clone, Transform portalIn, Transform portalOut,List<KeyValuePair<Transform, Transform>> originalToCloneList,  bool implementsIPortal)
+    public TransitioningObject(Transform original,Transform clone, Portal portalIn, Portal portalOut,List<KeyValuePair<Transform, Transform>> originalToCloneList,  bool implementsIPortal)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -38,9 +39,9 @@ public class TransitioningObject
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
         _original.position = _clone.position;
-        var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn, _portalOut);
+        var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn.transform, _portalOut.transform);
         _originalRigidbody.velocity =  newVelocity ;
-        _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn, _portalOut); ;
+        _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
 
     }
     
@@ -57,7 +58,7 @@ public class TransitioningObject
 
     public bool EnteredPortal()
     {
-        return ! _original.transform.IsInFrontOf(_portalIn);
+        return ! _original.transform.IsInFrontOf(_portalIn.transform);
     }
     
     public Transform GetClone()
@@ -75,16 +76,35 @@ public class TransitioningObject
         return _originalRigidbody;
     }
 
-    public Transform GetPortalIn()
+    public Portal GetPortalIn()
     {
         return _portalIn;
     }
 
-    public Transform GetPortalOut()
+    
+    public void SwitchPortals(Portal portalIn, Portal portalOut)
+    {
+        _clone.gameObject.SetActive(false);
+        
+        _original.forward = _clone.forward;
+        _original.rotation = _clone.rotation;
+        (_original.position, _clone.position) = (_clone.position, _original.position);
+        var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn.transform, _portalOut.transform);
+        _originalRigidbody.velocity =  newVelocity ;
+        _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
+        _clone.gameObject.SetActive(true);
+        
+        _clone.parent = portalOut.transform;
+        _portalIn = portalIn;
+        _portalOut = portalOut;
+    }
+
+    
+    public Portal GetPortalOut()
     {
         return _portalOut;
     }
-
+    
     public List<KeyValuePair<Transform, Transform>> GetOriginalToCloneList()
     {
         return _originalToCloneList;

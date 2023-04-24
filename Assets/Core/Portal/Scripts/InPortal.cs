@@ -8,8 +8,10 @@ public class InPortal : MonoBehaviour
     [CanBeNull] private OutPortal linkedOutPortal = null;
     private bool notBlocked = false;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [SerializeField] private Portal _portal;
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] [NotNull]private PortalTransport _portalTransport;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField] [NotNull]private PortalTextureSetup _portalTextureSetup;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
     [SerializeField][NotNull] private Renderer _portalInRenderer;
@@ -32,17 +34,20 @@ public class InPortal : MonoBehaviour
             _portalTextureSetup.SetDefaultMaterial();
             return;
         }
-        // _portalTextureSetup.SetCameraOut(linkedOutPortal.GetCamera());
         linkedOutPortal.SetLinkedInPortal(this);
-        _portalTransport.SetPortalOut(linkedOutPortal.transform);
+        _portalTransport.SetPortalOut(linkedOutPortal.GetPortal());
+    }
+
+    public Portal GetPortal()
+    {
+        return _portal;
     }
 
     public void SetLinkedOutPortal(OutPortal outPortal)
     {
         linkedOutPortal = outPortal;
-        // _portalTextureSetup.SetCameraOut(linkedOutPortal.GetCamera());
         linkedOutPortal.SetLinkedInPortal(this);
-        _portalTransport.SetPortalOut(linkedOutPortal.transform);
+        _portalTransport.SetPortalOut(linkedOutPortal.GetPortal());
     }
     public OutPortal GetLinkedOutPortal()
     {

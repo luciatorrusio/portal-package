@@ -26,6 +26,11 @@ namespace Scripts
             var toOther = one.position - other.position;
             return Vector3.Dot(other.forward, toOther) > error ;
         }
+        public static bool IsInFrontOfWithError2(this Transform one, Transform other, float error)
+        {
+            var toOther = one.position - other.position;
+            return Vector3.Dot(other.forward, toOther) > -error ;
+        }
         public static bool IsInFrontOfWithError(this Vector3 one, Transform other, float error)
         {
             var toOther = one - other.position;

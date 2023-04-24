@@ -14,15 +14,15 @@ public class Portal : MonoBehaviour
     [SerializeField] private InPortal _inPortal;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private OutPortal _outPortal;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
-    [SerializeField] private PortalTextureSetup portalTextureSetup;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
-    [SerializeField] private GameObject transport;
+    [SerializeField] private PortalTextureSetup portalTextureSetup;
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Transform renderPlane;
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Transform frame;
+    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [SerializeField] private PortalTransport portalTransport;
 
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private BoxCollider _collider;
@@ -30,7 +30,7 @@ public class Portal : MonoBehaviour
     [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
     
     [NotNull] private Camera mainCamera;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private Renderer _renderer;
     
     void Awake()
@@ -47,7 +47,6 @@ public class Portal : MonoBehaviour
     {
         if (linkedOutPortal != null)
             SetAsInPortal();
-        
     }
 
     private Camera GetMainCamera()
@@ -63,12 +62,11 @@ public class Portal : MonoBehaviour
         _inPortal.enabled = true;
         if (linkedOutPortal != null)
         {
-            // portalTextureSetup.SetCameraOut(linkedOutPortal.GetCamera());
             _inPortal.SetLinkedOutPortal(linkedOutPortal.GetOutPortal());
         }
 
         portalTextureSetup.gameObject.SetActive(true);
-        transport.SetActive(true);
+        gameObject.SetActive(true);
         linkedOutPortal.SetAsOutPortal();
         
         return _inPortal;
@@ -76,10 +74,7 @@ public class Portal : MonoBehaviour
 
     public OutPortal SetAsOutPortal()
     {
-        // OutPortal
         _outPortal.enabled = true;
-        // cameraOutMovement.SetCameraBeingReplicated(GetMainCamera());
-        // cameraOutMovement.gameObject.SetActive(true);
         return _outPortal;
     }
 
@@ -90,17 +85,14 @@ public class Portal : MonoBehaviour
         linkedOutPortal = isInPortal ? linkedOutPortal: null;
         if (linkedOutPortal != null)
         {
-            // portalTextureSetup.SetCameraOut(linkedOutPortal.GetCamera());
             _inPortal.SetLinkedOutPortal(linkedOutPortal.GetOutPortal());
         }
 
         portalTextureSetup.gameObject.SetActive(isInPortal);
-        transport.SetActive(isInPortal);
+        gameObject.SetActive(isInPortal);
         
         // OutPortal
         _outPortal.enabled = !isInPortal;
-        // cameraOutMovement.SetCameraBeingReplicated(GetMainCamera());
-        // cameraOutMovement.gameObject.SetActive(!isInPortal);
     }
     
     private void OnDrawGizmosSelected()
@@ -165,6 +157,11 @@ public class Portal : MonoBehaviour
     public GameObject GetRenderPlane()
     {
         return portalTextureSetup.gameObject;
+    }
+
+    public void AddTransitioningObject(TransitioningObject transitioningObject)
+    {
+        portalTransport.AddTransitioningObject(transitioningObject);
     }
     
     
