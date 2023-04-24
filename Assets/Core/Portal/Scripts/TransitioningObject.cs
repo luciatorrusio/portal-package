@@ -121,12 +121,20 @@ public class TransitioningObject
     }
     
     private List<Material> SetMaterials (GameObject g) {
-        // todo check skinned mesh renderer
         var renderers = g.GetComponentsInChildren<MeshRenderer> ();
         var matList = new List<Material> ();
         foreach (var renderer in renderers) {
             foreach (var mat in renderer.materials) {
                 matList.Add (mat);
+            }
+        }
+
+        var skinnedRenderers = g.GetComponentsInChildren<SkinnedMeshRenderer>();
+        foreach (var renderer in skinnedRenderers)
+        {
+            foreach (var mat in renderer.materials)
+            {
+                matList.Add(mat);
             }
         }
 
