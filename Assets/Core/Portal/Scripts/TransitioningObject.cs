@@ -14,11 +14,11 @@ public class TransitioningObject
     private  Portal  _portalIn;
     private Portal _portalOut;
     private readonly bool _implementsIPortal;
-    private readonly List<KeyValuePair<Transform, Transform>> _originalToCloneList = new List<KeyValuePair<Transform, Transform>>();
+    private readonly IEnumerable<( Transform original, Transform clone)> _originalToCloneList;
     private readonly List<Material> _originalMaterials = new List<Material>();
     private readonly List<Material> _cloneMaterials = new List<Material>();
 
-    public TransitioningObject(Transform original,Transform clone, Portal portalIn, Portal portalOut,List<KeyValuePair<Transform, Transform>> originalToCloneList,  bool implementsIPortal)
+    public TransitioningObject(Transform original,Transform clone, Portal portalIn, Portal portalOut,IEnumerable<( Transform original, Transform clone)> originalToCloneList,  bool implementsIPortal)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -28,7 +28,7 @@ public class TransitioningObject
             _mainCamera.SetActive(false);
         _portalIn = portalIn;
         _portalOut = portalOut;
-        _originalToCloneList.AddRange(originalToCloneList);
+        _originalToCloneList= originalToCloneList;
         _implementsIPortal = implementsIPortal;
         _cloneMaterials.AddRange(SetMaterials(clone.gameObject));
         _originalMaterials.AddRange(SetMaterials(original.gameObject));
@@ -105,16 +105,11 @@ public class TransitioningObject
         return _portalOut;
     }
     
-    public List<KeyValuePair<Transform, Transform>> GetOriginalToCloneList()
+    public IEnumerable<( Transform original, Transform clone)> GetOriginalToCloneList()
     {
         return _originalToCloneList;
     }
 
-    public IEnumerable<( Transform original, Transform clone)> GetOriginalToCloneList2()
-    {
-        return null;
-            //todo
-    }
 
     public List<Material> GetCloneMaterials()
     {

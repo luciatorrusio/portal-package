@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Scripts;
 using UnityEngine;
 using Utils;
@@ -89,7 +90,12 @@ public class PortalTransport : MonoBehaviour
         // todo
         // IgnoreCollision( objectCrossing);
         var iPortal = objectCrossing.GetComponent<IPortal>();
-        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,_portalOut, originalToClone, iPortal!=null );
+        
+        IEnumerable<(Transform original, Transform clone)> oc =
+            from kvp in originalToClone
+            select (kvp.Key, kvp.Value);
+        
+        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portalIn,_portalOut, oc, iPortal!=null );
         _objectsOnPortal.Add(objectOnPortal);
         TriggerOnPortalEnter(objectOnPortal);
         
@@ -359,28 +365,28 @@ public class PortalTransport : MonoBehaviour
     private void SetPosition(TransitioningObject transitioningObject)
     {
         // print("portal that has transitioningObject: "+portalIn.name);
-        foreach (var keyValuePair in transitioningObject.GetOriginalToCloneList())
+        foreach (var originalToClone in transitioningObject.GetOriginalToCloneList())
         {
-            if (keyValuePair.Value.parent == transitioningObject.GetPortalOut().transform)
+            if (originalToClone.clone.parent == transitioningObject.GetPortalOut().transform)
             {
                 //scale
-                keyValuePair.Value.localScale = keyValuePair.Key.localScale;
+                originalToClone.clone.localScale = originalToClone.original.localScale;
                
                 // position
-                var objectToPortal = portalIn.transform.InverseTransformDirection(keyValuePair.Key.position - portalIn.gameObject.transform.position);
+                var objectToPortal = portalIn.transform.InverseTransformDirection(originalToClone.original.position - portalIn.gameObject.transform.position);
                 var localPos = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
-                keyValuePair.Value.position = _portalOut.transform.TransformPoint(localPos);
+                originalToClone.clone.position = _portalOut.transform.TransformPoint(localPos);
                 
                 //rotation
                 var rotation = Quaternion.LookRotation(-portalIn.transform.forward, portalIn.transform.up);
-                var relativeRot = Quaternion.Inverse(rotation) * keyValuePair.Key.rotation;
-                keyValuePair.Value.rotation =_portalOut.transform.rotation * relativeRot;
+                var relativeRot = Quaternion.Inverse(rotation) * originalToClone.original.rotation;
+                originalToClone.clone.rotation =_portalOut.transform.rotation * relativeRot;
             }
             else
             {
-                keyValuePair.Value.localScale = keyValuePair.Key.localScale;
-                keyValuePair.Value.localRotation = keyValuePair.Key.localRotation;
-                keyValuePair.Value.localPosition = keyValuePair.Key.localPosition;
+                originalToClone.clone.localScale = originalToClone.original.localScale;
+                originalToClone.clone.localRotation = originalToClone.original.localRotation;
+                originalToClone.clone.localPosition = originalToClone.original.localPosition;
             }
         }
 
