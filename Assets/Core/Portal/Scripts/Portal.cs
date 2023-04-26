@@ -27,6 +27,7 @@ public class Portal : MonoBehaviour
     [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
     [SerializeField] private BoxCollider _collider;
 
+    [SerializeField] private Mesh PortalMesh = null;
     [SerializeField] private Vector3 colliderScaleMultiplier = new Vector3(1, 1, 1);
     [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
     
@@ -130,10 +131,17 @@ public class Portal : MonoBehaviour
 
     public void SetScale()
     {
-        renderPlane.localScale =scale;
-        frame.localScale = scale;
+        renderPlane.localScale =new Vector3(scale.x, scale.z, scale.y);
+        frame.localScale = new Vector3(scale.x, scale.z, scale.y);
         _collider.center = new Vector3(0, 0, (scale.z*colliderScaleMultiplier.z)/ 2);
-        _collider.size =  new Vector3(scale.x * colliderScaleMultiplier.x , scale.y*colliderScaleMultiplier.y , scale.z*colliderScaleMultiplier.z);
+        _collider.size =  new Vector3(scale.x * colliderScaleMultiplier.x , scale.y*colliderScaleMultiplier.y, scale.z*colliderScaleMultiplier.z  );
+    }
+
+    public void SetMeshFilter()
+    {
+        if(PortalMesh == null)
+            Debug.LogWarning("Mesh is null in " + gameObject.name);
+        renderPlane.GetComponent<MeshFilter>().mesh = PortalMesh;
     }
     
     private void OnEnable()

@@ -8,5 +8,6 @@ public class PortalEditor : Editor
         base.OnInspectorGUI();
         Portal portal = (Portal)target;
         portal.SetScale();
+        
     }
 }
