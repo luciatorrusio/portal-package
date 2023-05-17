@@ -50,7 +50,6 @@ public class PortalTransport : MonoBehaviour
         {
             return;
         }
-        print("entering portal: "+ gameObject.transform);
         CreateClone(objectCrossing);
     }
 
@@ -262,6 +261,7 @@ public class PortalTransport : MonoBehaviour
     {
         if(leavingPortal.GetClone() == null)
             return;
+        StopCropMaterial(leavingPortal);
         TriggerOnPortalExit(leavingPortal);
         Destroy(leavingPortal.GetClone().gameObject);  
         DestroyAddedComponents(leavingPortal.GetOriginal());
@@ -322,7 +322,7 @@ public class PortalTransport : MonoBehaviour
     {
         if(_portalOut == null)
             return;
-        for (int j = 0; j < _objectsOnPortal.Count ; j++)
+        for (var j = 0; j < _objectsOnPortal.Count ; j++)
         {
             var t = _objectsOnPortal[j];
             if (!t.GetOriginalRigidbody().worldCenterOfMass.IsInFrontOf(portalIn.transform))
@@ -334,12 +334,10 @@ public class PortalTransport : MonoBehaviour
                 return;
                 
             } 
-            //todo camera caseaj
             // if (t.GetMainCamera() != null)
             // {
             //     if (!t.GetMainCamera().transform.IsInFrontOf(portalIn.transform))
             //     {
-            //         print("camera crossed");
             //         t.GetPortalOut().AddTransitioningObject(t);
             //         t.SwitchPortals( _portalOut,portalIn);
             //         _objectsOnPortal.Remove(t);
@@ -403,6 +401,20 @@ public class PortalTransport : MonoBehaviour
             
             transitioningObject.GetOriginalMaterials()[i].SetVector ("_portalCenter", portalIn.transform.position);
             transitioningObject.GetOriginalMaterials()[i].SetVector ("_portalNormal", portalIn.transform.forward);
+        }
+    }
+    
+    
+    private void StopCropMaterial(TransitioningObject transitioningObject)
+    {
+        
+        for (int i = 0; i < transitioningObject.GetCloneMaterials().Count; i++)
+        {
+            transitioningObject.GetCloneMaterials()[i].SetVector ("_portalCenter", Vector4.zero);
+            transitioningObject.GetCloneMaterials()[i].SetVector ("_portalNormal", Vector4.zero);
+            
+            transitioningObject.GetOriginalMaterials()[i].SetVector ("_portalCenter", Vector4.zero);
+            transitioningObject.GetOriginalMaterials()[i].SetVector ("_portalNormal", Vector4.zero);
         }
     }
 }

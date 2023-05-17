@@ -37,6 +37,6 @@ public class move : MonoBehaviour, IPortal
 
     public void OnPortalCrossed(TransitioningPortalObject transitioning)
     {
-        print("OnPortalCrossing");
+        print("OnPortalCrossed");
     }
 }

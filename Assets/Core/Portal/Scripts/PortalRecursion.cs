@@ -40,12 +40,12 @@ public class PortalRecursion : MonoBehaviour
         allPortals.Remove(portal);
     }
 
-    // OPCION 1
     void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
         if (!camera.CompareTag("MainCamera")) 
             return;
-        foreach (var portal in allPortals.Where(portal => camera.IsLooking(portal.GetRenderPlane().gameObject) && portal.GetLinkedOutPortal() != null))
+        // foreach (var portal in allPortals.Where(portal => camera.IsLooking(portal.GetRenderPlane().gameObject) && portal.GetLinkedOutPortal() != null))
+        foreach (var portal in allPortals.Where(portal => portal.GetLinkedOutPortal() != null))
         {
             for (var i = 0; i <= recursiveIterations; i++)
             {
@@ -74,7 +74,8 @@ public class PortalRecursion : MonoBehaviour
             cameraOutMovement.SetNearClippingPlane();
 
             // if (!_camera.transform.IsInFrontOf(inPortal.transform))
-            if ( _camera.IsLooking(inPortal.GetRenderPlane().gameObject) && inPortal.GetLinkedOutPortal() != null)
+            // if ( _camera.IsLooking(inPortal.GetRenderPlane().gameObject) && inPortal.GetLinkedOutPortal() != null)
+            if ( inPortal.GetLinkedOutPortal() != null)
             {
                 RenderCamera(inPortal, iterationID, context, _camera);
             }
