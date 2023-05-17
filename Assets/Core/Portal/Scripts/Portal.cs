@@ -10,29 +10,36 @@ public class Portal : MonoBehaviour
     
     // SET VARIABLES
     private bool _notBlocked = false;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [HideInInspector]
     [SerializeField] private InPortal _inPortal;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    
+    [HideInInspector]
     [SerializeField] private OutPortal _outPortal;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    
+    [HideInInspector]
     [SerializeField] private PortalTextureSetup portalTextureSetup;
+    
     [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    
+    [HideInInspector]
     [SerializeField] private Transform renderPlane;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    
+    [HideInInspector]
     [SerializeField] private Transform frame;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    
+    [HideInInspector]
     [SerializeField] private PortalTransport portalTransport;
 
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [HideInInspector]
     [SerializeField] private BoxCollider _collider;
 
     [SerializeField] private Mesh PortalMesh = null;
-    [SerializeField] private Vector3 colliderScaleMultiplier = new Vector3(1, 1, 1);
-    [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
+    // [SerializeField] private Vector3 colliderScaleMultiplier = new Vector3(1, 1, 1);
+    // [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
     
     [NotNull] private Camera mainCamera;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [HideInInspector]
     [SerializeField] private Renderer _renderer;
     
     void Awake()
@@ -131,10 +138,10 @@ public class Portal : MonoBehaviour
 
     public void SetScale()
     {
-        renderPlane.localScale =new Vector3(scale.x, scale.z, scale.y);
-        frame.localScale = new Vector3(scale.x, scale.z, scale.y);
-        _collider.center = new Vector3(0, 0, (scale.z*colliderScaleMultiplier.z)/ 2);
-        _collider.size =  new Vector3(scale.x * colliderScaleMultiplier.x , scale.y*colliderScaleMultiplier.y, scale.z*colliderScaleMultiplier.z  );
+        // renderPlane.localScale =new Vector3(scale.x, scale.z, scale.y);
+        // frame.localScale = new Vector3(scale.x, scale.z, scale.y);
+        // _collider.center = new Vector3(0, 0, (scale.z*colliderScaleMultiplier.z)/ 2);
+        // _collider.size =  new Vector3(scale.x * colliderScaleMultiplier.x , scale.y*colliderScaleMultiplier.y, scale.z*colliderScaleMultiplier.z  );
     }
 
     public void SetMeshFilter()

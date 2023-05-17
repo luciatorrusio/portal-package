@@ -17,6 +17,7 @@ public class TransitioningObject
     private readonly IEnumerable<( Transform original, Transform clone)> _originalToCloneList;
     private readonly List<Material> _originalMaterials = new List<Material>();
     private readonly List<Material> _cloneMaterials = new List<Material>();
+    public TransitioningPortalObject _transitioningPortalObject { get; private set; }
 
     public TransitioningObject(Transform original,Transform clone, Portal portalIn, Portal portalOut,IEnumerable<( Transform original, Transform clone)> originalToCloneList,  bool implementsIPortal)
     {
@@ -32,6 +33,7 @@ public class TransitioningObject
         _implementsIPortal = implementsIPortal;
         _cloneMaterials.AddRange(SetMaterials(clone.gameObject));
         _originalMaterials.AddRange(SetMaterials(original.gameObject));
+        _transitioningPortalObject = new TransitioningPortalObject(_original, _clone, _portalIn, _portalOut);
     }
 
     public void Transport()
@@ -97,6 +99,9 @@ public class TransitioningObject
         _clone.parent = portalOut.transform;
         _portalIn = portalIn;
         _portalOut = portalOut;
+
+        _transitioningPortalObject._portalIn = portalIn;
+        _transitioningPortalObject._portalIn = portalOut;
     }
 
     

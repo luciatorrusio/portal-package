@@ -13,11 +13,10 @@ public class PortalTransport : MonoBehaviour
     
     
     private Portal? _portalOut;
-    private bool _notBlocked = false;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [HideInInspector]
     [SerializeField] private Portal portalIn;
     private readonly List<TransitioningObject> _objectsOnPortal = new List<TransitioningObject>();
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [HideInInspector]
     [SerializeField] private GameObject emptyClone;
 
 
@@ -51,14 +50,11 @@ public class PortalTransport : MonoBehaviour
         {
             return;
         }
+        print("entering portal: "+ gameObject.transform);
         CreateClone(objectCrossing);
     }
 
-    private void TriggerOnPortalEnter(TransitioningObject objectCrossing)
-    {
-        if(objectCrossing.GetImplementsIPortal())
-            objectCrossing.GetOriginal().SendMessage("OnPortalEnter", portalIn.gameObject.GetComponent<Portal>());
-    }
+    
     private bool IsTransitioningObject(GameObject go)
     {
         return _objectsOnPortal.FindIndex(item => item.GetClone().gameObject.Equals(go) || item.GetOriginal().gameObject.Equals(go) ) != -1;
@@ -104,8 +100,6 @@ public class PortalTransport : MonoBehaviour
     public void AddTransitioningObject(TransitioningObject transitioningObject)
     {
         _objectsOnPortal.Add(transitioningObject);
-        //todo should I trigger
-        TriggerOnPortalEnter(transitioningObject);
     }
 
     private void IgnoreCollision(GameObject objectCrossing)
@@ -268,11 +262,7 @@ public class PortalTransport : MonoBehaviour
     {
         if(leavingPortal.GetClone() == null)
             return;
-        if (leavingPortal.EnteredPortal())
-        {
-            leavingPortal.Transport();
-            TriggerOnPortalExit(leavingPortal);
-        }
+        TriggerOnPortalExit(leavingPortal);
         Destroy(leavingPortal.GetClone().gameObject);  
         DestroyAddedComponents(leavingPortal.GetOriginal());
     }
@@ -298,20 +288,29 @@ public class PortalTransport : MonoBehaviour
 
     }
     
+    private void TriggerOnPortalEnter(TransitioningObject objectCrossing)
+    {
+        if(objectCrossing.GetImplementsIPortal())
+            objectCrossing.GetOriginal().SendMessage("OnPortalEnter", objectCrossing._transitioningPortalObject);
+    }
     private void TriggerOnPortalExit(TransitioningObject leavingPortal)
     {
         if(leavingPortal.GetImplementsIPortal())
-            leavingPortal.GetOriginal().SendMessage("OnPortalExit", portalIn.gameObject.GetComponent<Portal>());
+            leavingPortal.GetOriginal().SendMessage("OnPortalExit", leavingPortal._transitioningPortalObject);
     }
-    
     private void TriggerOnPortalTransitioning(TransitioningObject leavingPortal)
     {
-        // todo send message o directamente llamar la funcion... como es un interface
         if(leavingPortal.GetImplementsIPortal())
-            leavingPortal.GetOriginal().SendMessage("OnPortalTransitioning", portalIn.gameObject.GetComponent<Portal>());
+            leavingPortal.GetOriginal().SendMessage("OnPortalTransitioning", leavingPortal._transitioningPortalObject);
         
     }
-
+    private void TriggerOnPortalCrossed(TransitioningObject crossingPortal)
+    {
+        if(crossingPortal.GetImplementsIPortal())
+            crossingPortal.GetOriginal().SendMessage("OnPortalCrossed", crossingPortal._transitioningPortalObject);
+    }
+    
+    
     private TransitioningObject? GetObjectOnPortalLeaving(GameObject o)
     {
         var objectOnPortalLeavingIndex = _objectsOnPortal.FindIndex(item => item.GetOriginal().gameObject.Equals(o) );
@@ -333,7 +332,7 @@ public class PortalTransport : MonoBehaviour
                 t.GetPortalOut().AddTransitioningObject(t);
                 t.SwitchPortals( _portalOut,portalIn);
                 _objectsOnPortal.Remove(t);
-                
+                TriggerOnPortalCrossed(t);
                 return;
                 
             } 
@@ -369,13 +368,14 @@ public class PortalTransport : MonoBehaviour
         {
             if (originalToClone.clone.parent == transitioningObject.GetPortalOut().transform)
             {
+                print("hi");
                 //scale
                 originalToClone.clone.localScale = originalToClone.original.localScale;
                
                 // position
-                var objectToPortal = portalIn.transform.InverseTransformDirection(originalToClone.original.position - portalIn.gameObject.transform.position);
-                var localPos = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
-                originalToClone.clone.position = _portalOut.transform.TransformPoint(localPos);
+                var objectToPortal = portalIn.transform.InverseTransformDirection(originalToClone.original.position - portalIn.transform.position) ;
+                var localPos = new Vector3(-objectToPortal.x* (1/portalIn.transform.localScale.x), objectToPortal.y* (1/portalIn.transform.localScale.y), -objectToPortal.z* (1/portalIn.transform.localScale.z));
+                originalToClone.clone.localPosition =localPos;
                 
                 //rotation
                 var rotation = Quaternion.LookRotation(-portalIn.transform.forward, portalIn.transform.up);
