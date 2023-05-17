@@ -325,10 +325,8 @@ public class PortalTransport : MonoBehaviour
         for (int j = 0; j < _objectsOnPortal.Count ; j++)
         {
             var t = _objectsOnPortal[j];
-
-            if (!t.GetOriginalRigidbody().worldCenterOfMass.IsInFrontOfWithError(portalIn.transform, 0.5f))
+            if (!t.GetOriginalRigidbody().worldCenterOfMass.IsInFrontOf(portalIn.transform))
             {
-                print("middle crossed");
                 t.GetPortalOut().AddTransitioningObject(t);
                 t.SwitchPortals( _portalOut,portalIn);
                 _objectsOnPortal.Remove(t);
