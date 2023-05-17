@@ -374,7 +374,7 @@ public class PortalTransport : MonoBehaviour
             {
                 print("hi");
                 //scale
-                originalToClone.clone.localScale = originalToClone.original.localScale;
+                originalToClone.clone.localScale = new Vector3(originalToClone.original.localScale.x* (1/portalIn.transform.localScale.y),originalToClone.original.localScale.y* (1/portalIn.transform.localScale.x), originalToClone.original.localScale.z* (1/portalIn.transform.localScale.z) );
                
                 // position
                 var objectToPortal = portalIn.transform.InverseTransformDirection(originalToClone.original.position - portalIn.transform.position) ;
