@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Codice.Client.BaseCommands;
 using Scripts;
@@ -24,9 +25,7 @@ public class TransitioningObject
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
         _clone = clone;
-        _mainCamera = _clone.GetMainCamera();
-        if (!(_mainCamera == null)) 
-            _mainCamera.SetActive(false);
+        _mainCamera = _original.GetMainCamera();
         _portalIn = portalIn;
         _portalOut = portalOut;
         _originalToCloneList= originalToCloneList;

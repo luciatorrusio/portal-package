@@ -328,7 +328,7 @@ public class PortalTransport : MonoBehaviour
 
             if (!t.GetOriginalRigidbody().worldCenterOfMass.IsInFrontOfWithError(portalIn.transform, 0.5f))
             {
-                // print("changing from "+portalIn.name +" to "+_portalOut.name);
+                print("middle crossed");
                 t.GetPortalOut().AddTransitioningObject(t);
                 t.SwitchPortals( _portalOut,portalIn);
                 _objectsOnPortal.Remove(t);
@@ -336,15 +336,19 @@ public class PortalTransport : MonoBehaviour
                 return;
                 
             } 
-            if (t.GetMainCamera() != null)
-            {
-                if (!t.GetOriginal().GetMainCamera().transform.IsInFrontOf(portalIn.transform))
-                {
-                    _objectsOnPortal.Remove(t);
-                    ExitPortal(t);
-                    return;
-                }
-            }
+            //todo camera caseaj
+            // if (t.GetMainCamera() != null)
+            // {
+            //     if (!t.GetMainCamera().transform.IsInFrontOf(portalIn.transform))
+            //     {
+            //         print("camera crossed");
+            //         t.GetPortalOut().AddTransitioningObject(t);
+            //         t.SwitchPortals( _portalOut,portalIn);
+            //         _objectsOnPortal.Remove(t);
+            //         TriggerOnPortalCrossed(t);
+            //         return;
+            //     }
+            // }
              
             ReplicateTransform(t);
             TriggerOnPortalTransitioning(t);
