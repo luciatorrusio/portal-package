@@ -273,8 +273,8 @@ public class PortalTransport : MonoBehaviour
         if (leavingPortal == null ||  leavingPortal.GetClone()==null)
             return;
         _objectsOnPortal.Remove(leavingPortal);
-        CrossPortal(leavingPortal);
-        ExitPortal(leavingPortal);
+        if(!CrossPortal(leavingPortal))
+            ExitPortal(leavingPortal);
 
     }
     # region TRIGGERS
@@ -320,7 +320,7 @@ public class PortalTransport : MonoBehaviour
         }
         
     }
-    private void CrossPortal(TransitioningObject t)
+    private bool CrossPortal(TransitioningObject t)
     {
         ReplicateTransform(t);
         var worldCenterOfMass = t.GetOriginal().position + t.GetOriginalRigidbody().centerOfMass;
@@ -332,9 +332,11 @@ public class PortalTransport : MonoBehaviour
             t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
             _objectsOnPortal.Remove(t);
             TriggerOnPortalCrossed(t);
-            return;
+            return true;
                 
-        } 
+        }
+
+        return false;
         // if (t.GetMainCamera() != null)
         // {
         //     
