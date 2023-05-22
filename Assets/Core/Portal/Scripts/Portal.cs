@@ -1,184 +1,185 @@
-
-using System;
+using System.Collections.Generic;
+using Core.Portal.Utils;
 using GizmosExtendedNamespace;
 using JetBrains.Annotations;
 using UnityEngine;
 using Utils;
 
-public class Portal : MonoBehaviour
+namespace Core.Portal.Scripts
 {
-    
-    // SET VARIABLES
-    private bool _notBlocked = false;
-    // [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
-    [HideInInspector]
-    [SerializeField] private InPortal _inPortal;
-    
-    [HideInInspector]
-    [SerializeField] private OutPortal _outPortal;
-    
-    [HideInInspector]
-    [SerializeField] private PortalTextureSetup portalTextureSetup;
-    
-    [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
-    
-    [HideInInspector]
-    [SerializeField] private Transform renderPlane;
-    
-    [HideInInspector]
-    [SerializeField] private Transform frame;
-    
-    [HideInInspector]
-    [SerializeField] private PortalTransport portalTransport;
-
-    [HideInInspector]
-    [SerializeField] private BoxCollider _collider;
-
-    [SerializeField] private Mesh PortalMesh = null;
-    // [SerializeField] private Vector3 colliderScaleMultiplier = new Vector3(1, 1, 1);
-    // [SerializeField] private Vector3 scale = new Vector3(1, 1, 1);
-    
-    [NotNull] private Camera mainCamera;
-    [HideInInspector]
-    [SerializeField] private Renderer _renderer;
-    
-    void Awake()
+    public class Portal : MonoBehaviour
     {
-        var camera = Camera.main;
+        #region declarations
+        [HideInInspector]
+        [SerializeField] private PortalTextureSetup portalTextureSetup;
+    
+        [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
 
-        if (camera != null)
+        [HideInInspector]
+        [SerializeField]private List<Portal> linkedInPortals = new List<Portal>();
+        [HideInInspector]
+        [SerializeField] private MeshFilter renderPlane;
+
+        [HideInInspector]
+        [SerializeField] private PortalTransport portalTransport;
+
+        [SerializeField] private Mesh PortalMesh;
+        [SerializeField] private Material defaultMaterial;
+
+        [SerializeField] private PortalUtils.PortalMode portalMode; 
+    
+    
+        [SerializeField]
+        [ShowOnlyIf("portalMode", PortalUtils.PortalMode.NO_IMAGE)]
+        private Material portalMaterial;
+        #endregion
+
+    
+        void Start()
         {
-            mainCamera = camera;
+            if (linkedOutPortal != null)
+                SetAsInPortal();
         }
+
+        #region API
+        public void SetLinkedOutPortal(Portal newLinkedOutPortal)
+        {
+            if(newLinkedOutPortal != null)
+            {
+                linkedOutPortal.RemoveLinkedInPortal(this);
+                linkedOutPortal = newLinkedOutPortal;
+                linkedOutPortal.AddLinkedInPortal(this);
+                SetAsInPortal();
+            }
+            else
+            {
+                RemoveLinkedOutPortal();
+            }
+        }
+        public void RemoveLinkedOutPortal()
+        {
+            linkedOutPortal.RemoveLinkedInPortal(this);
+            linkedOutPortal = null;
+            portalTextureSetup.SetDefaultMaterial();
+        }
+        public Portal GetLinkedOutPortal()
+        {
+            return linkedOutPortal;
+        }
+        public void SetPortalMesh()
+        {
+            if(PortalMesh == null)
+                Debug.LogWarning("Mesh is null in " + gameObject.name);
+            renderPlane.mesh = PortalMesh;
+        }
+
+    
+        public void UpdateDefaultMaterial(Material material)
+        {
+            portalTextureSetup.UpdateDefaultMaterial(material);
+        }
+        public void SetPortalMaterial(Material material)
+        {
+            portalTextureSetup.SetPortalMaterial(material);
+        }
+        public List<Portal> GetLinkedInPortals()
+        {
+            return linkedInPortals;
+        }
+
+        public void UpdatePortalMode(PortalUtils.PortalMode newMode)
+        {
+            portalMode = newMode;
+            switch (portalMode)
+            {
+                case PortalUtils.PortalMode.FULL_FUNCTION:
+                    portalTransport.enabled = true;
+                    PortalManager.AddPortal(this);
+                    break;
+                case PortalUtils.PortalMode.NO_TRANSPORTATION:
+                    portalTransport.enabled = false;
+                    PortalManager.AddPortal(this);
+                    break;
+                case PortalUtils.PortalMode.NO_IMAGE: 
+                    portalTransport.enabled = true;
+                    PortalManager.RemovePortal(this);
+                    portalTextureSetup.SetPortalMaterial(portalMaterial);
+                    break;
+            }
+        }
+    
+        #endregion
+
+        /// <summary>
+        /// This function is not intended for use.
+        /// </summary>
+        public void UpdateDefaultMaterial()
+        {
+            portalTextureSetup.UpdateDefaultMaterial(defaultMaterial);
+        }
+        private void AddLinkedInPortal(Portal portal)
+        {
+            linkedInPortals.Add(portal);
+        }
+
+        private void RemoveLinkedInPortal(Portal portal)
+        {
+            linkedInPortals.Remove(portal);
+        }
+
+        private void SetAsInPortal()
+        {
+            portalTextureSetup.gameObject.SetActive(true);
+            portalTextureSetup.SetCameraMaterial();
+            gameObject.SetActive(true);
+            linkedOutPortal.AddLinkedInPortal(this);
+        
+            UpdatePortalMode(portalMode);
+        }
+
+
+    
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.green;
+            if (linkedOutPortal != null)
+            {
+                var localScale = transform.localScale;
+                var linkedOutPortalTransform = linkedOutPortal.transform;
+                var position = transform.position;
+                GizmosExtended.DrawPlane(transform, new Vector2(PortalMesh.bounds.size.x * localScale.x, PortalMesh.bounds.size.z * localScale.y), Color.green);
+                GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(linkedOutPortal.PortalMesh.bounds.size.x * linkedOutPortalTransform.localScale.x, linkedOutPortal.PortalMesh.bounds.size.z * linkedOutPortalTransform.localScale.y), Color.red);
+                GizmosExtended.DrawArrow(position,linkedOutPortal.transform.position- position, Color.yellow, 2f, 40f);
+                GizmosExtended.DrawArrow(linkedOutPortalTransform.position ,linkedOutPortalTransform.forward , Color.red);
+                GizmosExtended.DrawArrow(position+(transform.forward* 1f), -transform.forward, Color.green);
+            }
             
-    }
-    void Start()
-    {
-        if (linkedOutPortal != null)
-            SetAsInPortal();
-    }
-
-    private Camera GetMainCamera()
-    {
-        if (mainCamera == null)
-            throw new Exception("no main camera found in the scene");
-        return mainCamera;
-    }
-
-    public InPortal SetAsInPortal()
-    {
-        // InPortal
-        _inPortal.enabled = true;
-        if (linkedOutPortal != null)
+        
+        }
+    
+    
+        private void OnEnable()
         {
-            _inPortal.SetLinkedOutPortal(linkedOutPortal.GetOutPortal());
+            PortalManager.AddPortal(this);
+        }
+        private void OnDisable()
+        {
+            PortalManager.RemovePortal(this);
         }
 
-        portalTextureSetup.gameObject.SetActive(true);
-        gameObject.SetActive(true);
-        linkedOutPortal.SetAsOutPortal();
-        
-        return _inPortal;
-    }
 
-    public OutPortal SetAsOutPortal()
-    {
-        _outPortal.enabled = true;
-        return _outPortal;
-    }
-
-    private void Setup(bool isInPortal)
-    {
-        // InPortal
-        _inPortal.enabled = isInPortal;
-        linkedOutPortal = isInPortal ? linkedOutPortal: null;
-        if (linkedOutPortal != null)
+        public RenderTexture GetRenderTexture()
         {
-            _inPortal.SetLinkedOutPortal(linkedOutPortal.GetOutPortal());
+            return portalTextureSetup.GetRenderTexture();
         }
 
-        portalTextureSetup.gameObject.SetActive(isInPortal);
-        gameObject.SetActive(isInPortal);
-        
-        // OutPortal
-        _outPortal.enabled = !isInPortal;
-    }
-    
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-        if (linkedOutPortal != null)
+
+        public void AddTransitioningObject(TransitioningObject transitioningObject)
         {
-            GizmosExtended.DrawPlane(transform, new Vector2(2,3), Color.green);
-            GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(2,3), Color.red);
-            GizmosExtended.DrawArrow(transform.position,linkedOutPortal.transform.position- transform.position, Color.yellow, 2f, 40f);
-            GizmosExtended.DrawArrow(linkedOutPortal.transform.position ,linkedOutPortal.transform.forward , Color.red);
-            GizmosExtended.DrawArrow(transform.position+(transform.forward* 1f), -transform.forward, Color.green);
+            portalTransport.AddTransitioningObject(transitioningObject);
         }
-            
-        
-    }
-
-
-    public Camera GetCamera()
-    {
-        return _outPortal.GetCamera();
-    }
-    
-
-    public OutPortal GetOutPortal()
-    {
-        return _outPortal;
-    }
-    
-    public Portal GetLinkedOutPortal()
-    {
-        return linkedOutPortal;
-    }
-
-    public void SetScale()
-    {
-        // renderPlane.localScale =new Vector3(scale.x, scale.z, scale.y);
-        // frame.localScale = new Vector3(scale.x, scale.z, scale.y);
-        // _collider.center = new Vector3(0, 0, (scale.z*colliderScaleMultiplier.z)/ 2);
-        // _collider.size =  new Vector3(scale.x * colliderScaleMultiplier.x , scale.y*colliderScaleMultiplier.y, scale.z*colliderScaleMultiplier.z  );
-    }
-
-    public void SetMeshFilter()
-    {
-        if(PortalMesh == null)
-            Debug.LogWarning("Mesh is null in " + gameObject.name);
-        renderPlane.GetComponent<MeshFilter>().mesh = PortalMesh;
-    }
-    
-    private void OnEnable()
-    {
-        PortalRecursion.AddPortal(this);
-    }
-    private void OnDisable()
-    {
-        PortalRecursion.RemovePortal(this);
-    }
-
-    public bool isVisible()
-    {
-        return _renderer.isVisible;
-    }
-
-    public RenderTexture GetRenderTexture()
-    {
-        return portalTextureSetup.GetRenderTexture();
-    }
-
-    public GameObject GetRenderPlane()
-    {
-        return portalTextureSetup.gameObject;
-    }
-
-    public void AddTransitioningObject(TransitioningObject transitioningObject)
-    {
-        portalTransport.AddTransitioningObject(transitioningObject);
-    }
     
     
+    }
 }
+

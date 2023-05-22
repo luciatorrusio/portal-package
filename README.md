@@ -16,7 +16,7 @@ It supports multiple portals linked however the developer wants.
 1. Enter the following URL and click `Add` button
 
 ```
-https://github.com/luciatorrusio/portal-package.git?path=Assets
+https://github.com/luciatorrusio/portal-package.git?path=Assets/Core
 ```
 
 </details>
@@ -29,6 +29,4 @@ Head over to the prefabs folder in the portal package. Here you will find Portal
 The PortalManager will have to be present anywhere in the Hierarchy for portals to work. 
 
 The portal prefab you should simply drag it wherever you want in the scene.
-
-Es necesario que tengan las mismas dimensiones el portal de entrada como el de salida.
 

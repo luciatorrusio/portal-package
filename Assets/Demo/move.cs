@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class move : MonoBehaviour, IPortal
+public class move : MonoBehaviour, TransitionListener
 {
     private float speed = 1;
 
@@ -20,22 +20,22 @@ public class move : MonoBehaviour, IPortal
     }
 
 
-    public void OnPortalEnter(TransitioningPortalObject transitioning)
+    public void OnPortalEnter(Transition transitioning)
     {
         print("onPortalEnter");
     }
 
-    public void OnPortalTransitioning(TransitioningPortalObject transitioning)
+    public void OnPortalTransitioning(Transition transitioning)
     {
         print("OnPortalTransitioning");
     }
 
-    public void OnPortalExit(TransitioningPortalObject transitioning)
+    public void OnPortalExit(Transition transitioning)
     {
         print("OnPortalExit");
     }
 
-    public void OnPortalCrossed(TransitioningPortalObject transitioning)
+    public void OnPortalCrossed(Transition transitioning)
     {
         print("OnPortalCrossed");
     }

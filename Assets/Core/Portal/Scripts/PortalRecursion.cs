@@ -1,51 +1,35 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Scripts;
+using Core.Portal.Scripts;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using Utils;
 using RenderPipeline = UnityEngine.Rendering.RenderPipelineManager;
 
 
 public class PortalRecursion : MonoBehaviour
 {
-    private static  List<Portal> allPortals = new List<Portal>();
-    private static Camera _camera;
-    private bool _notBlocked = false;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
-    [SerializeField] private CameraOutMovement cameraOutMovement;
+    [HideInInspector]
+    [SerializeField]private Camera _camera;
+    [HideInInspector]
+    [SerializeField] private PortalCameraController portalCameraController;
     [SerializeField] private int recursiveIterations;
-    private int _currentIterations = 0;
+    
+    [HideInInspector]
+    [SerializeField] private PortalManager _portalManager;
 
     void Start()
     {
         RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
-        _camera = gameObject.GetComponent<Camera>();
     }
 
-    public static void AddPortal(Portal newPortal)
-    {
-        allPortals.Add(newPortal);
-    }
-
-    public static Camera GetPortalCamera()
-    {
-        return _camera;
-    }
-
-    public static void RemovePortal(Portal portal)
-    {
-        allPortals.Remove(portal);
-    }
+    
 
     void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
     {
-        if (!camera.CompareTag("MainCamera")) 
+        if (!(camera == _portalManager.GetMainCamera())) 
             return;
-        // foreach (var portal in allPortals.Where(portal => camera.IsLooking(portal.GetRenderPlane().gameObject) && portal.GetLinkedOutPortal() != null))
-        foreach (var portal in allPortals.Where(portal => portal.GetLinkedOutPortal() != null))
+        foreach (var portal in PortalManager.allPortals.Where(portal => portal.GetLinkedOutPortal() != null))
         {
             for (var i = 0; i <= recursiveIterations; i++)
             {
@@ -56,7 +40,7 @@ public class PortalRecursion : MonoBehaviour
     
     private void RenderCamera(Portal inPortal, int iterationID, ScriptableRenderContext context, Camera cameraBeingReplicated)
     {
-        cameraOutMovement.SetCameraBeingReplicated(cameraBeingReplicated);
+        portalCameraController.SetCameraBeingReplicated(cameraBeingReplicated);
         if (iterationID == recursiveIterations)
         {
             _camera.targetTexture =  inPortal.GetRenderTexture();
@@ -68,13 +52,11 @@ public class PortalRecursion : MonoBehaviour
         
         if (  inPortal.GetLinkedOutPortal()!= null)
         {
-            cameraOutMovement.SetPortalIn(inPortal.transform);
-            cameraOutMovement.SetPortalOut( inPortal.GetLinkedOutPortal().transform);
-            cameraOutMovement.SetPositionAndAngle();
-            cameraOutMovement.SetNearClippingPlane();
+            portalCameraController.SetPortalIn(inPortal.transform);
+            portalCameraController.SetPortalOut( inPortal.GetLinkedOutPortal().transform);
+            portalCameraController.SetPositionAndAngle();
+            portalCameraController.SetNearClippingPlane();
 
-            // if (!_camera.transform.IsInFrontOf(inPortal.transform))
-            // if ( _camera.IsLooking(inPortal.GetRenderPlane().gameObject) && inPortal.GetLinkedOutPortal() != null)
             if ( inPortal.GetLinkedOutPortal() != null)
             {
                 RenderCamera(inPortal, iterationID, context, _camera);

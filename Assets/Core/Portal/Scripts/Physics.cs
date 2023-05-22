@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Core.Portal.Scripts;
 using UnityEngine;
 using static Utils.PortalUtils;
 namespace Scripts
@@ -33,14 +34,14 @@ namespace Scripts
             if (portal == null)
                 return true;
             
-            if (!origin.IsInFrontOf(portal.transform) || portal.GetOutPortal() == null)
+            if (!origin.IsInFrontOf(portal.transform) || portal.GetLinkedOutPortal() == null)
             {
                 //nuevo raycast en el mismo mundo desde el portal
                 return PortalRaycast(hit.point, direction, maxDistance - hit.distance, layerMask, queryTriggerInteraction);
             }
             // hit portal, we have to cast a new raycast from outPortal
-            var newOrigin = GetRelativeWorldPos(hit.point, portal.transform, portal.GetOutPortal().transform);
-            var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetOutPortal().transform);
+            var newOrigin = GetRelativeWorldPos(hit.point, portal.transform, portal.GetLinkedOutPortal().transform);
+            var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);
             return PortalRaycast(newOrigin, newDirection, maxDistance - hit.distance, layerMask, queryTriggerInteraction);
             
         }

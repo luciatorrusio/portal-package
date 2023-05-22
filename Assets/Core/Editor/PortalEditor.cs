@@ -1,4 +1,5 @@
 
+using Core.Portal.Scripts;
 using UnityEditor;
 [CustomEditor(typeof(Portal))]
 public class PortalEditor : Editor
@@ -7,7 +8,8 @@ public class PortalEditor : Editor
     {
         base.OnInspectorGUI();
         Portal portal = (Portal)target;
-        portal.SetScale();
+        portal.SetPortalMesh();
+        portal.UpdateDefaultMaterial();
         
     }
 }

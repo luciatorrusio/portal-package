@@ -9,12 +9,11 @@ public class PortalTextureSetup : MonoBehaviour
     private  Camera cameraOut;
     private Material _portalInMat;
     [SerializeField] private Material _defaultMaterial;
-    private bool notBlocked = false;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [HideInInspector]
     [SerializeField] private Shader shader;
 
     private RenderTexture _targetTexture;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(notBlocked))]
+    [HideInInspector]
     [SerializeField] private Renderer renderer;
     
     // crea el material que tendra el plano y se lo pone al plano
@@ -25,18 +24,25 @@ public class PortalTextureSetup : MonoBehaviour
         _targetTexture = new RenderTexture(Screen.width, Screen.height, 24);
         _portalInMat.mainTexture = _targetTexture;
     }
+    
 
     public RenderTexture GetRenderTexture()
     {
         return _targetTexture;
     }
-    void Start()
+    
+    public void UpdateDefaultMaterial(Material material)
     {
-       SetCameraMaterial();
+        _defaultMaterial = material;
     }
 
     public void SetDefaultMaterial()
     {
         renderer.material = _defaultMaterial;
+    }
+
+    public void SetPortalMaterial(Material material)
+    {
+        renderer.material = material;
     }
 }

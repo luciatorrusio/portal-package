@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
-using Codice.Client.BaseCommands;
+using Core.Portal.Scripts;
 using Scripts;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Utils;
 
@@ -18,7 +16,7 @@ public class TransitioningObject
     private readonly IEnumerable<( Transform original, Transform clone)> _originalToCloneList;
     private readonly List<Material> _originalMaterials = new List<Material>();
     private readonly List<Material> _cloneMaterials = new List<Material>();
-    public TransitioningPortalObject _transitioningPortalObject { get; private set; }
+    public Transition Transition { get; }
 
     public TransitioningObject(Transform original,Transform clone, Portal portalIn, Portal portalOut,IEnumerable<( Transform original, Transform clone)> originalToCloneList,  bool implementsIPortal)
     {
@@ -32,18 +30,7 @@ public class TransitioningObject
         _implementsIPortal = implementsIPortal;
         _cloneMaterials.AddRange(SetMaterials(clone.gameObject));
         _originalMaterials.AddRange(SetMaterials(original.gameObject));
-        _transitioningPortalObject = new TransitioningPortalObject(_original, _clone, _portalIn, _portalOut);
-    }
-
-    public void Transport()
-    {
-        _original.forward = _clone.forward;
-        _original.rotation = _clone.rotation;
-        _original.position = _clone.position;
-        var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn.transform, _portalOut.transform);
-        _originalRigidbody.velocity =  newVelocity ;
-        _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
-
+        Transition = new Transition(_original, _clone, _portalIn, _portalOut);
     }
     
 
@@ -55,11 +42,6 @@ public class TransitioningObject
     public GameObject GetMainCamera()
     {
         return _mainCamera;
-    }
-
-    public bool EnteredPortal()
-    {
-        return ! _original.transform.IsInFrontOf(_portalIn.transform);
     }
     
     public Transform GetClone()
@@ -85,22 +67,20 @@ public class TransitioningObject
     
     public void SwitchPortals(Portal portalIn, Portal portalOut)
     {
-        _clone.gameObject.SetActive(false);
-        
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
         (_original.position, _clone.position) = (_clone.position, _original.position);
         var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn.transform, _portalOut.transform);
         _originalRigidbody.velocity =  newVelocity ;
         _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
-        _clone.gameObject.SetActive(true);
+        
         
         _clone.parent = portalOut.transform;
         _portalIn = portalIn;
         _portalOut = portalOut;
 
-        _transitioningPortalObject._portalIn = portalIn;
-        _transitioningPortalObject._portalIn = portalOut;
+        Transition._portalIn = portalIn;
+        Transition._portalIn = portalOut;
     }
 
     

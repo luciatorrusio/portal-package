@@ -26,7 +26,15 @@ namespace Utils
         }
         public enum CloneMode
         {
-            AUTOMATIC,CUSTOM
+            AUTOMATIC, // The clone is a duplicate of the original, (only the mesh and colliders is duplicated)
+            CUSTOM // the clone GameObject is given by the user 
+        }
+        
+        public enum PortalMode
+        {
+            FULL_FUNCTION, // it transports the objects and sets the texture
+            NO_TRANSPORTATION, // only sets the texture
+            NO_IMAGE
         }
     }
 }

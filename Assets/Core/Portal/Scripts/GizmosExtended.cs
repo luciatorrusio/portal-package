@@ -1,6 +1,5 @@
 ﻿ 
 using UnityEngine;
-using System.Collections;
 
 namespace GizmosExtendedNamespace
 {
@@ -30,7 +29,7 @@ namespace GizmosExtendedNamespace
         public static void DrawPlane(Transform transform, Vector2 size, Color color)
         {
             var forward = transform.forward;
-            Quaternion rotation = Quaternion.LookRotation(transform.TransformDirection(forward));
+            Quaternion rotation = Quaternion.LookRotation(forward);
             Matrix4x4 trs = Matrix4x4.TRS(transform.TransformPoint(Vector3.zero), rotation, Vector3.one);
             Gizmos.matrix = trs;
             Gizmos.color = color;

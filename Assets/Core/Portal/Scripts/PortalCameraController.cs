@@ -1,19 +1,17 @@
 using Scripts;
 using UnityEngine;
-using Utils;
 using Matrix4x4 = UnityEngine.Matrix4x4;
 using Plane = UnityEngine.Plane;
 using Quaternion = UnityEngine.Quaternion;
 using Vector4 = UnityEngine.Vector4;
 
 [RequireComponent(typeof(Camera))] 
-public class CameraOutMovement : MonoBehaviour
+public class PortalCameraController : MonoBehaviour
 {
     private Transform _cameraBeingReplicated;
-    private bool _notBlocked = false;
     private Transform _portalOut;
     private Transform _portalIn;
-    [ShowIf(ActionOnConditionFail.DontDraw, ConditionOperator.And, nameof(_notBlocked))]
+    [HideInInspector]
     [SerializeField] private Camera _camera;
 
     public void SetCameraBeingReplicated(Camera cameraBeingReplicated)

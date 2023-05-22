@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7789804372265317643}
   - component: {fileID: 7789804372265317642}
   - component: {fileID: 7789804372265317645}
+  - component: {fileID: 104236919364518333}
   m_Layer: 0
   m_Name: PortalManager
   m_TagString: Untagged
@@ -123,8 +124,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27dd0a3a752488944a5e2ca66a4c6ad7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraOutMovement: {fileID: 7789804372265317645}
+  _camera: {fileID: 7789804372265317640}
+  portalCameraController: {fileID: 0}
   recursiveIterations: 7
+  _portalManager: {fileID: 104236919364518333}
 --- !u!114 &7789804372265317645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,3 +141,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camera: {fileID: 7789804372265317640}
+--- !u!114 &104236919364518333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7789804372265317644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1587d97b3272064cbc22a8542ecc634, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 0}
