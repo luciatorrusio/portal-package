@@ -7,10 +7,12 @@ public class PortalManager : MonoBehaviour
 {
     public static HashSet<Portal> allPortals { get; set; }
     [SerializeField] private Camera mainCamera;
+    private static Camera portalCamera;
 
     private void Awake()
     {
         allPortals = new HashSet<Portal>();
+        portalCamera = GetComponent<Camera>();
     }
 
     private void Start()
@@ -37,10 +39,14 @@ public class PortalManager : MonoBehaviour
     public static void AddPortal(Portal newPortal)
     {
         allPortals.Add(newPortal);
+        if (allPortals.Count == 1)
+            portalCamera.enabled = true;
     }
 
     public static void RemovePortal(Portal portal)
     {
         allPortals.Remove(portal);
+        if (allPortals.Count == 0)
+            portalCamera.enabled = false;
     }
 }

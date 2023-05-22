@@ -326,8 +326,6 @@ public class PortalTransport : MonoBehaviour
         var worldCenterOfMass = t.GetOriginal().position + t.GetOriginalRigidbody().centerOfMass;
         if (!worldCenterOfMass.IsInFrontOfWithError(portal.transform, 0.1f))
         {
-            print("crossed" + transform.name);
-            print("center of mass: " + t.GetOriginalRigidbody().worldCenterOfMass + " and portal: " + portal.transform.position);
             t.GetPortalOut().AddTransitioningObject(t);
             t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
             _objectsOnPortal.Remove(t);
