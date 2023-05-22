@@ -273,7 +273,7 @@ public class PortalTransport : MonoBehaviour
         if (leavingPortal == null ||  leavingPortal.GetClone()==null)
             return;
         _objectsOnPortal.Remove(leavingPortal);
-
+        CrossPortal(leavingPortal);
         ExitPortal(leavingPortal);
 
     }
@@ -315,34 +315,41 @@ public class PortalTransport : MonoBehaviour
         for (var j = 0; j < _objectsOnPortal.Count ; j++)
         {
             var t = _objectsOnPortal[j];
-            if (!t.GetOriginalRigidbody().worldCenterOfMass.IsInFrontOfWithError(portal.transform, 0.1f))
-            {
-                t.GetPortalOut().AddTransitioningObject(t);
-                t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
-                _objectsOnPortal.Remove(t);
-                TriggerOnPortalCrossed(t);
-                print("trigger from 1");
-                return;
-                
-            } 
-            if (t.GetMainCamera() != null)
-            {
-                if (!t.GetMainCamera().transform.IsInFrontOfWithError(portal.transform, 0.1f))
-                {
-                    t.GetPortalOut().AddTransitioningObject(t);
-                    t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
-                    _objectsOnPortal.Remove(t);
-                    TriggerOnPortalCrossed(t);
-                    print("trigger from 2");
-                    return;
-                }
-            }
-             
-            ReplicateTransform(t);
+            CrossPortal(t);
             TriggerOnPortalTransitioning(t);
         }
         
     }
+    private void CrossPortal(TransitioningObject t)
+    {
+        ReplicateTransform(t);
+        var worldCenterOfMass = t.GetOriginal().position + t.GetOriginalRigidbody().centerOfMass;
+        if (!worldCenterOfMass.IsInFrontOfWithError(portal.transform, 0.1f))
+        {
+            print("crossed" + transform.name);
+            print("center of mass: " + t.GetOriginalRigidbody().worldCenterOfMass + " and portal: " + portal.transform.position);
+            t.GetPortalOut().AddTransitioningObject(t);
+            t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
+            _objectsOnPortal.Remove(t);
+            TriggerOnPortalCrossed(t);
+            return;
+                
+        } 
+        // if (t.GetMainCamera() != null)
+        // {
+        //     
+        //     if (!t.GetMainCamera().transform.position.IsInFrontOfWithError(portal.transform, 0.1f))
+        //     // if (!t.GetMainCamera().transform.IsInFrontOf(portal.transform))
+        //     {
+        //         t.GetPortalOut().AddTransitioningObject(t);
+        //         t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
+        //         _objectsOnPortal.Remove(t);
+        //         TriggerOnPortalCrossed(t);
+        //         return;
+        //     }
+        // }
+    }
+
     
     
     
