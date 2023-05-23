@@ -20,6 +20,8 @@ namespace Core.Portal.Scripts
         [HideInInspector]
         [SerializeField] private MeshFilter renderPlane;
 
+        [HideInInspector] 
+        [SerializeField] private Renderer _renderer;
         [HideInInspector]
         [SerializeField] private PortalTransport portalTransport;
 
@@ -27,7 +29,6 @@ namespace Core.Portal.Scripts
         [SerializeField] private Material defaultMaterial;
 
         [SerializeField] private PortalUtils.PortalMode portalMode; 
-    
     
         [SerializeField]
         [ShowOnlyIf("portalMode", PortalUtils.PortalMode.NO_IMAGE)]
@@ -72,8 +73,6 @@ namespace Core.Portal.Scripts
                 Debug.LogWarning("Mesh is null in " + gameObject.name);
             renderPlane.mesh = PortalMesh;
         }
-
-    
         public void UpdateDefaultMaterial(Material material)
         {
             portalTextureSetup.UpdateDefaultMaterial(material);
@@ -107,7 +106,11 @@ namespace Core.Portal.Scripts
                     break;
             }
         }
-    
+
+        public PortalUtils.PortalMode GetPortalMode()
+        {
+            return portalMode;
+        }
         #endregion
 
         /// <summary>
@@ -171,6 +174,11 @@ namespace Core.Portal.Scripts
         public RenderTexture GetRenderTexture()
         {
             return portalTextureSetup.GetRenderTexture();
+        }
+        
+        public Renderer GetRenderer()
+        {
+            return _renderer;
         }
 
 

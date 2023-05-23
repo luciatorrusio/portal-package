@@ -22,21 +22,21 @@ public class move : MonoBehaviour, TransitionListener
 
     public void OnPortalEnter(Transition transitioning)
     {
-        print("onPortalEnter");
+        // print("onPortalEnter");
     }
 
     public void OnPortalTransitioning(Transition transitioning)
     {
-        print("OnPortalTransitioning");
+        // print("OnPortalTransitioning");
     }
 
     public void OnPortalExit(Transition transitioning)
     {
-        print("OnPortalExit");
+        // print("OnPortalExit");
     }
 
     public void OnPortalCrossed(Transition transitioning)
     {
-        print("OnPortalCrossed");
+        // print("OnPortalCrossed");
     }
 }

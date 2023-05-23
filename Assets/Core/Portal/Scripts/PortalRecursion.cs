@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.Portal.Scripts;
+using Scripts;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using Utils;
 using RenderPipeline = UnityEngine.Rendering.RenderPipelineManager;
 
 
@@ -29,7 +31,7 @@ public class PortalRecursion : MonoBehaviour
     {
         if (!(camera == _portalManager.GetMainCamera())) 
             return;
-        foreach (var portal in PortalManager.allPortals.Where(portal => portal.GetLinkedOutPortal() != null))
+        foreach (var portal in PortalManager.allPortals.Where(portal => portal.GetLinkedOutPortal() != null && camera.IsLooking(portal.GetRenderer()) ))
         {
             for (var i = 0; i <= recursiveIterations; i++)
             {
@@ -37,35 +39,35 @@ public class PortalRecursion : MonoBehaviour
             }
         }
     }
-    
+
     private void RenderCamera(Portal inPortal, int iterationID, ScriptableRenderContext context, Camera cameraBeingReplicated)
     {
-        portalCameraController.SetCameraBeingReplicated(cameraBeingReplicated);
-        if (iterationID == recursiveIterations)
+        while (true)
         {
-            _camera.targetTexture =  inPortal.GetRenderTexture();
-            UniversalRenderPipeline.RenderSingleCamera(context, _camera);
-            return;
-        }
-        
-        iterationID++;
-        
-        if (  inPortal.GetLinkedOutPortal()!= null)
-        {
-            portalCameraController.SetPortalIn(inPortal.transform);
-            portalCameraController.SetPortalOut( inPortal.GetLinkedOutPortal().transform);
-            portalCameraController.SetPositionAndAngle();
-            portalCameraController.SetNearClippingPlane();
-
-            if ( inPortal.GetLinkedOutPortal() != null)
+            portalCameraController.SetCameraBeingReplicated(cameraBeingReplicated);
+            if (iterationID == recursiveIterations)
             {
-                RenderCamera(inPortal, iterationID, context, _camera);
+                _camera.targetTexture = inPortal.GetRenderTexture();
+                UniversalRenderPipeline.RenderSingleCamera(context, _camera);
+                return;
             }
-        }
-        
-        
-    }
 
+            iterationID++;
+
+            if (inPortal.GetLinkedOutPortal() != null)
+            {
+                portalCameraController.SetPortalIn(inPortal.transform);
+                portalCameraController.SetPortalOut(inPortal.GetLinkedOutPortal().transform);
+                portalCameraController.SetPositionAndAngle();
+                portalCameraController.SetNearClippingPlane();
+                cameraBeingReplicated = _camera;
+                continue;
+            }
+
+
+            break;
+        }
+    }
 
 
     void OnDestroy()

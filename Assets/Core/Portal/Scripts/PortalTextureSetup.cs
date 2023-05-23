@@ -25,6 +25,7 @@ public class PortalTextureSetup : MonoBehaviour
         _portalInMat.mainTexture = _targetTexture;
     }
     
+    
 
     public RenderTexture GetRenderTexture()
     {

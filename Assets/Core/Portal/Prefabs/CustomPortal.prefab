@@ -151,8 +151,12 @@ MonoBehaviour:
   linkedOutPortal: {fileID: 0}
   linkedInPortals: []
   renderPlane: {fileID: 7499457454019592069}
+  _renderer: {fileID: 7499457454019592070}
   portalTransport: {fileID: 3310628299398329476}
   PortalMesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  defaultMaterial: {fileID: 2100000, guid: 408e824a2eec23b4d8d8513f20b93506, type: 2}
+  portalMode: 0
+  portalMaterial: {fileID: 0}
 --- !u!65 &8484598221913056764
 BoxCollider:
   m_ObjectHideFlags: 0

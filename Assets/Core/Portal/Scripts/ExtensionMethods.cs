@@ -45,9 +45,9 @@ namespace Scripts
             return null;
         
         }
-        public static bool IsLooking(this Camera camera, GameObject o)
+        public static bool IsLooking(this Camera camera, Renderer r)
         {
-            var bounds = o.GetComponent<Renderer>().bounds;
+            var bounds = r.bounds;
             var planes = GeometryUtility.CalculateFrustumPlanes(camera);
 
             return GeometryUtility.TestPlanesAABB(planes, bounds);

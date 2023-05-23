@@ -75,13 +75,13 @@ public class PortalTransport : MonoBehaviour
         ForwardEvents(clone, objectCrossing);
         // todo
         // IgnoreCollision( objectCrossing);
-        var iPortal = objectCrossing.GetComponent<TransitionListener>();
+        var transitionListener = objectCrossing.GetComponent<TransitionListener>();
         
         IEnumerable<(Transform original, Transform clone)> oc =
             from kvp in originalToClone
             select (kvp.Key, kvp.Value);
         
-        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portal,portal.GetLinkedOutPortal(), oc, iPortal!=null );
+        var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portal,portal.GetLinkedOutPortal(), oc, transitionListener!=null );
         _objectsOnPortal.Add(objectOnPortal);
         TriggerOnPortalEnter(objectOnPortal);
         
@@ -280,24 +280,36 @@ public class PortalTransport : MonoBehaviour
     # region TRIGGERS
     private void TriggerOnPortalEnter(TransitioningObject objectCrossing)
     {
-        if(objectCrossing.GetImplementsIPortal())
+        if(objectCrossing.GetImplementsTransitionListener())
             objectCrossing.GetOriginal().SendMessage("OnPortalEnter", objectCrossing.Transition);
+        if(objectCrossing.HasInPortalListener)
+            objectCrossing.GetPortalIn().SendMessage("OnPortalEnter", objectCrossing.Transition);
+        if(objectCrossing.HasOutPortalListener)
+            objectCrossing.GetPortalOut().SendMessage("OnPortalEnter", objectCrossing.Transition);
     }
     private void TriggerOnPortalExit(TransitioningObject leavingPortal)
     {
-        if(leavingPortal.GetImplementsIPortal())
+        if(leavingPortal.GetImplementsTransitionListener())
             leavingPortal.GetOriginal().SendMessage("OnPortalExit", leavingPortal.Transition);
+        if(leavingPortal.HasInPortalListener)
+            leavingPortal.GetPortalIn().SendMessage("OnPortalExit", leavingPortal.Transition);
+        if(leavingPortal.HasOutPortalListener)
+            leavingPortal.GetPortalOut().SendMessage("OnPortalExit", leavingPortal.Transition);
     }
     private void TriggerOnPortalTransitioning(TransitioningObject leavingPortal)
     {
-        if(leavingPortal.GetImplementsIPortal())
+        if(leavingPortal.GetImplementsTransitionListener())
             leavingPortal.GetOriginal().SendMessage("OnPortalTransitioning", leavingPortal.Transition);
         
     }
     private void TriggerOnPortalCrossed(TransitioningObject crossingPortal)
     {
-        if(crossingPortal.GetImplementsIPortal())
+        if(crossingPortal.GetImplementsTransitionListener())
             crossingPortal.GetOriginal().SendMessage("OnPortalCrossed", crossingPortal.Transition);
+        if(crossingPortal.HasInPortalListener)
+            crossingPortal.GetPortalIn().SendMessage("OnPortalCrossed", crossingPortal.Transition);
+        if(crossingPortal.HasOutPortalListener)
+            crossingPortal.GetPortalOut().SendMessage("OnPortalCrossed", crossingPortal.Transition);
     }
     
     # endregion
@@ -330,6 +342,8 @@ public class PortalTransport : MonoBehaviour
             t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
             _objectsOnPortal.Remove(t);
             TriggerOnPortalCrossed(t);
+            // t.GetOriginal().localScale = new Vector3(t.GetClone().localScale.x* (t.GetPortalOut().transform.localScale.x),t.GetClone().localScale.y* (t.GetPortalOut().transform.localScale.y), t.GetClone().localScale.z* (t.GetPortalOut().transform.localScale.x) );
+
             return true;
                 
         }

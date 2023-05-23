@@ -45,8 +45,9 @@ public class PortalManager : MonoBehaviour
 
     public static void RemovePortal(Portal portal)
     {
-        allPortals.Remove(portal);
-        if (allPortals.Count == 0)
+        if(allPortals.Count == 0)
+            return;
+        if(allPortals.Remove(portal) && allPortals.Count == 0 && portalCamera!= null)
             portalCamera.enabled = false;
     }
 }

@@ -12,13 +12,15 @@ public class TransitioningObject
     private readonly GameObject _mainCamera;
     private  Portal  _portalIn;
     private Portal _portalOut;
-    private readonly bool _implementsIPortal;
+    private readonly bool _implementsTransitionListener;
+    public  bool HasInPortalListener { get; private set; }
+    public bool HasOutPortalListener { get; private set; }
     private readonly IEnumerable<( Transform original, Transform clone)> _originalToCloneList;
     private readonly List<Material> _originalMaterials = new List<Material>();
     private readonly List<Material> _cloneMaterials = new List<Material>();
     public Transition Transition { get; }
 
-    public TransitioningObject(Transform original,Transform clone, Portal portalIn, Portal portalOut,IEnumerable<( Transform original, Transform clone)> originalToCloneList,  bool implementsIPortal)
+    public TransitioningObject(Transform original,Transform clone, Portal portalIn, Portal portalOut,IEnumerable<( Transform original, Transform clone)> originalToCloneList,  bool implementsTransitionListener)
     {
         _original = original;
         _originalRigidbody = _original.GetComponent<Rigidbody>();
@@ -27,7 +29,9 @@ public class TransitioningObject
         _portalIn = portalIn;
         _portalOut = portalOut;
         _originalToCloneList= originalToCloneList;
-        _implementsIPortal = implementsIPortal;
+        _implementsTransitionListener = implementsTransitionListener;
+        HasInPortalListener = portalIn.GetComponent<TransitionListener>() != null;
+        HasOutPortalListener = portalOut.GetComponent<TransitionListener>() != null;
         _cloneMaterials.AddRange(SetMaterials(clone.gameObject));
         _originalMaterials.AddRange(SetMaterials(original.gameObject));
         Transition = new Transition(_original, _clone, _portalIn, _portalOut);
@@ -49,9 +53,9 @@ public class TransitioningObject
         return _clone;
     }
 
-    public bool GetImplementsIPortal()
+    public bool GetImplementsTransitionListener()
     {
-        return _implementsIPortal;
+        return _implementsTransitionListener;
     }
 
     public Rigidbody GetOriginalRigidbody()
@@ -67,20 +71,24 @@ public class TransitioningObject
     
     public void SwitchPortals(Portal portalIn, Portal portalOut)
     {
+        
         _original.forward = _clone.forward;
         _original.rotation = _clone.rotation;
         (_original.position, _clone.position) = (_clone.position, _original.position);
+        _original.localScale = _clone.lossyScale;
+        
+        
         var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn.transform, _portalOut.transform);
         _originalRigidbody.velocity =  newVelocity ;
         _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
-        
-        
+
         _clone.parent = portalOut.transform;
         _portalIn = portalIn;
         _portalOut = portalOut;
-
+        (HasInPortalListener, HasOutPortalListener) = (HasOutPortalListener, HasInPortalListener);
         Transition._portalIn = portalIn;
         Transition._portalIn = portalOut;
+        
     }
 
     
