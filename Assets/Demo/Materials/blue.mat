@@ -21,14 +21,15 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: blue
-  m_Shader: {fileID: 4800000, guid: 1cbf29c8f5fb7c747bf4be95dd0b7ae9, type: 3}
+  m_Shader: {fileID: 4800000, guid: 32866eb9d22d2b740add40141eb9cba9, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -102,10 +103,12 @@ Material:
     - _ClearCoatSmoothness: 0
     - _Cull: 2
     - _Cutoff: 0.5
+    - _DestBlend: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _EnvironmentReflections: 1
+    - _FaceRenderingMode: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -116,9 +119,11 @@ Material:
     - _ReceiveShadows: 1
     - _Smoothness: 0.39
     - _SmoothnessTextureChannel: 0
+    - _SourceBlend: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
+    - _SurfaceType: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
