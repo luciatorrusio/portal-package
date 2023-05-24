@@ -1,12 +1,15 @@
 
-public interface TransitionListener
+namespace Core.Portal.Scripts
 {
+    public interface TransitionListener
+    {
 
-    void OnPortalEnter(Transition transitioning);
+        void OnPortalEnter(Transition transitioning);
 
-    void OnPortalTransitioning(Transition transitioning);
+        void OnPortalTransitioning(Transition transitioning);
 
-    void OnPortalExit(Transition transitioning);
-    void OnPortalCrossed(Transition transitioning);
+        void OnPortalExit(Transition transitioning);
+        void OnPortalCrossed(Transition transitioning);
 
+    }
 }

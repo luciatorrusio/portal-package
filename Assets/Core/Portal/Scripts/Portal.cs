@@ -1,9 +1,8 @@
 using System.Collections.Generic;
+using Core.Portal.Editor;
 using Core.Portal.Utils;
-using GizmosExtendedNamespace;
 using JetBrains.Annotations;
 using UnityEngine;
-using Utils;
 
 namespace Core.Portal.Scripts
 {
@@ -31,7 +30,9 @@ namespace Core.Portal.Scripts
         [SerializeField] private PortalUtils.PortalMode portalMode; 
     
         [SerializeField]
+#if UNITY_EDITOR
         [ShowOnlyIf("portalMode", PortalUtils.PortalMode.NO_IMAGE)]
+#endif
         private Material portalMaterial;
         #endregion
 
@@ -141,7 +142,7 @@ namespace Core.Portal.Scripts
         }
 
 
-    
+#if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.green;
@@ -159,6 +160,7 @@ namespace Core.Portal.Scripts
             
         
         }
+#endif
     
     
         private void OnEnable()

@@ -1,8 +1,7 @@
 using System.ComponentModel;
-using Core.Portal.Scripts;
 using UnityEngine;
-using static Utils.PortalUtils;
-namespace Scripts
+using static Core.Portal.Utils.PortalUtils;
+namespace Core.Portal.Scripts
 {
     public static class Physics 
     {
@@ -188,7 +187,9 @@ namespace Scripts
             {
                 return false;
             }
-            Debug.DrawRay(origin, direction *hitInfo.distance, Color.blue);  
+#if UNITY_EDITOR
+            Debug.DrawRay(origin, direction *hitInfo.distance, Color.blue); 
+#endif
             var portal = hitInfo.collider.gameObject.GetComponent<Portal>();
             if (portal == null)
                 return true;

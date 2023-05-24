@@ -1,24 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using Core.Portal.Scripts;
 using UnityEngine;
 
 public class move : MonoBehaviour, TransitionListener
 {
-    private float speed = 1;
 
-    // Update is called once per frame
-    void Update()
+    [SerializeField]private float movementSpeed = 5f;
+    [SerializeField] private float rotationSpeed = 180f;
+
+    private void Update()
     {
-        if(Input.GetKey(KeyCode.UpArrow))
-            gameObject.transform.position+= Vector3.forward*speed * Time.deltaTime ;
-        if(Input.GetKey(KeyCode.LeftArrow))
-            gameObject.transform.position+= -Vector3.right*speed * Time.deltaTime ;
-        if(Input.GetKey(KeyCode.DownArrow))
-            gameObject.transform.position+= -Vector3.forward*speed * Time.deltaTime ;
-        if(Input.GetKey(KeyCode.RightArrow))
-            gameObject.transform.position+= Vector3.right*speed * Time.deltaTime ;
-    }
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
 
+        // Move forward or backward
+        transform.Translate(Vector3.forward * verticalInput * movementSpeed * Time.deltaTime);
+
+        // Rotate left or right
+        transform.Rotate(Vector3.up * horizontalInput * rotationSpeed * Time.deltaTime);
+    }
 
     public void OnPortalEnter(Transition transitioning)
     {

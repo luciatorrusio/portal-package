@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Utils
+namespace Core.Portal.Utils
 {
     public static class PortalUtils 
     {

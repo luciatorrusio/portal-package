@@ -1,8 +1,9 @@
 ﻿ 
 using UnityEngine;
 
-namespace GizmosExtendedNamespace
+namespace Core.Portal.Scripts
 {
+#if UNITY_EDITOR
     public static class GizmosExtended
     {
         public static void DrawArrow(Vector3 pos, Vector3 direction, float arrowHeadLength = 0.25f, float arrowHeadAngle = 20.0f)
@@ -38,4 +39,5 @@ namespace GizmosExtendedNamespace
             Gizmos.color = Color.white;
         }
     }
+    #endif
 }

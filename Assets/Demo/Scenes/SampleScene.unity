@@ -421,6 +421,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127e0f54412df1e489dd585f8009595d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 5
+  rotationSpeed: 180
 --- !u!65 &421031236
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -657,6 +659,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127e0f54412df1e489dd585f8009595d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 5
+  rotationSpeed: 180
 --- !u!65 &808317283
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -853,6 +857,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127e0f54412df1e489dd585f8009595d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 5
+  rotationSpeed: 180
 --- !u!65 &1081825034
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1137,6 +1143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127e0f54412df1e489dd585f8009595d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 5
+  rotationSpeed: 180
 --- !u!65 &1229478858
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1262,6 +1270,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127e0f54412df1e489dd585f8009595d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 5
+  rotationSpeed: 180
 --- !u!114 &1355307649 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8685845199385058114, guid: e0267bfaf4cb94540b5e29680f859f4b,
@@ -1323,6 +1333,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127e0f54412df1e489dd585f8009595d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 5
+  rotationSpeed: 90
 --- !u!65 &1369147434
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1394,8 +1406,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1369147431}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.06, y: 1.6, z: -0.66}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 21.06, y: 4.48, z: -0.66}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1547,6 +1559,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127e0f54412df1e489dd585f8009595d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementSpeed: 5
+  rotationSpeed: 180
 --- !u!65 &1518761686
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -1,53 +1,54 @@
-using System;
 using System.Collections.Generic;
-using Core.Portal.Scripts;
 using UnityEngine;
 
-public class PortalManager : MonoBehaviour
+namespace Core.Portal.Scripts
 {
-    public static HashSet<Portal> allPortals { get; set; }
-    [SerializeField] private Camera mainCamera;
-    private static Camera portalCamera;
-
-    private void Awake()
+    public class PortalManager : MonoBehaviour
     {
-        allPortals = new HashSet<Portal>();
-        portalCamera = GetComponent<Camera>();
-    }
+        public static HashSet<Portal> allPortals { get; set; }
+        [SerializeField] private Camera mainCamera;
+        private static Camera portalCamera;
 
-    private void Start()
-    {
+        private void Awake()
+        {
+            allPortals = new HashSet<Portal>();
+            portalCamera = GetComponent<Camera>();
+        }
+
+        private void Start()
+        {
         
-        mainCamera = mainCamera ? mainCamera : Camera.main;
-    }
+            mainCamera = mainCamera ? mainCamera : Camera.main;
+        }
 
-    #region API
+        #region API
 
-    public Camera GetMainCamera()
-    {
-        return Camera.main;
-    }
+        public Camera GetMainCamera()
+        {
+            return Camera.main;
+        }
 
-    public void SetMainCamera(Camera camera)
-    {
-        mainCamera = camera;
-    }
+        public void SetMainCamera(Camera camera)
+        {
+            mainCamera = camera;
+        }
 
-    #endregion
+        #endregion
     
     
-    public static void AddPortal(Portal newPortal)
-    {
-        allPortals.Add(newPortal);
-        if (allPortals.Count == 1)
-            portalCamera.enabled = true;
-    }
+        public static void AddPortal(Portal newPortal)
+        {
+            allPortals.Add(newPortal);
+            if (allPortals.Count == 1)
+                portalCamera.enabled = true;
+        }
 
-    public static void RemovePortal(Portal portal)
-    {
-        if(allPortals.Count == 0)
-            return;
-        if(allPortals.Remove(portal) && allPortals.Count == 0 && portalCamera!= null)
-            portalCamera.enabled = false;
+        public static void RemovePortal(Portal portal)
+        {
+            if(allPortals.Count == 0)
+                return;
+            if(allPortals.Remove(portal) && allPortals.Count == 0 && portalCamera!= null)
+                portalCamera.enabled = false;
+        }
     }
 }

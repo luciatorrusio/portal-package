@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Utils
+namespace Core.Portal.Utils
 {
     public class EventListener : MonoBehaviour
     {

@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using Utils;
+﻿using Core.Portal.Utils;
+using UnityEngine;
 
-namespace Scripts
+namespace Core.Portal.Scripts
 {
     public interface CustomClone
     {
@@ -9,3 +9,4 @@ namespace Scripts
         PortalUtils.CloneMode GetMode();
     }
 }
+    

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Utils
+namespace Core.Portal.Utils
 {
 	/**
  * Utility component to add to game objects whose events you want forwarded from Unity's message

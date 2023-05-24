@@ -1,7 +1,7 @@
 ﻿
 using UnityEngine;
 
-namespace Scripts
+namespace Core.Portal.Scripts
 {
     public static class ExtensionMethods
     {

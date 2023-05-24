@@ -1,21 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Core.Portal.Utils
+namespace Core.Portal.Editor
 {
 #if UNITY_EDITOR
-    public class ShowOnlyIfAttribute : PropertyAttribute
-    {
-        public string conditionBoolName;
-        public object conditionValue;
-
-        public ShowOnlyIfAttribute(string boolName, object value)
-        {
-            conditionBoolName = boolName;
-            conditionValue = value;
-        }
-    }
-
     [CustomPropertyDrawer(typeof(ShowOnlyIfAttribute))]
     public class ShowOnlyIfDrawer : PropertyDrawer
     {
@@ -55,3 +43,4 @@ namespace Core.Portal.Utils
     }
 #endif
 }
+

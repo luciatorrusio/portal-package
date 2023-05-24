@@ -1,15 +1,19 @@
-
-using Core.Portal.Scripts;
 using UnityEditor;
-[CustomEditor(typeof(Portal))]
-public class PortalEditor : Editor
+
+namespace Core.Editor
 {
-    public override void OnInspectorGUI()
+#if UNITY_EDITOR
+    [CustomEditor(typeof(Portal.Scripts.Portal))]
+    public class PortalEditor : UnityEditor.Editor
     {
-        base.OnInspectorGUI();
-        Portal portal = (Portal)target;
-        portal.SetPortalMesh();
-        portal.UpdateDefaultMaterial();
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            Portal.Scripts.Portal portal = (Portal.Scripts.Portal)target;
+            portal.SetPortalMesh();
+            portal.UpdateDefaultMaterial();
         
+        }
     }
+#endif
 }

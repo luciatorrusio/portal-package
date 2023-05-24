@@ -1,41 +1,42 @@
 using System.Collections.Generic;
-using Scripts;
 using UnityEngine;
-using Physics = UnityEngine.Physics;
 
-public class CollisionHandler : MonoBehaviour
+namespace Core.Portal.Scripts
 {
-    private Transform _portalIn;
-    private Collider _collider;
-    private List<Collider> ignoredColliders;
-
-    private void Start()
+    public class CollisionHandler : MonoBehaviour
     {
-        ignoredColliders = new List<Collider>();
-        _collider = GetComponent<Collider>();
-    }
+        private Transform _portalIn;
+        private Collider _collider;
+        private List<Collider> ignoredColliders;
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if(!collision.GetContact(0).point.IsInFrontOf(_portalIn))
+        private void Start()
         {
-            var c = collision.gameObject.GetComponent<Collider>();
-            ignoredColliders.Add(c);
-            Physics.IgnoreCollision(_collider, c);
+            ignoredColliders = new List<Collider>();
+            _collider = GetComponent<Collider>();
         }
-    }
 
-    private void OnDestroy()
-    {
-        foreach (var c in ignoredColliders)
+        private void OnCollisionEnter(Collision collision)
         {
-            Physics.IgnoreCollision( _collider, c, false);    
+            if(!collision.GetContact(0).point.IsInFrontOf(_portalIn))
+            {
+                var c = collision.gameObject.GetComponent<Collider>();
+                ignoredColliders.Add(c);
+                UnityEngine.Physics.IgnoreCollision(_collider, c);
+            }
         }
+
+        private void OnDestroy()
+        {
+            foreach (var c in ignoredColliders)
+            {
+                UnityEngine.Physics.IgnoreCollision( _collider, c, false);    
+            }
         
-    }
+        }
 
-    public void SetPortal(Transform portalIn)
-    {
-        _portalIn = portalIn;
+        public void SetPortal(Transform portalIn)
+        {
+            _portalIn = portalIn;
+        }
     }
 }
