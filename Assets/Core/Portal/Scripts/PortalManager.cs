@@ -13,19 +13,15 @@ namespace Core.Portal.Scripts
         {
             allPortals = new HashSet<Portal>();
             portalCamera = GetComponent<Camera>();
+            mainCamera = mainCamera == null ? Camera.main: mainCamera;
         }
 
-        private void Start()
-        {
-        
-            mainCamera = mainCamera ? mainCamera : Camera.main;
-        }
 
         #region API
 
         public Camera GetMainCamera()
         {
-            return Camera.main;
+            return mainCamera;
         }
 
         public void SetMainCamera(Camera camera)

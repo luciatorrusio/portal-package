@@ -53,6 +53,7 @@ namespace Core.Portal.Scripts
 
                 if (inPortal.GetLinkedOutPortal() != null)
                 {
+                    // todo
                     portalCameraController.SetPortalIn(inPortal.transform);
                     portalCameraController.SetPortalOut(inPortal.GetLinkedOutPortal().transform);
                     portalCameraController.SetPositionAndAngle();

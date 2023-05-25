@@ -972,6 +972,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3310628299398329476, guid: e0267bfaf4cb94540b5e29680f859f4b,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7499457454019592064, guid: e0267bfaf4cb94540b5e29680f859f4b,
         type: 3}
       propertyPath: m_LocalRotation.w
@@ -1081,7 +1086,7 @@ PrefabInstance:
         type: 3}
       propertyPath: portalMaterial
       value: 
-      objectReference: {fileID: 2100000, guid: 233702e70a3d69942a1b79db9766052e, type: 2}
+      objectReference: {fileID: 2100000, guid: bc2aa75462ecff4459ce6e4dffc74bb6, type: 2}
     - target: {fileID: 8685845199385058114, guid: e0267bfaf4cb94540b5e29680f859f4b,
         type: 3}
       propertyPath: defaultMaterial
