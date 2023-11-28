@@ -5,6 +5,7 @@ namespace Core.Portal.Scripts
 {
     public class PortalManager : MonoBehaviour
     {
+        
         public static HashSet<Portal> allPortals { get; set; }
         [SerializeField] private Camera mainCamera;
         private static Camera portalCamera;
