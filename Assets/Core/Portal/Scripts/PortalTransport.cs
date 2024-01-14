@@ -64,7 +64,7 @@ namespace Core.Portal.Scripts
             switch (cloneMode)
             {
                 case PortalUtils.CloneMode.CUSTOM:
-                    clone = customClone.CreateClone(objectCrossing, portal.transform, portal.GetLinkedOutPortal().transform);
+                    clone = customClone.CreateClone(objectCrossing, portal.transform, portal.GetLinkedOutPortal().transform, originalToClone);
                     break;
                 default:
                     clone = CreateGameObjectTree(objectCrossing, portal.GetLinkedOutPortal().transform, originalToClone, true);
