@@ -6,11 +6,11 @@ using UnityEngine;
 
 public class CloneWithCustom : MonoBehaviour, CustomClone
 {
-    public GameObject CreateClone(GameObject original, Transform portalIn, Transform portalOut,  List<KeyValuePair<Transform, Transform>>  originalToClone)
+    public GameObject CreateClone(GameObject original, Transform portalIn, Transform portalOut,  List<(Transform original, Transform clone)>  originalToClone)
     {
         var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.parent = portalOut;
-        originalToClone.Add( new KeyValuePair<Transform, Transform>(original.transform, cube.transform));
+        originalToClone.Add( (original.transform, cube.transform));
         return cube;
     }
 

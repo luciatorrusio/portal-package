@@ -6,7 +6,7 @@ namespace Core.Portal.Scripts
 {
     public interface CustomClone
     {
-        GameObject CreateClone(GameObject original, Transform portalIn,Transform portalOut, List<KeyValuePair<Transform, Transform>>  originalToClone);
+        GameObject CreateClone(GameObject original, Transform portalIn,Transform portalOut, List<(Transform original, Transform clone)>  originalToClone);
         PortalUtils.CloneMode GetMode();
     }
 }

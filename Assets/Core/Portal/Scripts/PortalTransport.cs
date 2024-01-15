@@ -60,7 +60,7 @@ namespace Core.Portal.Scripts
             var cloneMode = customClone?.GetMode() ?? PortalUtils.CloneMode.AUTOMATIC;
         
             GameObject clone;
-            var originalToClone = new List<KeyValuePair<Transform, Transform>>();
+            var originalToClone = new List<(Transform original, Transform clone)>();
             switch (cloneMode)
             {
                 case PortalUtils.CloneMode.CUSTOM:
@@ -76,11 +76,7 @@ namespace Core.Portal.Scripts
             // IgnoreCollision( objectCrossing);
             var transitionListener = objectCrossing.GetComponent<TransitionListener>();
         
-            IEnumerable<(Transform original, Transform clone)> oc =
-                from kvp in originalToClone
-                select (kvp.Key, kvp.Value);
-        
-            var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portal,portal.GetLinkedOutPortal(), oc, transitionListener!=null );
+            var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portal,portal.GetLinkedOutPortal(), originalToClone, transitionListener!=null );
             _objectsOnPortal.Add(objectOnPortal);
             TriggerOnPortalEnter(objectOnPortal);
         
@@ -98,12 +94,12 @@ namespace Core.Portal.Scripts
             collisionHandlerIn.SetPortal(portal.transform);
         }
 
-        private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent,List<KeyValuePair<Transform, Transform>> originalToClone,  bool firstIteration)
+        private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent,List<(Transform original, Transform clone)> originalToClone,  bool firstIteration)
         {
             var objectToPortal = portal.transform.InverseTransformDirection(objectCrossing.transform.position - portal.transform.position);
             var localPosition = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
             var clone = Instantiate(emptyClone, portal.GetLinkedOutPortal().transform.position + localPosition, objectCrossing.transform.localRotation, parent);
-            originalToClone.Add( new KeyValuePair<Transform, Transform>(objectCrossing.transform, clone.transform));
+            originalToClone.Add( (objectCrossing.transform, clone.transform));
             clone.name = objectCrossing.name + ("(Portal)");
             DuplicateMesh(objectCrossing, clone, originalToClone, firstIteration);
             for (int i = 0; i < objectCrossing.transform.childCount; i++)
@@ -112,14 +108,14 @@ namespace Core.Portal.Scripts
             }
             return clone;
         }
-        private static void DuplicateMesh(GameObject original, GameObject clone,List<KeyValuePair<Transform, Transform>> originalToClone,  bool firstIteration)
+        private static void DuplicateMesh(GameObject original, GameObject clone,List<(Transform original, Transform clone)> originalToClone,  bool firstIteration)
         {
             CopyTransform(original.transform, clone.transform, firstIteration);
             CopyMesh(original, clone, originalToClone);
             CopyCollider(original, clone);
         }
 
-        private static void CopyMesh(GameObject original, GameObject clone, List<KeyValuePair<Transform, Transform>> originalToClone)
+        private static void CopyMesh(GameObject original, GameObject clone, List<(Transform original, Transform clone)> originalToClone)
         {
             var originalMesh = original.GetComponent<Renderer>();
             if(originalMesh == null)
@@ -133,7 +129,7 @@ namespace Core.Portal.Scripts
             }
         
         }
-        private static void CopySkinnedMeshRenderer(SkinnedMeshRenderer originalRenderer, GameObject newObject, List<KeyValuePair<Transform, Transform>> originalToClone)
+        private static void CopySkinnedMeshRenderer(SkinnedMeshRenderer originalRenderer, GameObject newObject, List<(Transform original, Transform clone)> originalToClone)
         {
         
             var newRenderer = newObject.AddComponent<SkinnedMeshRenderer>();
@@ -146,16 +142,16 @@ namespace Core.Portal.Scripts
             {
                 foreach (var keyValuePair in originalToClone)
                 {
-                    if (keyValuePair.Key == bone)
+                    if (keyValuePair.original == bone)
                     {
-                        bones.Add(keyValuePair.Value);
+                        bones.Add(keyValuePair.clone);
                     }
                 }
             }
         
 
             newRenderer.bones = bones.ToArray();
-            newRenderer.rootBone = originalToClone.Find(x => x.Key == originalRenderer.rootBone ).Value;
+            newRenderer.rootBone = originalToClone.Find(x => x.original == originalRenderer.rootBone ).clone;
             newRenderer.quality = originalRenderer.quality;
             newRenderer.updateWhenOffscreen = originalRenderer.updateWhenOffscreen;
             newRenderer.localBounds = originalRenderer.localBounds;
