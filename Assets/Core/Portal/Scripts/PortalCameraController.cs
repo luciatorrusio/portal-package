@@ -15,6 +15,25 @@ namespace Core.Portal.Scripts
         [HideInInspector]
         [SerializeField] private Camera _camera;
 
+        public void SetPosition(Vector3 Position)
+        {
+            _camera.transform.position = Position;
+        }
+
+        public void SetRotation(Quaternion Rotation)
+        {
+            _camera.transform.rotation = Rotation;
+        }
+
+        public void SetProjectionMatrix(Matrix4x4 ProjectionMatrix)
+        {
+            _camera.projectionMatrix = ProjectionMatrix;
+        }
+
+        public void SetTargetTexture(RenderTexture InPortalTexture)
+        {
+            _camera.targetTexture = InPortalTexture;
+        }
         public void SetCameraBeingReplicated(Camera cameraBeingReplicated)
         {
             _cameraBeingReplicated = cameraBeingReplicated.transform;
