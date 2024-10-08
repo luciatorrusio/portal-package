@@ -82,6 +82,11 @@ namespace Core.Portal.Scripts
         {
             portalTextureSetup.SetPortalMaterial(material);
         }
+        
+        public Material GetPortalMaterial()
+        {
+            return portalTextureSetup.GetPortalMaterial();
+        }
         public IEnumerable<Portal> GetLinkedInPortals()
         {
             return linkedInPortals;

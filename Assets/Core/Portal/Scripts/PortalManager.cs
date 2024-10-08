@@ -6,13 +6,12 @@ namespace Core.Portal.Scripts
     public class PortalManager : MonoBehaviour
     {
         
-        public static HashSet<Portal> allPortals { get; set; }
+        public static HashSet<Portal> allPortals { get; set; } =  new HashSet<Portal>();
         [SerializeField] private Camera mainCamera;
         private static Camera portalCamera;
 
         private void Awake()
         {
-            allPortals = new HashSet<Portal>();
             portalCamera = GetComponent<Camera>();
             mainCamera = mainCamera == null ? Camera.main: mainCamera;
         }

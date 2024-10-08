@@ -19,8 +19,7 @@ namespace Core.Portal.Scripts
         [HideInInspector]
         [SerializeField] private PortalManager _portalManager;
 
-        private int OnBeginCameraRenderingCount = 0;
-        private int RenderCameraCount = 0;
+        private Material _material;
         void Start()
         {
             RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
@@ -75,32 +74,61 @@ namespace Core.Portal.Scripts
                     RenderCamera1(portal, i, context, camera);
                 }
             }
-
-            OnBeginCameraRenderingCount++;
-            RenderCameraCount = 0;
         }
         
+        void OnBeginCameraRendering2(ScriptableRenderContext context, Camera camera)
+        {
+            if (!(camera == _portalManager.GetMainCamera())) 
+                return;
+            foreach (
+                var portal in PortalManager.allPortals.Where(
+                    portal => portal.GetLinkedOutPortal() != null 
+                              && Vector3.Dot(camera.transform.forward, portal.transform.forward) < 0 
+                              && camera.IsLooking(portal.GetRenderer()) 
+                              ))
+            {
+                RenderCamera2(portal, context, camera);
+            }
+        }
+
         void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
             if (!(camera == _portalManager.GetMainCamera())) 
                 return;
-            foreach (var portal in PortalManager.allPortals.Where(portal => portal.GetLinkedOutPortal() != null && Vector3.Dot(camera.transform.forward, portal.transform.forward) < 0 && camera.IsLooking(portal.GetRenderer()) ))
-            {
-                // print(portal.name);
-                RenderCamera(portal, context, camera);
-            }
             
-            OnBeginCameraRenderingCount++;
-            RenderCameraCount = 0;
-        }
+            Stack<TextureToRender> texturesToRender = new Stack<TextureToRender>();
+            foreach (
+                var portal in PortalManager.allPortals.Where(
+                    portal => portal.GetLinkedOutPortal() != null 
+                              && Vector3.Dot((portal.transform.position -camera.transform.position).normalized, portal.transform.forward) < 0 
+                              && camera.IsLooking(portal.GetRenderer()) 
+                ))
+            {
+                print(portal.name);
+                RenderCamera(portal, 0, context, camera);
+                texturesToRender.Push(new TextureToRender()
+                {
+                    portal = portal,
+                    material = new Material(portal.GetPortalMaterial())
+                });
+            }
 
+            foreach (var textureToRender in texturesToRender)
+            {
+                textureToRender.portal.SetPortalMaterial(textureToRender.material);
+            }
+        }
+        private class TextureToRender
+        {
+            public Portal portal;
+            public Material material;
+        }
+        
 
         private void RenderCamera1(Portal inPortal, int iterationID, ScriptableRenderContext context, Camera cameraBeingReplicated)
         {
             while (true)
             {
-                RenderCameraCount++;
-                print($"{OnBeginCameraRenderingCount}.{RenderCameraCount}");
                 portalCameraController.SetCameraBeingReplicated(cameraBeingReplicated);
                 if (iterationID == recursiveIterations)
                 {
@@ -127,19 +155,18 @@ namespace Core.Portal.Scripts
             }
         }
 
-        private void RenderCamera(Portal inPortal,  ScriptableRenderContext context, Camera cameraBeingReplicated)
+        private void RenderCamera2(Portal inPortal,  ScriptableRenderContext context, Camera cameraBeingReplicated)
         {
             // Stack to store transformations
             Stack<CameraTransform> savedTransforms = new Stack<CameraTransform>();
             Transform cameraTransform;
-            // var stop = false;
+            var stop = false;
             while (true)
             {
-                RenderCameraCount++;
                 // print($"{OnBeginCameraRenderingCount}.{RenderCameraCount}");
                 // Save the current camera transformation to avoid recalculating it later
                 if (savedTransforms.Count <= recursiveIterations 
-                    // && !stop 
+                    && !stop 
                     )
                 {
                     // Calculate and store the transformation
@@ -158,12 +185,10 @@ namespace Core.Portal.Scripts
                         ProjectionMatrix = _camera.projectionMatrix
                     };
                     savedTransforms.Push(transformData);
-                    // if (_camera.IsLooking(inPortal.GetRenderer()))
-                    // {
-                    //     stop = true;
-                    //     print($"stop{OnBeginCameraRenderingCount}.{RenderCameraCount}");
-                    //
-                    // }
+                    if (Vector3.Dot(_camera.transform.forward, inPortal.transform.forward) > 0  || !_camera.IsLooking(inPortal.GetRenderer()) )
+                    {
+                        stop = true;
+                    }
                 }
                 else
                 {
@@ -193,6 +218,101 @@ namespace Core.Portal.Scripts
             }
         }
 
+        private void RenderCamera(Portal inPortal,  int depth, ScriptableRenderContext context, Camera cameraBeingReplicated)
+        {
+            print($"I have been sent from {inPortal.name}");
+            if (depth >= recursiveIterations)
+                return;
+            depth++;
+            portalCameraController.SetCameraBeingReplicated(cameraBeingReplicated);
+            portalCameraController.SetPortalIn(inPortal.transform);
+            portalCameraController.SetPortalOut(inPortal.GetLinkedOutPortal().transform);
+            portalCameraController.SetPositionAndAngle();
+            portalCameraController.SetNearClippingPlane();
+            var transformData1 = new CameraTransform
+            {
+                InPortalTexture = inPortal.GetRenderTexture(),
+                Position = _camera.transform.position,
+                Rotation = _camera.transform.rotation,
+                ProjectionMatrix = _camera.projectionMatrix
+            };
+            if (depth < recursiveIterations)
+            {
+                Stack<TextureToRender> texturesToRender = new Stack<TextureToRender>();
+                foreach (
+                    var portal in PortalManager.allPortals.Where(
+                        portal => portal.GetLinkedOutPortal() != null 
+                                  && portal != inPortal.GetLinkedOutPortal()
+                                  && Vector3.Dot((portal.transform.position - transformData1.Position).normalized, portal.transform.forward) < 0 
+                                  && _camera.IsLooking(portal.GetRenderer())
+                                  )
+                        )
+                {
+                    
+                    print($"InPortal: {inPortal.name}, looking from {inPortal.GetLinkedOutPortal().name}, depth: {depth}, i see {portal.name}.  portal.GetLinkedOutPortal() { portal.GetLinkedOutPortal().name}" );
+                    RenderCamera(portal, depth, context, _camera);
+                    texturesToRender.Push(new TextureToRender()
+                    {
+                        portal = portal,
+                        material = new Material(portal.GetPortalMaterial())
+                    });
+                    portalCameraController.SetPosition(transformData1.Position);
+                    portalCameraController.SetRotation(transformData1.Rotation);
+                    portalCameraController.SetProjectionMatrix(transformData1.ProjectionMatrix);
+                    portalCameraController.SetTargetTexture(transformData1.InPortalTexture);
+                }
+                foreach (var textureToRender in texturesToRender)
+                {
+                    textureToRender.portal.SetPortalMaterial(textureToRender.material);
+                }
+            }
+                
+            portalCameraController.SetPosition(transformData1.Position);
+            portalCameraController.SetRotation(transformData1.Rotation);
+            portalCameraController.SetProjectionMatrix(transformData1.ProjectionMatrix);
+            portalCameraController.SetTargetTexture(transformData1.InPortalTexture);
+            UniversalRenderPipeline.RenderSingleCamera(context, _camera);
+            
+            
+            
+        }
+
+        void OnBeginCameraRendering4(ScriptableRenderContext context, Camera camera)
+        {
+            if (camera != _portalManager.GetMainCamera())
+                return;
+        
+            var seenPortals = PortalManager.allPortals
+                .Where(portal => portal.GetLinkedOutPortal() != null && camera.IsLooking(portal.GetRenderer()));
+        
+            foreach (var portal in seenPortals)
+            {
+                RenderCamera4(portal, 0, context, camera);
+            }
+        }
+        
+        private void RenderCamera4(Portal inPortal, int iterationID, ScriptableRenderContext context, Camera cameraBeingReplicated)
+        {
+            if (iterationID == recursiveIterations)
+            {
+                _camera.targetTexture = inPortal.GetRenderTexture();
+                UniversalRenderPipeline.RenderSingleCamera(context, _camera);
+                return;
+            }
+        
+            portalCameraController.SetCameraBeingReplicated(cameraBeingReplicated);
+        
+            if (inPortal.GetLinkedOutPortal() != null)
+            {
+                portalCameraController.SetPortalIn(inPortal.transform);
+                portalCameraController.SetPortalOut(inPortal.GetLinkedOutPortal().transform);
+                portalCameraController.SetPositionAndAngle();
+                portalCameraController.SetNearClippingPlane();
+                cameraBeingReplicated = _camera;
+        
+                RenderCamera4(inPortal.GetLinkedOutPortal(), iterationID + 1, context, cameraBeingReplicated);
+            }
+        }
         
         private class CameraTransform
         {
@@ -210,11 +330,5 @@ namespace Core.Portal.Scripts
             RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
         }
     
-    
-   
-    
-    
-    
-
     }
 }

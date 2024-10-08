@@ -45,5 +45,10 @@ namespace Core.Portal.Scripts
         {
             renderer.material = material;
         }
+        
+        public Material GetPortalMaterial()
+        {
+            return renderer.material;
+        }
     }
 }
