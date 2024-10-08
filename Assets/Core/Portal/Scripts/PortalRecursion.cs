@@ -20,6 +20,8 @@ namespace Core.Portal.Scripts
         [SerializeField] private PortalManager _portalManager;
 
         private Material _material;
+        private int counter = 0;
+        private Stack<TextureToRender> savedTextures = new Stack<TextureToRender>();
         void Start()
         {
             RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
@@ -96,7 +98,6 @@ namespace Core.Portal.Scripts
             if (!(camera == _portalManager.GetMainCamera())) 
                 return;
             
-            Stack<TextureToRender> texturesToRender = new Stack<TextureToRender>();
             foreach (
                 var portal in PortalManager.allPortals.Where(
                     portal => portal.GetLinkedOutPortal() != null 
@@ -104,24 +105,41 @@ namespace Core.Portal.Scripts
                               && camera.IsLooking(portal.GetRenderer()) 
                 ))
             {
-                print(portal.name);
+                // print($"{counter++}, main camera can see {portal.name}");
                 RenderCamera(portal, 0, context, camera);
-                texturesToRender.Push(new TextureToRender()
+                var renderTexture = portal.GetRenderTexture();
+                // push texture and  corresponded portal 
+                var savedTexture = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);
+
+                // Read pixels from the RenderTexture into the Texture2D
+                savedTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+                savedTexture.Apply();
+
+                // Reset the RenderTexture
+                RenderTexture.active = null;
+                savedTextures.Push(new TextureToRender()
                 {
                     portal = portal,
-                    material = new Material(portal.GetPortalMaterial())
+                    texture =  savedTexture
                 });
+                
+                
+                // print($"{counter++}, saved texture to put on {portal.name}");
             }
-
-            foreach (var textureToRender in texturesToRender)
+            for (int i = 0; i < savedTextures.Count; i++)
             {
-                textureToRender.portal.SetPortalMaterial(textureToRender.material);
+                // pop textures and set them to corresponding portal
+                var a = savedTextures.Pop();
+                var m =a.portal.GetPortalMaterial();
+                m.mainTexture = a.texture;
+
             }
+            // print($"{counter++}, I have finished a frame");
         }
         private class TextureToRender
         {
             public Portal portal;
-            public Material material;
+            public Texture2D texture;
         }
         
 
@@ -220,7 +238,6 @@ namespace Core.Portal.Scripts
 
         private void RenderCamera(Portal inPortal,  int depth, ScriptableRenderContext context, Camera cameraBeingReplicated)
         {
-            print($"I have been sent from {inPortal.name}");
             if (depth >= recursiveIterations)
                 return;
             depth++;
@@ -249,22 +266,42 @@ namespace Core.Portal.Scripts
                         )
                 {
                     
-                    print($"InPortal: {inPortal.name}, looking from {inPortal.GetLinkedOutPortal().name}, depth: {depth}, i see {portal.name}.  portal.GetLinkedOutPortal() { portal.GetLinkedOutPortal().name}" );
+                    // print($"{counter++}, Going to print on {portal.name}. {inPortal.name} is connected to {inPortal.GetLinkedOutPortal().name} and I see {portal.name}, depth: {depth}. " );
                     RenderCamera(portal, depth, context, _camera);
+
+                    // push texture and  corresponded portal 
+                    var renderTexture = portal.GetRenderTexture();
+                    // push texture and  corresponded portal 
+                    var savedTexture = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, false);
+
+                    // Read pixels from the RenderTexture into the Texture2D
+                    savedTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+                    savedTexture.Apply();
+
+                    // Reset the RenderTexture
+                    RenderTexture.active = null;
                     texturesToRender.Push(new TextureToRender()
                     {
                         portal = portal,
-                        material = new Material(portal.GetPortalMaterial())
+                        texture =  savedTexture
                     });
+                    
+                    
+                    // print($"{counter++}, saved texture to put on {portal.name}");
                     portalCameraController.SetPosition(transformData1.Position);
                     portalCameraController.SetRotation(transformData1.Rotation);
                     portalCameraController.SetProjectionMatrix(transformData1.ProjectionMatrix);
                     portalCameraController.SetTargetTexture(transformData1.InPortalTexture);
                 }
-                foreach (var textureToRender in texturesToRender)
+
+                for (int i = 0; i < texturesToRender.Count; i++)
                 {
-                    textureToRender.portal.SetPortalMaterial(textureToRender.material);
+                    // pop textures and set them to corresponding portal
+                    var a = texturesToRender.Pop();
+                    var m =a.portal.GetPortalMaterial();
+                    m.mainTexture = a.texture;
                 }
+
             }
                 
             portalCameraController.SetPosition(transformData1.Position);
@@ -272,9 +309,7 @@ namespace Core.Portal.Scripts
             portalCameraController.SetProjectionMatrix(transformData1.ProjectionMatrix);
             portalCameraController.SetTargetTexture(transformData1.InPortalTexture);
             UniversalRenderPipeline.RenderSingleCamera(context, _camera);
-            
-            
-            
+            // print($"{counter++}, I have rendered on {inPortal.name}");
         }
 
         void OnBeginCameraRendering4(ScriptableRenderContext context, Camera camera)
