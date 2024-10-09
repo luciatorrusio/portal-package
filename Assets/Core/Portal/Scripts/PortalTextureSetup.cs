@@ -20,7 +20,8 @@ namespace Core.Portal.Scripts
         {
             _portalInMat = new Material(shader);
             renderer.material = _portalInMat;
-            _targetTexture = new RenderTexture(Screen.width, Screen.height, 24);
+            _targetTexture = new RenderTexture(Screen.width, Screen.height, 24,  RenderTextureFormat.ARGB32);
+            _targetTexture.antiAliasing = 4;
             _portalInMat.mainTexture = _targetTexture;
         }
     
