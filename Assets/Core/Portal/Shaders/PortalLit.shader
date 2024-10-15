@@ -43,7 +43,7 @@ Shader "Portal/Lit"
         [HideInInspector] _SrcBlend("__src", Float) = 1.0
         [HideInInspector] _DstBlend("__dst", Float) = 0.0
         [HideInInspector] _ZWrite("__zw", Float) = 1.0
-        [HideInInspector] _Cull("__cull", Float) = 2.0
+        _Cull("__cull", Float) = 2.0
 
         _ReceiveShadows("Receive Shadows", Float) = 1.0
 
@@ -63,7 +63,6 @@ Shader "Portal/Lit"
         // "UniversalRenderPipeline"
         Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalRenderPipeline" "IgnoreProjector" = "True"}
         LOD 300
-
         // ------------------------------------------------------------------
         // Forward pass. Shades GI, emission, fog and all lights in a single pass.
         // Compared to Builtin pipeline forward renderer, LWRP forward renderer will
@@ -238,6 +237,7 @@ Shader "Portal/Lit"
 
             half4 LitPassFragment(Varyings input) : SV_Target
             {
+                
                 float3 vectorToCenter = _portalCenter - input.positionWSAndFogFactor;
                 if( dot(vectorToCenter, _portalNormal) > 0)
                     discard;
