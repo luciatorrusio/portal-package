@@ -145,6 +145,11 @@ namespace Core.Portal.Scripts
             UpdatePortalMode(portalMode);
         }
 
+        public void UpdateTransitioningObjects()
+        {
+            portalTransport.UpdateTransitioningObjects();
+        }
+
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()

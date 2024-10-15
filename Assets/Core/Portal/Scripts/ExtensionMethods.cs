@@ -54,49 +54,13 @@ namespace Core.Portal.Scripts
             return GeometryUtility.TestPlanesAABB(planes, bounds);
 
         }
+        
         // TODO: it still "sees" portals that he shouldnt, pretty sure the custom planes arent being generated corrreclty
-        public static bool IsLookingThroughDoor(this Camera camera, Renderer objectRenderer, Renderer doorRenderer)
+        public static bool IsLookingThroughDoor(this Plane[] customFrustumPlanes, Renderer objectRenderer)
         {
             // Get the bounds of the door and the object
-            Bounds doorBounds = doorRenderer.bounds;
             Bounds objectBounds = objectRenderer.bounds;
-
-            // Get the camera position
-            Vector3 cameraPosition = camera.transform.position;
-
-            // Calculate the corners of the door's bounding box
-            Vector3 doorTopLeft = new Vector3(doorBounds.min.x, doorBounds.max.y, doorBounds.min.z);
-            Vector3 doorTopRight = new Vector3(doorBounds.max.x, doorBounds.max.y, doorBounds.min.z);
-            Vector3 doorBottomLeft = new Vector3(doorBounds.min.x, doorBounds.min.y, doorBounds.min.z);
-            Vector3 doorBottomRight = new Vector3(doorBounds.max.x, doorBounds.min.y, doorBounds.min.z);
-
-            // Create frustum planes from the camera position to the door edges
-            Plane customLeftPlane = new Plane(cameraPosition, doorBottomLeft, doorTopLeft);     // Left edge plane
-            Plane customRightPlane = new Plane(cameraPosition, doorTopRight, doorBottomRight);  // Right edge plane
-            Plane customTopPlane = new Plane(cameraPosition, doorTopLeft, doorTopRight);        // Top edge plane
-            Plane customBottomPlane = new Plane(cameraPosition, doorBottomRight, doorBottomLeft); // Bottom edge plane
-            // Get the camera's default frustum planes
-            Plane[] cameraFrustumPlanes = GeometryUtility.CalculateFrustumPlanes(camera);
-
-            // Replace the custom planes if they are more permissive than the camera's frustum planes
-            customTopPlane = CompareAndReplacePlane(customTopPlane, cameraFrustumPlanes[(int)FrustumPlane.Top], camera);
-            customBottomPlane = CompareAndReplacePlane(customBottomPlane, cameraFrustumPlanes[(int)FrustumPlane.Bottom], camera);
-            customLeftPlane = CompareAndReplacePlane(customLeftPlane, cameraFrustumPlanes[(int)FrustumPlane.Left], camera);
-            customRightPlane = CompareAndReplacePlane(customRightPlane, cameraFrustumPlanes[(int)FrustumPlane.Right], camera);
-
-            // Create the custom frustum planes array
-            Plane[] customFrustumPlanes = new Plane[6];
-
-            // Assign the custom frustum planes for left, right, top, bottom
-            customFrustumPlanes[(int)FrustumPlane.Left] = customLeftPlane;
-            customFrustumPlanes[(int)FrustumPlane.Right] = customRightPlane;
-            customFrustumPlanes[(int)FrustumPlane.Top] = customTopPlane;
-            customFrustumPlanes[(int)FrustumPlane.Bottom] = customBottomPlane;
-
-            // For near and far planes, use the camera's original frustum planes
-            customFrustumPlanes[(int)FrustumPlane.Near] = cameraFrustumPlanes[(int)FrustumPlane.Near];
-            customFrustumPlanes[(int)FrustumPlane.Far] = cameraFrustumPlanes[(int)FrustumPlane.Far];
-
+            
             // Now test if the object is within the custom frustum planes
             return GeometryUtility.TestPlanesAABB(customFrustumPlanes, objectBounds);
         }
@@ -112,7 +76,7 @@ namespace Core.Portal.Scripts
             float angleWithCustomPlane = Vector3.Angle(cameraForward, customPlane.normal);
 
             // Check if the angle with the camera plane is smaller than with the custom plane
-            if (angleWithCameraPlane < angleWithCustomPlane)
+            if (angleWithCameraPlane > angleWithCustomPlane)
             {
                 // Replace with the camera's plane
                 return cameraPlane;
@@ -120,6 +84,40 @@ namespace Core.Portal.Scripts
             // Otherwise, keep the custom plane
             return customPlane;
         }
+
+        public static Plane[] GenerateCustomFrustumPlanes(this Camera camera, Portal outPortal)
+        {
+            var doorBounds = outPortal.GetRenderer().localBounds.size;
+            var topLeft = outPortal.transform.TransformPoint(  Vector3.left * doorBounds.x/2 + Vector3.up * doorBounds.z/2 ); 
+            var topRight = outPortal.transform.TransformPoint(  Vector3.right * doorBounds.x/2 + Vector3.up * doorBounds.z/2); 
+            var bottomLeft = outPortal.transform.TransformPoint(  Vector3.left * doorBounds.x/2 +Vector3.down * doorBounds.z/2 ); 
+            var bottomRight = outPortal.transform.TransformPoint(  Vector3.right * doorBounds.x/2 + Vector3.down * doorBounds.z/2 ); 
+            // Now you have the world-space positions of the corners from the camera's perspective
+
+            var cameraPosition = camera.transform.position;
+            Plane[] customFrustumPlanes = new Plane[6];
+            Plane customLeftPlane = new Plane(cameraPosition,topLeft, bottomLeft);     // Left edge plane
+            Plane customRightPlane = new Plane(cameraPosition, bottomRight, topRight);  // Right edge plane
+            Plane customTopPlane = new Plane(cameraPosition, topRight, topLeft);        // Top edge plane
+            Plane customBottomPlane = new Plane(cameraPosition, bottomLeft,bottomRight); // Bottom edge plane
+            customFrustumPlanes[(int)FrustumPlane.Left] = customLeftPlane;
+            customFrustumPlanes[(int)FrustumPlane.Right] = customRightPlane;
+            customFrustumPlanes[(int)FrustumPlane.Top] = customTopPlane;
+            customFrustumPlanes[(int)FrustumPlane.Bottom] = customBottomPlane;
+            
+            Plane[] cameraFrustumPlanes = GeometryUtility.CalculateFrustumPlanes(camera);
+
+            // // Replace the custom planes if they are more permissive than the camera's frustum planes
+            customFrustumPlanes[(int)FrustumPlane.Top] = CompareAndReplacePlane(customFrustumPlanes[(int)FrustumPlane.Top], cameraFrustumPlanes[(int)FrustumPlane.Top], camera);
+            customFrustumPlanes[(int)FrustumPlane.Bottom] = CompareAndReplacePlane(customFrustumPlanes[(int)FrustumPlane.Bottom], cameraFrustumPlanes[(int)FrustumPlane.Bottom], camera);
+            customFrustumPlanes[(int)FrustumPlane.Left] = CompareAndReplacePlane(customFrustumPlanes[(int)FrustumPlane.Left], cameraFrustumPlanes[(int)FrustumPlane.Left], camera);
+            customFrustumPlanes[(int)FrustumPlane.Right] = CompareAndReplacePlane(customFrustumPlanes[(int)FrustumPlane.Right], cameraFrustumPlanes[(int)FrustumPlane.Right], camera);
+            customFrustumPlanes[(int)FrustumPlane.Near] = cameraFrustumPlanes[(int)FrustumPlane.Near];
+            customFrustumPlanes[(int)FrustumPlane.Far] = cameraFrustumPlanes[(int)FrustumPlane.Far];
+            
+            return customFrustumPlanes;
+        }
+        
 
         // Enum to simplify referencing the camera frustum planes
         private enum FrustumPlane

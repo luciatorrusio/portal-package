@@ -136,22 +136,25 @@ namespace Core.Portal.Scripts
             newRenderer.forceMatrixRecalculationPerRender = true;
             newRenderer.sharedMesh = originalRenderer.sharedMesh;
             newRenderer.materials = originalRenderer.materials;
+            newRenderer.enabled = originalRenderer.enabled;
         
+            var cloneLookup = originalToClone.ToDictionary(pair => pair.original, pair => pair.clone);
+
             var bones = new List<Transform>();
             foreach (var bone in originalRenderer.bones)
             {
-                foreach (var keyValuePair in originalToClone)
+                if (cloneLookup.TryGetValue(bone, out var cloneBone))
                 {
-                    if (keyValuePair.original == bone)
-                    {
-                        bones.Add(keyValuePair.clone);
-                    }
+                    bones.Add(cloneBone);
                 }
             }
         
 
             newRenderer.bones = bones.ToArray();
-            newRenderer.rootBone = originalToClone.Find(x => x.original == originalRenderer.rootBone ).clone;
+            if (cloneLookup.TryGetValue(originalRenderer.rootBone, out var rootBone))
+            {
+                newRenderer.rootBone = rootBone;
+            }
             newRenderer.quality = originalRenderer.quality;
             newRenderer.updateWhenOffscreen = originalRenderer.updateWhenOffscreen;
             newRenderer.localBounds = originalRenderer.localBounds;
@@ -161,7 +164,7 @@ namespace Core.Portal.Scripts
         {
             var cloneMesh = clone.AddComponent<MeshRenderer>();
             cloneMesh.sharedMaterials = originalMesh.sharedMaterials;
-        
+            cloneMesh.enabled = originalMesh.enabled;
             var originalMeshFilter = original.GetComponent<MeshFilter>();
             if(originalMeshFilter == null)
                 return;
@@ -174,7 +177,7 @@ namespace Core.Portal.Scripts
             clone.localScale = original.localScale;
             if(firstIteration)
                 return;
-            clone.position = original.position;
+            //clone.position = original.position;
         }
 
         private static void CopyCollider(GameObject original, GameObject clone)
@@ -314,8 +317,8 @@ namespace Core.Portal.Scripts
             return objectOnPortalLeavingIndex == -1 ? null : _objectsOnPortal[objectOnPortalLeavingIndex];
         }
 
-    
-        private void Update()
+
+        public void UpdateTransitioningObjects()
         {
             if(portal.GetLinkedOutPortal() == null)
                 return;
@@ -325,7 +328,18 @@ namespace Core.Portal.Scripts
                 CrossPortal(t);
                 TriggerOnPortalTransitioning(t);
             }
-        
+        }
+        private void Update()
+        {
+            
+            // if(portal.GetLinkedOutPortal() == null)
+            //     return;
+            // for (var j = 0; j < _objectsOnPortal.Count ; j++)
+            // {
+            //     var t = _objectsOnPortal[j];
+            //     CrossPortal(t);
+            //     TriggerOnPortalTransitioning(t);
+            // }
         }
         private bool CrossPortal(TransitioningObject t)
         {
@@ -414,9 +428,9 @@ namespace Core.Portal.Scripts
         {
             for (int i = 0; i < transitioningObject.GetCloneMaterials().Count; i++)
             {
-                transitioningObject.GetCloneMaterials()[i].SetVector (PortalCenter, portalOutPos);
+                transitioningObject.GetCloneMaterials()[i].SetVector (PortalCenter, portalOutPos );
                 transitioningObject.GetCloneMaterials()[i].SetVector (PortalNormal, portalOutForward);
-            
+                
                 transitioningObject.GetOriginalMaterials()[i].SetVector (PortalCenter, portalInPos);
                 transitioningObject.GetOriginalMaterials()[i].SetVector (PortalNormal, portalInForward);
             }

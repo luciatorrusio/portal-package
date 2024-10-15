@@ -30,9 +30,14 @@ namespace Core.Portal.Scripts
 
         void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
+            
             if (!(camera == _portalManager.GetMainCamera())) 
                 return;
-            
+            // update all poitions
+            foreach (var portal in PortalManager.allPortals)
+            {
+                portal.UpdateTransitioningObjects();
+            }
             foreach (
                 var portal in PortalManager.allPortals.Where(
                     portal => portal.GetLinkedOutPortal() != null 
@@ -76,7 +81,6 @@ namespace Core.Portal.Scripts
             public Portal portal;
             public Texture2D texture;
         }
-        
         private void RenderCamera(Portal inPortal,  int depth, ScriptableRenderContext context, Camera cameraBeingReplicated)
         {
             if (depth >= recursiveIterations)
@@ -96,16 +100,19 @@ namespace Core.Portal.Scripts
             };
             if (depth < recursiveIterations)
             {
+                var customFrustumPlanes = _camera.GenerateCustomFrustumPlanes(inPortal.GetLinkedOutPortal());
                 
                 foreach (
                     var portal in PortalManager.allPortals.Where(
                         portal => portal.GetLinkedOutPortal() != null 
                                   && portal != inPortal.GetLinkedOutPortal()
                                   && Vector3.Dot((portal.transform.position - transformData1.Position).normalized, portal.transform.forward) < 0 
-                                  && _camera.IsLooking(portal.GetRenderer())
+                                  // && _camera.IsLooking(portal.GetRenderer())
+                                  && customFrustumPlanes.IsLookingThroughDoor(portal.GetRenderer())
                                   )
                         )
                 {
+                    
                     
                     // print($"{counter++}, Going to print on {portal.name}. {inPortal.name} is connected to {inPortal.GetLinkedOutPortal().name} and I see {portal.name}, depth: {depth}. " );
                     RenderCamera(portal, depth, context, _camera);
@@ -166,6 +173,20 @@ namespace Core.Portal.Scripts
         void OnDestroy()
         {
             RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
+        }
+        private enum FrustumPlane
+        {
+            Left = 0,
+            Right = 1,
+            Bottom = 2,
+            Top = 3,
+            Near = 4,
+            Far = 5
+        }
+        bool IsNormalFacingInward(Plane plane, Vector3 frustumCenter)
+        {
+            Vector3 toCenter = (frustumCenter - plane.normal).normalized;
+            return Vector3.Dot(plane.normal, toCenter) < 0;
         }
     
     }
