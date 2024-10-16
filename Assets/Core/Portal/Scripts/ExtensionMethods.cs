@@ -1,5 +1,4 @@
 ﻿
-using Codice.Client.BaseCommands;
 using UnityEngine;
 
 namespace Core.Portal.Scripts
@@ -55,7 +54,6 @@ namespace Core.Portal.Scripts
 
         }
         
-        // TODO: it still "sees" portals that he shouldnt, pretty sure the custom planes arent being generated corrreclty
         public static bool IsLookingThroughDoor(this Plane[] customFrustumPlanes, Renderer objectRenderer)
         {
             // Get the bounds of the door and the object
