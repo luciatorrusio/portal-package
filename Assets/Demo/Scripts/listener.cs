@@ -5,23 +5,24 @@ using UnityEngine;
 
 public class listener : MonoBehaviour, TransitionListener
 {
+    private int _counter = 0;
     public void OnPortalEnter(Transition transitioning)
     {
-        print("hrllo");
+        print($"{_counter++}. Enter portal {transitioning._portalIn.name}");
     }
 
     public void OnPortalTransitioning(Transition transitioning)
     {
-        print("hello");
+        // print($"{_counter++}.transition portal {transitioning._portalIn.name}");
     }
 
     public void OnPortalExit(Transition transitioning)
     {
-        print("hello");
+        print($"{_counter++}.exit portal {transitioning._portalIn.name}");
     }
 
     public void OnPortalCrossed(Transition transitioning)
     {
-        print("helo");
+        print($"{_counter++}.crossed portal, portal in: {transitioning._portalIn.name}. Portal out: {transitioning._portalOut.name}");
     }
 }

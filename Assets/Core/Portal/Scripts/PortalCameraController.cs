@@ -65,8 +65,10 @@ namespace Core.Portal.Scripts
 
         private void SetPosition()
         {
+#if UNITY_EDITOR
             Gizmos.color = Color.red;
             Debug.DrawRay(_portalIn.position, _cameraBeingReplicated.position - _portalIn.position   , Color.green);
+#endif
             Vector3 relativePos = _portalIn.InverseTransformPoint(_cameraBeingReplicated.position);
             relativePos = Quaternion.Euler(0.0f, 180.0f, 0.0f) * relativePos;
         

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using static Core.Portal.Utils.PortalUtils;
@@ -26,23 +27,56 @@ namespace Core.Portal.Scripts
         )
         {
             
-            if (!UnityEngine.Physics.Raycast(origin, direction, out var hit, maxDistance, layerMask,
-                    queryTriggerInteraction))
+            RaycastHit hitInfo;
+            // Perform the raycast
+            if (!UnityEngine.Physics.Raycast(
+                    origin: origin,
+                    direction: direction,
+                    hitInfo: out hitInfo, 
+                    maxDistance: maxDistance, 
+                    layerMask: layerMask, 
+                    queryTriggerInteraction: queryTriggerInteraction))
+            {
+#if UNITY_EDITOR
+                Debug.DrawRay(origin, direction * 1, Color.yellow); 
+#endif
                 return false;
-            var portal = hit.collider.gameObject.GetComponent<Portal>();
+            }
+
+
+#if UNITY_EDITOR
+            Debug.DrawRay(origin, direction * hitInfo.distance, Color.blue);
+#endif
+
+            var portal = hitInfo.collider.gameObject.GetComponent<Portal>();
             if (portal == null)
                 return true;
-            
-            if (!origin.IsInFrontOf(portal.transform) || portal.GetLinkedOutPortal() == null)
+            if (!origin.IsInFrontOf(portal.transform))
             {
-                //nuevo raycast en el mismo mundo desde el portal
-                return PortalRaycast(hit.point, direction, maxDistance - hit.distance, layerMask, queryTriggerInteraction);
+                // cast ray from point that it hit the portal in the same direction
+                return PortalRaycast(
+                    origin: hitInfo.point + direction, 
+                    direction: direction, 
+                    maxDistance: maxDistance - hitInfo.distance, 
+                    layerMask: layerMask, 
+                    queryTriggerInteraction: queryTriggerInteraction);
+
             }
-            // hit portal, we have to cast a new raycast from outPortal
-            var newOrigin = GetRelativeWorldPos(hit.point, portal.transform, portal.GetLinkedOutPortal().transform);
-            var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);
-            return PortalRaycast(newOrigin, newDirection, maxDistance - hit.distance, layerMask, queryTriggerInteraction);
+            if(portal.GetLinkedOutPortal() == null)
+                return true;
             
+            // Calculate the new origin and direction for the raycast from the linked out portal
+            var newOrigin = GetRelativeWorldPos(hitInfo.point, portal.transform, portal.GetLinkedOutPortal().transform);
+            var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);
+
+            // Recursive call to continue the raycast from the linked portal
+            return PortalRaycast(
+                origin: newOrigin+ newDirection, 
+                direction: newDirection, 
+                maxDistance: maxDistance - hitInfo.distance,
+                layerMask: layerMask, queryTriggerInteraction: queryTriggerInteraction
+                );
+
         }
         
         /// <summary>
@@ -50,7 +84,7 @@ namespace Core.Portal.Scripts
         /// </summary>
         /// <param name="origin">The starting point of the ray in world coordinates.</param>
         /// <param name="direction">The direction of the ray.</param>
-        /// <param name="hitInfo">RaycastHit info</param>
+        /// <param name="hitsInfo">List of RaycastHit info, each representing how the ray goes from portal to portal till it reaches an object</param>
         /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
         /// <param name="layerMask">A that is used to selectively ignore Colliders when casting a ray.</param>
         /// <param name="queryTriggerInteraction">Specifies whether this query should hit Triggers.</param>
@@ -60,33 +94,59 @@ namespace Core.Portal.Scripts
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
-            out RaycastHit hitInfo,
+            out List<RaycastHit> hitsInfo,
             [DefaultValue("Mathf.Infinity")] float maxDistance,
             [DefaultValue("DefaultRaycastLayers")] int layerMask,
             [DefaultValue("QueryTriggerInteraction.UseGlobal")]
             QueryTriggerInteraction queryTriggerInteraction)
         {
-            var didHit = UnityEngine.Physics.Raycast(origin, direction, out  hitInfo, maxDistance, layerMask,
-                queryTriggerInteraction);
-            if (!didHit)
+            // Initialize the hitInfos list at the beginning
+            hitsInfo = new List<RaycastHit>();
+            RaycastHit hitInfo;
+            // Perform the raycast
+            if (!UnityEngine.Physics.Raycast(origin, direction, out hitInfo, maxDistance, layerMask, queryTriggerInteraction))
             {
+#if UNITY_EDITOR
+                Debug.DrawRay(origin, direction * 1, Color.yellow); 
+#endif
                 return false;
             }
-                
+
+            // Add the hitInfo to the list
+            hitsInfo.Add(hitInfo);
+
+#if UNITY_EDITOR
+            Debug.DrawRay(origin, direction * hitInfo.distance, Color.blue);
+#endif
+
             var portal = hitInfo.collider.gameObject.GetComponent<Portal>();
             if (portal == null)
                 return true;
-            
-            if (!origin.IsInFrontOf(portal.transform) || portal.GetLinkedOutPortal() == null)
+            if (!origin.IsInFrontOf(portal.transform))
             {
-                //nuevo raycast en el mismo mundo desde el portal
-                return PortalRaycast(hitInfo.point, direction, out hitInfo, maxDistance - hitInfo.distance, layerMask, queryTriggerInteraction);
+                // cast ray from point that it hit the portal in the same direction
+                if (PortalRaycast(hitInfo.point + direction, direction, out List<RaycastHit> subsequentHits,maxDistance - hitInfo.distance, layerMask, queryTriggerInteraction))
+                {
+                    hitsInfo.AddRange(subsequentHits);
+                    return true;
+                }
+                return false;
             }
-            // hit portal, we have to cast a new raycast from outPortal
+            if(portal.GetLinkedOutPortal() == null)
+                return true;
+            
+            // Calculate the new origin and direction for the raycast from the linked out portal
             var newOrigin = GetRelativeWorldPos(hitInfo.point, portal.transform, portal.GetLinkedOutPortal().transform);
             var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);
-            return PortalRaycast(newOrigin, newDirection, out hitInfo,maxDistance - hitInfo.distance, layerMask, queryTriggerInteraction);
 
+            // Recursive call to continue the raycast from the linked portal
+            if (PortalRaycast(newOrigin+ newDirection, newDirection, out List<RaycastHit> subsequentHits2,maxDistance - hitInfo.distance, layerMask, queryTriggerInteraction))
+            {
+                hitsInfo.AddRange(subsequentHits2);
+                return true;
+            }
+
+            return false;
         }
         
         /// <summary>
@@ -94,7 +154,7 @@ namespace Core.Portal.Scripts
         /// </summary>
         /// <param name="origin">The starting point of the ray in world coordinates.</param>
         /// <param name="direction">The direction of the ray.</param>
-        /// <param name="hitInfo">RaycastHit info</param>
+        /// <param name="hitsInfo">List of RaycastHit info, each representing how the ray goes from portal to portal till it reaches an object</param>
         /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
         /// <param name="layerMask">A that is used to selectively ignore Colliders when casting a ray.</param>
         /// <returns>
@@ -103,30 +163,57 @@ namespace Core.Portal.Scripts
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
-            out RaycastHit hitInfo,
+            out List<RaycastHit> hitsInfo,
             [DefaultValue("Mathf.Infinity")] float maxDistance,
             [DefaultValue("DefaultRaycastLayers")] int layerMask)
         {
-            var didHit = UnityEngine.Physics.Raycast(origin, direction, out  hitInfo, maxDistance, layerMask);
-            if (!didHit)
+            // Initialize the hitInfos list at the beginning
+            hitsInfo = new List<RaycastHit>();
+            RaycastHit hitInfo;
+            // Perform the raycast
+            if (!UnityEngine.Physics.Raycast(origin, direction, out hitInfo, maxDistance, layerMask))
             {
+#if UNITY_EDITOR
+                Debug.DrawRay(origin, direction * 1, Color.yellow); 
+#endif
                 return false;
             }
-                
+
+            // Add the hitInfo to the list
+            hitsInfo.Add(hitInfo);
+
+#if UNITY_EDITOR
+            Debug.DrawRay(origin, direction * hitInfo.distance, Color.blue);
+#endif
+
             var portal = hitInfo.collider.gameObject.GetComponent<Portal>();
             if (portal == null)
                 return true;
-            
-            if (!origin.IsInFrontOf(portal.transform) || portal.GetLinkedOutPortal() == null)
+            if (!origin.IsInFrontOf(portal.transform))
             {
-                //nuevo raycast en el mismo mundo desde el portal
-                return PortalRaycast(hitInfo.point, direction, out hitInfo, maxDistance - hitInfo.distance, layerMask);
+                // cast ray from point that it hit the portal in the same direction
+                if (PortalRaycast(hitInfo.point + direction, direction, out List<RaycastHit> subsequentHits,maxDistance - hitInfo.distance, layerMask))
+                {
+                    hitsInfo.AddRange(subsequentHits);
+                    return true;
+                }
+                return false;
             }
-            // hit portal, we have to cast a new raycast from outPortal
+            if(portal.GetLinkedOutPortal() == null)
+                return true;
+            
+            // Calculate the new origin and direction for the raycast from the linked out portal
             var newOrigin = GetRelativeWorldPos(hitInfo.point, portal.transform, portal.GetLinkedOutPortal().transform);
             var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);
-            return PortalRaycast(newOrigin, newDirection, out hitInfo,maxDistance - hitInfo.distance, layerMask);
 
+            // Recursive call to continue the raycast from the linked portal
+            if (PortalRaycast(newOrigin+ newDirection, newDirection, out List<RaycastHit> subsequentHits2,maxDistance - hitInfo.distance, layerMask))
+            {
+                hitsInfo.AddRange(subsequentHits2);
+                return true;
+            }
+
+            return false;
         }
         
         /// <summary>
@@ -134,7 +221,7 @@ namespace Core.Portal.Scripts
         /// </summary>
         /// <param name="origin">The starting point of the ray in world coordinates.</param>
         /// <param name="direction">The direction of the ray.</param>
-        /// <param name="hitInfo">RaycastHit info</param>
+        /// <param name="hitsInfo">List of RaycastHit info, each representing how the ray goes from portal to portal till it reaches an object</param>
         /// <param name="maxDistance">The max distance the ray should check for collisions.</param>
         /// <returns>
         ///   <para>Returns true if the ray intersects with a Collider, otherwise false.</para>
@@ -142,29 +229,56 @@ namespace Core.Portal.Scripts
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
-            out RaycastHit hitInfo,
+            out List<RaycastHit> hitsInfo,
             [DefaultValue("Mathf.Infinity")] float maxDistance)
-        {
-            var didHit = UnityEngine.Physics.Raycast(origin, direction, out  hitInfo, maxDistance);
-            if (!didHit)
+        {   
+            // Initialize the hitInfos list at the beginning
+            hitsInfo = new List<RaycastHit>();
+            RaycastHit hitInfo;
+            // Perform the raycast
+            if (!UnityEngine.Physics.Raycast(origin, direction, out hitInfo, maxDistance))
             {
+#if UNITY_EDITOR
+                Debug.DrawRay(origin, direction * 1, Color.yellow); 
+#endif
                 return false;
             }
-                
+
+            // Add the hitInfo to the list
+            hitsInfo.Add(hitInfo);
+
+#if UNITY_EDITOR
+            Debug.DrawRay(origin, direction * hitInfo.distance, Color.blue);
+#endif
+
             var portal = hitInfo.collider.gameObject.GetComponent<Portal>();
             if (portal == null)
                 return true;
-            
-            if (!origin.IsInFrontOf(portal.transform) || portal.GetLinkedOutPortal() == null)
+            if (!origin.IsInFrontOf(portal.transform))
             {
-                //nuevo raycast en el mismo mundo desde el portal
-                return PortalRaycast(hitInfo.point, direction, out hitInfo, maxDistance - hitInfo.distance);
+                // cast ray from point that it hit the portal in the same direction
+                if (PortalRaycast(hitInfo.point + direction, direction, out List<RaycastHit> subsequentHits, maxDistance - hitInfo.distance))
+                {
+                    hitsInfo.AddRange(subsequentHits);
+                    return true;
+                }
+                return false;
             }
-            // hit portal, we have to cast a new raycast from outPortal
+            if(portal.GetLinkedOutPortal() == null)
+                return true;
+            
+            // Calculate the new origin and direction for the raycast from the linked out portal
             var newOrigin = GetRelativeWorldPos(hitInfo.point, portal.transform, portal.GetLinkedOutPortal().transform);
             var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);
-            return PortalRaycast(newOrigin, newDirection, out hitInfo,maxDistance - hitInfo.distance);
 
+            // Recursive call to continue the raycast from the linked portal
+            if (PortalRaycast(newOrigin+ newDirection, newDirection, out List<RaycastHit> subsequentHits2, maxDistance - hitInfo.distance))
+            {
+                hitsInfo.AddRange(subsequentHits2);
+                return true;
+            }
+
+            return false;
         }
         
         /// <summary>
@@ -172,42 +286,66 @@ namespace Core.Portal.Scripts
         /// </summary>
         /// <param name="origin">The starting point of the ray in world coordinates.</param>
         /// <param name="direction">The direction of the ray.</param>
-        /// <param name="hitInfo">RaycastHit info</param>
+        /// <param name="hitsInfo">List of RaycastHit info, each representing how the ray goes from portal to portal till it reaches an object</param>
         /// <returns>
         ///   <para>Returns true if the ray intersects with a Collider, otherwise false.</para>
         /// </returns>
         public static bool PortalRaycast(
             Vector3 origin,
             Vector3 direction,
-            out RaycastHit hitInfo)
+            out List<RaycastHit> hitsInfo)
         {
-            
-            var didHit = UnityEngine.Physics.Raycast(origin, direction, out  hitInfo);
-            if (!didHit)
+            // Initialize the hitInfos list at the beginning
+            hitsInfo = new List<RaycastHit>();
+            RaycastHit hitInfo;
+            // Perform the raycast
+            if (!UnityEngine.Physics.Raycast(origin, direction, out hitInfo))
             {
+#if UNITY_EDITOR
+                Debug.DrawRay(origin, direction * 1, Color.yellow); 
+#endif
                 return false;
             }
+
+            // Add the hitInfo to the list
+            hitsInfo.Add(hitInfo);
+
 #if UNITY_EDITOR
-            Debug.DrawRay(origin, direction *hitInfo.distance, Color.blue); 
+            Debug.DrawRay(origin, direction * hitInfo.distance, Color.blue);
 #endif
+
             var portal = hitInfo.collider.gameObject.GetComponent<Portal>();
             if (portal == null)
                 return true;
-            
-            if (!origin.IsInFrontOf(portal.transform) || portal.GetLinkedOutPortal() == null)
+            if (!origin.IsInFrontOf(portal.transform))
             {
-                //nuevo raycast en el mismo mundo desde el portal
-                return PortalRaycast(hitInfo.point + direction, direction, out hitInfo);
+              // cast ray from point that it hit the portal in the same direction
+              if (PortalRaycast(hitInfo.point + direction, direction, out List<RaycastHit> subsequentHits))
+              {
+                  hitsInfo.AddRange(subsequentHits);
+                  return true;
+              }
+              return false;
             }
+            if(portal.GetLinkedOutPortal() == null)
+                return true;
             
-            // hit portal, we have to cast a new raycast from outPortal
+            // Calculate the new origin and direction for the raycast from the linked out portal
             var newOrigin = GetRelativeWorldPos(hitInfo.point, portal.transform, portal.GetLinkedOutPortal().transform);
             var newDirection = GetRelativeWorldDirection(direction, portal.transform, portal.GetLinkedOutPortal().transform);
-            
-            // Debug.DrawRay(newOrigin, newDirection *100, Color.blue);
-            // return true;
-            return PortalRaycast(newOrigin, newDirection, out hitInfo);
 
+            // Recursive call to continue the raycast from the linked portal
+            if (PortalRaycast(newOrigin+ newDirection, newDirection, out List<RaycastHit> subsequentHits2))
+            {
+                hitsInfo.AddRange(subsequentHits2);
+                return true;
+            }
+
+            return false;
+            
+            
+
+            
         }
         
         

@@ -276,14 +276,14 @@ namespace Core.Portal.Scripts
 
         }
         # region TRIGGERS
-        private void TriggerOnPortalEnter(TransitioningObject objectCrossing)
+        private void TriggerOnPortalEnter(TransitioningObject enteringPortal)
         {
-            if(objectCrossing.GetImplementsTransitionListener())
-                objectCrossing.GetOriginal().SendMessage("OnPortalEnter", objectCrossing.Transition);
-            if(objectCrossing.HasInPortalListener)
-                objectCrossing.GetPortalIn().SendMessage("OnPortalEnter", objectCrossing.Transition);
-            if(objectCrossing.HasOutPortalListener)
-                objectCrossing.GetPortalOut().SendMessage("OnPortalEnter", objectCrossing.Transition);
+            if(enteringPortal.GetImplementsTransitionListener())
+                enteringPortal.GetOriginal().SendMessage("OnPortalEnter", enteringPortal.Transition);
+            if(enteringPortal.HasInPortalListener)
+                enteringPortal.GetPortalIn().SendMessage("OnPortalEnter", enteringPortal.Transition);
+            if(enteringPortal.HasOutPortalListener)
+                enteringPortal.GetPortalOut().SendMessage("OnPortalEnter", enteringPortal.Transition);
         }
         private void TriggerOnPortalExit(TransitioningObject leavingPortal)
         {
@@ -294,10 +294,14 @@ namespace Core.Portal.Scripts
             if(leavingPortal.HasOutPortalListener)
                 leavingPortal.GetPortalOut().SendMessage("OnPortalExit", leavingPortal.Transition);
         }
-        private void TriggerOnPortalTransitioning(TransitioningObject leavingPortal)
+        private void TriggerOnPortalTransitioning(TransitioningObject transitioningPortal)
         {
-            if(leavingPortal.GetImplementsTransitionListener())
-                leavingPortal.GetOriginal().SendMessage("OnPortalTransitioning", leavingPortal.Transition);
+            if(transitioningPortal.GetImplementsTransitionListener())
+                transitioningPortal.GetOriginal().SendMessage("OnPortalTransitioning", transitioningPortal.Transition);
+            if(transitioningPortal.HasInPortalListener)
+                transitioningPortal.GetPortalIn().SendMessage("OnPortalCrossed", transitioningPortal.Transition);
+            if(transitioningPortal.HasOutPortalListener)
+                transitioningPortal.GetPortalOut().SendMessage("OnPortalCrossed", transitioningPortal.Transition);
         
         }
         private void TriggerOnPortalCrossed(TransitioningObject crossingPortal)

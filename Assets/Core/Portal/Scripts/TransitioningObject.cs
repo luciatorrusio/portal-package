@@ -73,8 +73,9 @@ namespace Core.Portal.Scripts
         {
             _original.forward = _clone.forward;
             _original.rotation = _clone.rotation;
-            (_original.position, _clone.position) = (_clone.position, _original.position);
-            (_original.localScale, _clone.localScale) = (_clone.lossyScale, _original.lossyScale);
+            _clone.gameObject.SetActive(false);
+            _original.position = _clone.position;
+            _original.localScale = _clone.lossyScale;
 
         
         
@@ -88,7 +89,41 @@ namespace Core.Portal.Scripts
             (HasInPortalListener, HasOutPortalListener) = (HasOutPortalListener, HasInPortalListener);
             Transition._portalIn = portalIn;
             Transition._portalIn = portalOut;
+            SetPosition();
+            _clone.gameObject.SetActive(true);
+        }
         
+        private void SetPosition()
+        {
+            var portalTransform = _portalIn.transform;
+            var scale = portalTransform.localScale;
+            foreach (var originalToClone in GetOriginalToCloneList())
+            {
+                if (originalToClone.clone.parent == GetPortalOut().transform)
+                {
+                
+                    //scale
+                    var localScale = originalToClone.original.localScale;
+                    originalToClone.clone.localScale = new Vector3(localScale.x* (1/scale.y),localScale.y* (1/scale.x), localScale.z* (1/scale.z) );
+               
+                    // position
+                    var objectToPortal = portalTransform.InverseTransformDirection(originalToClone.original.position - portalTransform.position) ;
+                    var localPos = new Vector3(-objectToPortal.x* (1/scale.x), objectToPortal.y* (1/scale.y), -objectToPortal.z* (1/scale.z));
+                    originalToClone.clone.localPosition =localPos;
+                
+                    //rotation
+                    var rotation = Quaternion.LookRotation(-portalTransform.forward, portalTransform.up);
+                    var relativeRot = Quaternion.Inverse(rotation) * originalToClone.original.rotation;
+                    originalToClone.clone.rotation =_portalIn.GetLinkedOutPortal().transform.rotation * relativeRot;
+                }
+                else
+                {
+                    originalToClone.clone.localScale = originalToClone.original.localScale;
+                    originalToClone.clone.localRotation = originalToClone.original.localRotation;
+                    originalToClone.clone.localPosition = originalToClone.original.localPosition;
+                }
+            }
+
         }
 
     

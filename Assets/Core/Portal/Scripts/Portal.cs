@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Core.Portal.Editor;
 using Core.Portal.Utils;
 using JetBrains.Annotations;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Core.Portal.Scripts
@@ -46,9 +47,11 @@ namespace Core.Portal.Scripts
         #region API
         public void SetLinkedOutPortal(Portal newLinkedOutPortal)
         {
+            
             if(newLinkedOutPortal != null)
             {
-                linkedOutPortal.RemoveLinkedInPortal(this);
+                if(linkedOutPortal != null)
+                    linkedOutPortal.RemoveLinkedInPortal(this);
                 linkedOutPortal = newLinkedOutPortal;
                 linkedOutPortal.AddLinkedInPortal(this);
                 SetAsInPortal();
@@ -60,7 +63,8 @@ namespace Core.Portal.Scripts
         }
         public void RemoveLinkedOutPortal()
         {
-            linkedOutPortal.RemoveLinkedInPortal(this);
+            if(linkedOutPortal != null)
+                linkedOutPortal.RemoveLinkedInPortal(this);
             linkedOutPortal = null;
             portalTextureSetup.SetDefaultMaterial();
         }
@@ -73,6 +77,16 @@ namespace Core.Portal.Scripts
             if(PortalMesh == null)
                 Debug.LogWarning("Mesh is null in " + gameObject.name);
             renderPlane.mesh = PortalMesh;
+        }
+        public void UpdatePortalMesh(Mesh mesh)
+        {
+            if (PortalMesh == null)
+            {
+                Debug.LogWarning("Mesh is null in " + gameObject.name);
+                return;
+            }
+            PortalMesh = mesh;
+            renderPlane.mesh = mesh;
         }
         public void UpdateDefaultMaterial(Material material)
         {

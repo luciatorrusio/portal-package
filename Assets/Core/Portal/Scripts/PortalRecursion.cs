@@ -174,20 +174,7 @@ namespace Core.Portal.Scripts
         {
             RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
         }
-        private enum FrustumPlane
-        {
-            Left = 0,
-            Right = 1,
-            Bottom = 2,
-            Top = 3,
-            Near = 4,
-            Far = 5
-        }
-        bool IsNormalFacingInward(Plane plane, Vector3 frustumCenter)
-        {
-            Vector3 toCenter = (frustumCenter - plane.normal).normalized;
-            return Vector3.Dot(plane.normal, toCenter) < 0;
-        }
+        
     
     }
 }
