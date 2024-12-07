@@ -171,11 +171,11 @@ namespace Core.Portal.Scripts
             Gizmos.color = Color.green;
             if (linkedOutPortal != null)
             {
-                var localScale = transform.localScale;
+                var localScale = transform.lossyScale;
                 var linkedOutPortalTransform = linkedOutPortal.transform;
                 var position = transform.position;
                 GizmosExtended.DrawPlane(transform, new Vector2(PortalMesh.bounds.size.x * localScale.x, PortalMesh.bounds.size.z * localScale.y), Color.green);
-                GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(linkedOutPortal.PortalMesh.bounds.size.x * linkedOutPortalTransform.localScale.x, linkedOutPortal.PortalMesh.bounds.size.z * linkedOutPortalTransform.localScale.y), Color.red);
+                GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(linkedOutPortal.PortalMesh.bounds.size.x * linkedOutPortalTransform.lossyScale.x, linkedOutPortal.PortalMesh.bounds.size.z * linkedOutPortalTransform.lossyScale.y), Color.red);
                 GizmosExtended.DrawArrow(position,linkedOutPortal.transform.position- position, Color.yellow, 2f, 40f);
                 GizmosExtended.DrawArrow(linkedOutPortalTransform.position ,linkedOutPortalTransform.forward , Color.red);
                 GizmosExtended.DrawArrow(position+(transform.forward* 1f), -transform.forward, Color.green);

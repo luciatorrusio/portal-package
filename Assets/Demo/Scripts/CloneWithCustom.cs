@@ -12,7 +12,6 @@ public class CloneWithCustom : MonoBehaviour, CustomClone
     {
         var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.GetComponent<MeshRenderer>().material = material;
-        cube.transform.parent = portalOut;
         originalToClone.Add( (original.transform, cube.transform));
         return cube;
     }

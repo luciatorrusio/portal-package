@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Core.Portal.Utils;
 using UnityEngine;
@@ -83,12 +84,11 @@ namespace Core.Portal.Scripts
             _originalRigidbody.velocity =  newVelocity ;
             _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
 
-            _clone.parent = portalOut.transform;
             _portalIn = portalIn;
             _portalOut = portalOut;
             (HasInPortalListener, HasOutPortalListener) = (HasOutPortalListener, HasInPortalListener);
             Transition._portalIn = portalIn;
-            Transition._portalIn = portalOut;
+            Transition._portalOut = portalOut;
             SetPosition();
             _clone.gameObject.SetActive(true);
         }
@@ -99,22 +99,21 @@ namespace Core.Portal.Scripts
             var scale = portalTransform.localScale;
             foreach (var originalToClone in GetOriginalToCloneList())
             {
-                if (originalToClone.clone.parent == GetPortalOut().transform)
+                if (originalToClone.clone.parent == null)
                 {
                 
                     //scale
-                    var localScale = originalToClone.original.localScale;
-                    originalToClone.clone.localScale = new Vector3(localScale.x* (1/scale.y),localScale.y* (1/scale.x), localScale.z* (1/scale.z) );
-               
+                    originalToClone.clone.localScale =
+                        GetLocalScaleAsIfParented(originalToClone.original, _portalIn.transform, _portalOut.transform);
                     // position
                     var objectToPortal = portalTransform.InverseTransformDirection(originalToClone.original.position - portalTransform.position) ;
-                    var localPos = new Vector3(-objectToPortal.x* (1/scale.x), objectToPortal.y* (1/scale.y), -objectToPortal.z* (1/scale.z));
-                    originalToClone.clone.localPosition =localPos;
+                    var localPos = new Vector3(-objectToPortal.x* (1/_portalIn.transform.lossyScale.x), objectToPortal.y* (1/_portalIn.transform.lossyScale.y), -objectToPortal.z* (1/_portalIn.transform.lossyScale.z));
+                    originalToClone.clone.position = _portalOut.transform.TransformPoint(localPos);
                 
                     //rotation
                     var rotation = Quaternion.LookRotation(-portalTransform.forward, portalTransform.up);
                     var relativeRot = Quaternion.Inverse(rotation) * originalToClone.original.rotation;
-                    originalToClone.clone.rotation =_portalIn.GetLinkedOutPortal().transform.rotation * relativeRot;
+                    originalToClone.clone.rotation =_portalOut.transform.rotation * relativeRot;
                 }
                 else
                 {
@@ -125,7 +124,27 @@ namespace Core.Portal.Scripts
             }
 
         }
-
+        public static Vector3 GetLocalScaleAsIfParented(Transform original, Transform portalIn, Transform portalOut )
+        {
+            // Get the object's world scale
+            Vector3 originalGlobalScale = original.lossyScale;
+            var portalOutGlobalScaleX = Math.Round(portalOut.lossyScale.x, 2);
+            var portalOutGlobalScaleY = Math.Round(portalOut.lossyScale.y, 2);
+            var portalOutGlobalScaleZ = Math.Round(portalOut.lossyScale.z, 2);
+            // Calculate the hypothetical local scale by dividing the object's world scale
+            // by the hypothetical parent's world scale
+            Vector3 lossyScale = new Vector3( 
+                (float)((portalOutGlobalScaleX/ Math.Round(portalIn.lossyScale.x, 2)) * Math.Round(originalGlobalScale.x, 2)),
+                (float)((portalOutGlobalScaleY/ Math.Round(portalIn.lossyScale.y, 2)) *  Math.Round(originalGlobalScale.y, 2)),
+                (float)(( portalOutGlobalScaleZ/ Math.Round(portalIn.lossyScale.z, 2)) *  Math.Round(originalGlobalScale.z, 2))
+            );
+            return lossyScale;
+            return new Vector3(
+                lossyScale.x / (float)portalOutGlobalScaleX,
+                lossyScale.y / (float)portalOutGlobalScaleY,
+                lossyScale.z / (float)portalOutGlobalScaleZ
+            );
+        }
     
         public Portal GetPortalOut()
         {

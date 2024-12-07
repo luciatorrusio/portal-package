@@ -35,8 +35,10 @@ namespace Core.Portal.Scripts
         public static void AddPortal(Portal newPortal)
         {
             allPortals.Add(newPortal);
-            if (allPortals.Count == 1)
+            if (allPortals.Count == 1 && portalCamera != null){
                 portalCamera.enabled = true;
+            }
+                
         }
 
         public static void RemovePortal(Portal portal)

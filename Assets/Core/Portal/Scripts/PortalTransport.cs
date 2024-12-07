@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Core.Portal.Utils;
 using UnityEngine;
 
@@ -94,23 +95,23 @@ namespace Core.Portal.Scripts
             collisionHandlerIn.SetPortal(portal.transform);
         }
 
-        private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform parent,List<(Transform original, Transform clone)> originalToClone,  bool firstIteration)
+        private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform portalOut,List<(Transform original, Transform clone)> originalToClone,  bool firstIteration)
         {
             var objectToPortal = portal.transform.InverseTransformDirection(objectCrossing.transform.position - portal.transform.position);
             var localPosition = new Vector3(-objectToPortal.x, objectToPortal.y, -objectToPortal.z);
-            var clone = Instantiate(emptyClone, portal.GetLinkedOutPortal().transform.position + localPosition, objectCrossing.transform.localRotation, parent);
+            var clone = Instantiate(emptyClone, portal.GetLinkedOutPortal().transform.position + localPosition, objectCrossing.transform.localRotation);
             originalToClone.Add( (objectCrossing.transform, clone.transform));
             clone.name = objectCrossing.name + ("(Portal)");
-            DuplicateMesh(objectCrossing, clone, originalToClone, firstIteration);
+            DuplicateMesh(objectCrossing, clone, originalToClone, firstIteration, portal.transform, portalOut);
             for (int i = 0; i < objectCrossing.transform.childCount; i++)
             {
                 CreateGameObjectTree(objectCrossing.transform.GetChild(i).gameObject, clone.transform, originalToClone, false);
             }
             return clone;
         }
-        private static void DuplicateMesh(GameObject original, GameObject clone,List<(Transform original, Transform clone)> originalToClone,  bool firstIteration)
+        private static void DuplicateMesh(GameObject original, GameObject clone,List<(Transform original, Transform clone)> originalToClone,  bool firstIteration, Transform portalIn, Transform portalOut)
         {
-            CopyTransform(original.transform, clone.transform, firstIteration);
+            CopyTransform(original.transform, clone.transform, firstIteration, portalIn, portalOut);
             CopyMesh(original, clone, originalToClone);
             CopyCollider(original, clone);
         }
@@ -172,9 +173,9 @@ namespace Core.Portal.Scripts
             cloneMeshFilter.sharedMesh = Instantiate(originalMeshFilter.sharedMesh);
         }
 
-        private static void CopyTransform(Transform original, Transform clone, bool firstIteration)
+        private static void CopyTransform(Transform original, Transform clone, bool firstIteration,Transform portalIn, Transform portalOut)
         {
-            clone.localScale = original.localScale;
+            clone.localScale = GetLocalScaleAsIfParented(original,portalIn, portalOut );
             if(firstIteration)
                 return;
             //clone.position = original.position;
@@ -393,20 +394,19 @@ namespace Core.Portal.Scripts
         private void SetPosition(TransitioningObject transitioningObject)
         {
             var portalTransform = portal.transform;
-            var scale = portalTransform.localScale;
+            var portalInGlobalScale = portalTransform.lossyScale;
             foreach (var originalToClone in transitioningObject.GetOriginalToCloneList())
             {
-                if (originalToClone.clone.parent == transitioningObject.GetPortalOut().transform)
+                if (originalToClone.clone.parent == null)
                 {
                 
                     //scale
-                    var localScale = originalToClone.original.localScale;
-                    originalToClone.clone.localScale = new Vector3(localScale.x* (1/scale.y),localScale.y* (1/scale.x), localScale.z* (1/scale.z) );
-               
+                    originalToClone.clone.localScale =
+                        GetLocalScaleAsIfParented(originalToClone.original, transitioningObject.GetPortalIn().transform, transitioningObject.GetPortalOut().transform);
                     // position
                     var objectToPortal = portalTransform.InverseTransformDirection(originalToClone.original.position - portalTransform.position) ;
-                    var localPos = new Vector3(-objectToPortal.x* (1/scale.x), objectToPortal.y* (1/scale.y), -objectToPortal.z* (1/scale.z));
-                    originalToClone.clone.localPosition =localPos;
+                    var localPos = new Vector3(-objectToPortal.x* (1/portalInGlobalScale.x), objectToPortal.y* (1/portalInGlobalScale.y), -objectToPortal.z* (1/portalInGlobalScale.z));
+                    originalToClone.clone.position = transitioningObject.GetPortalOut().transform.TransformPoint(localPos);
                 
                     //rotation
                     var rotation = Quaternion.LookRotation(-portalTransform.forward, portalTransform.up);
@@ -421,6 +421,48 @@ namespace Core.Portal.Scripts
                 }
             }
 
+        }
+        
+        public static Vector3 GetLocalScaleAsIfParented(Transform original, Transform portalIn, Transform portalOut )
+        {
+            // Get the object's world scale
+            Vector3 originalGlobalScale = original.lossyScale;
+            var portalOutGlobalScaleX = Math.Round(portalOut.lossyScale.x, 2);
+            var portalOutGlobalScaleY = Math.Round(portalOut.lossyScale.y, 2);
+            var portalOutGlobalScaleZ = Math.Round(portalOut.lossyScale.z, 2);
+            // Calculate the hypothetical local scale by dividing the object's world scale
+            // by the hypothetical parent's world scale
+            Vector3 lossyScale = new Vector3( 
+                (float)((portalOutGlobalScaleX/ Math.Round(portalIn.lossyScale.x, 2)) * Math.Round(originalGlobalScale.x, 2)),
+                (float)((portalOutGlobalScaleY/ Math.Round(portalIn.lossyScale.y, 2)) *  Math.Round(originalGlobalScale.y, 2)),
+                (float)(( portalOutGlobalScaleZ/ Math.Round(portalIn.lossyScale.z, 2)) *  Math.Round(originalGlobalScale.z, 2))
+            );
+            return lossyScale;
+            return new Vector3(
+                lossyScale.x / (float)portalOutGlobalScaleX,
+                lossyScale.y / (float)portalOutGlobalScaleY,
+                lossyScale.z / (float)portalOutGlobalScaleZ
+            );
+        }
+        public void SetLossyScale(Transform target, Vector3 targetLossyScale)
+        {
+            if (target.parent == null)
+            {
+                // If no parent, local scale equals the desired lossy scale.
+                target.localScale = targetLossyScale;
+            }
+            else
+            {
+                // Calculate the parent lossy scale.
+                Vector3 parentLossyScale = target.parent.lossyScale;
+            
+                // Adjust local scale to achieve the desired lossy scale.
+                target.localScale = new Vector3(
+                    targetLossyScale.x / parentLossyScale.x,
+                    targetLossyScale.y / parentLossyScale.y,
+                    targetLossyScale.z / parentLossyScale.z
+                );
+            }
         }
 
         private void StopCropMaterial(TransitioningObject transitioningObject)
