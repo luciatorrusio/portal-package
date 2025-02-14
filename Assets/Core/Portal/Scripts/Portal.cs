@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Core.Portal.Editor;
 using Core.Portal.Utils;
 using JetBrains.Annotations;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Core.Portal.Scripts
@@ -10,22 +10,12 @@ namespace Core.Portal.Scripts
     public class Portal : MonoBehaviour
     {
         #region declarations
-        [HideInInspector]
-        [SerializeField] private PortalTextureSetup portalTextureSetup;
-    
+
         [SerializeField] [CanBeNull] private Portal linkedOutPortal = null;
 
         [HideInInspector]
         [SerializeField]private List<Portal> linkedInPortals = new List<Portal>();
-        [HideInInspector]
-        [SerializeField] private MeshFilter renderPlane;
-
-        [HideInInspector] 
-        [SerializeField] private Renderer _renderer;
-        [HideInInspector]
-        [SerializeField] private PortalTransport portalTransport;
-
-        [SerializeField] private Mesh PortalMesh;
+        
         [SerializeField] private Material defaultMaterial;
 
         [SerializeField] private PortalUtils.PortalMode portalMode; 
@@ -35,13 +25,56 @@ namespace Core.Portal.Scripts
         [ShowOnlyIf("portalMode", PortalUtils.PortalMode.NO_IMAGE)]
 #endif
         private Material portalMaterial;
+
+        [SerializeField] private PortalDependencies dependencies;
+        
+        [Serializable]
+        public class PortalDependencies
+        {
+            [SerializeField] private GameObject renderGameObject;
+            private PortalTextureSetup portalTextureSetup;
+            private MeshFilter renderPlane;
+            private Renderer _renderer;
+            private PortalTransport portalTransport;
+            public MeshFilter RenderPlane => renderPlane;
+            public Renderer Renderer => _renderer;
+            public PortalTransport PortalTransport
+            {
+                get => portalTransport;
+                set => portalTransport = value;
+            }
+            public PortalTextureSetup PortalTextureSetup => portalTextureSetup;
+            
+            public void SetRenderGameObjectComponents()
+            {
+                portalTextureSetup = renderGameObject.GetComponent<PortalTextureSetup>();
+                renderPlane = renderGameObject.GetComponent<MeshFilter>();
+                _renderer = renderGameObject.GetComponent<Renderer>();
+            }
+        }
         #endregion
 
     
-        void Start()
+        void Awake()
         {
+            dependencies.SetRenderGameObjectComponents();
+            dependencies.PortalTransport = GetComponent<PortalTransport>();
             if (linkedOutPortal != null)
                 SetAsInPortal();
+        }
+
+        private void OnValidate()
+        {
+            try
+            {
+                dependencies.SetRenderGameObjectComponents();
+                dependencies.PortalTransport = GetComponent<PortalTransport>();
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("ex:"+ex.Message);
+            }
+            
         }
 
         #region API
@@ -66,39 +99,24 @@ namespace Core.Portal.Scripts
             if(linkedOutPortal != null)
                 linkedOutPortal.RemoveLinkedInPortal(this);
             linkedOutPortal = null;
-            portalTextureSetup.SetDefaultMaterial();
+            dependencies.PortalTextureSetup.SetDefaultMaterial();
         }
         public Portal GetLinkedOutPortal()
         {
             return linkedOutPortal;
         }
-        public void SetPortalMesh()
-        {
-            if(PortalMesh == null)
-                Debug.LogWarning("Mesh is null in " + gameObject.name);
-            renderPlane.mesh = PortalMesh;
-        }
-        public void UpdatePortalMesh(Mesh mesh)
-        {
-            if (PortalMesh == null)
-            {
-                Debug.LogWarning("Mesh is null in " + gameObject.name);
-                return;
-            }
-            PortalMesh = mesh;
-            renderPlane.mesh = mesh;
-        }
+        
         public void UpdateDefaultMaterial(Material material)
         {
-            portalTextureSetup.UpdateDefaultMaterial(material);
+            dependencies.PortalTextureSetup.UpdateDefaultMaterial(material);
         }
         public void SetPortalMaterial(Material material)
         {
-            portalTextureSetup.SetPortalMaterial(material);
+            dependencies.PortalTextureSetup.SetPortalMaterial(material);
         }
         public Material GetPortalMaterial()
         {
-            return portalTextureSetup.GetPortalMaterial();
+            return dependencies.PortalTextureSetup.GetPortalMaterial();
         }
         public IEnumerable<Portal> GetLinkedInPortals()
         {
@@ -111,17 +129,17 @@ namespace Core.Portal.Scripts
             switch (portalMode)
             {
                 case PortalUtils.PortalMode.FULL_FUNCTION:
-                    portalTransport.enabled = true;
+                    dependencies.PortalTransport.enabled = true;
                     PortalManager.AddPortal(this);
                     break;
                 case PortalUtils.PortalMode.NO_TRANSPORTATION:
-                    portalTransport.enabled = false;
+                    dependencies.PortalTransport.enabled = false;
                     PortalManager.AddPortal(this);
                     break;
                 case PortalUtils.PortalMode.NO_IMAGE: 
-                    portalTransport.enabled = true;
+                    dependencies.PortalTransport.enabled = true;
                     PortalManager.RemovePortal(this);
-                    portalTextureSetup.SetPortalMaterial(portalMaterial);
+                    dependencies.PortalTextureSetup.SetPortalMaterial(portalMaterial);
                     break;
             }
         }
@@ -137,7 +155,7 @@ namespace Core.Portal.Scripts
         /// </summary>
         public void UpdateDefaultMaterial()
         {
-            portalTextureSetup.UpdateDefaultMaterial(defaultMaterial);
+            dependencies.PortalTextureSetup.UpdateDefaultMaterial(defaultMaterial);
         }
         private void AddLinkedInPortal(Portal portal)
         {
@@ -151,8 +169,8 @@ namespace Core.Portal.Scripts
 
         private void SetAsInPortal()
         {
-            portalTextureSetup.gameObject.SetActive(true);
-            portalTextureSetup.SetCameraMaterial();
+            dependencies.PortalTextureSetup.gameObject.SetActive(true);
+            dependencies.PortalTextureSetup.SetCameraMaterial();
             gameObject.SetActive(true);
             linkedOutPortal.AddLinkedInPortal(this);
         
@@ -161,7 +179,7 @@ namespace Core.Portal.Scripts
 
         public void UpdateTransitioningObjects()
         {
-            portalTransport.UpdateTransitioningObjects();
+            dependencies.PortalTransport.UpdateTransitioningObjects();
         }
 
 
@@ -174,8 +192,8 @@ namespace Core.Portal.Scripts
                 var localScale = transform.lossyScale;
                 var linkedOutPortalTransform = linkedOutPortal.transform;
                 var position = transform.position;
-                GizmosExtended.DrawPlane(transform, new Vector2(PortalMesh.bounds.size.x * localScale.x, PortalMesh.bounds.size.z * localScale.y), Color.green);
-                GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(linkedOutPortal.PortalMesh.bounds.size.x * linkedOutPortalTransform.lossyScale.x, linkedOutPortal.PortalMesh.bounds.size.z * linkedOutPortalTransform.lossyScale.y), Color.red);
+                GizmosExtended.DrawPlane(transform, new Vector2(dependencies.RenderPlane.sharedMesh.bounds.size.x * localScale.x, dependencies.RenderPlane.sharedMesh.bounds.size.z * localScale.y), Color.green);
+                GizmosExtended.DrawPlane(linkedOutPortal.transform, new Vector2(linkedOutPortal.dependencies.RenderPlane.sharedMesh.bounds.size.x * linkedOutPortalTransform.lossyScale.x, linkedOutPortal.dependencies.RenderPlane.sharedMesh.bounds.size.z * linkedOutPortalTransform.lossyScale.y), Color.red);
                 GizmosExtended.DrawArrow(position,linkedOutPortal.transform.position- position, Color.yellow, 2f, 40f);
                 GizmosExtended.DrawArrow(linkedOutPortalTransform.position ,linkedOutPortalTransform.forward , Color.red);
                 GizmosExtended.DrawArrow(position+(transform.forward* 1f), -transform.forward, Color.green);
@@ -198,18 +216,18 @@ namespace Core.Portal.Scripts
 
         public RenderTexture GetRenderTexture()
         {
-            return portalTextureSetup.GetRenderTexture();
+            return dependencies.PortalTextureSetup.GetRenderTexture();
         }
         
         public Renderer GetRenderer()
         {
-            return _renderer;
+            return dependencies.Renderer;
         }
 
 
         public void AddTransitioningObject(TransitioningObject transitioningObject)
         {
-            portalTransport.AddTransitioningObject(transitioningObject);
+            dependencies.PortalTransport.AddTransitioningObject(transitioningObject);
         }
     
     

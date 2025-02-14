@@ -12,7 +12,7 @@ namespace Core.Portal.Scripts
         private Transform _cameraBeingReplicated;
         private Transform _portalOut;
         private Transform _portalIn;
-        [HideInInspector]
+        //[HideInInspector]
         [SerializeField] private Camera _camera;
 
         public void SetPosition(Vector3 Position)
@@ -92,6 +92,13 @@ namespace Core.Portal.Scripts
             var p = new Plane(_portalOut.forward, _portalOut.position);
             var clipPlane = new Vector4(p.normal.x, p.normal.y, p.normal.z, p.distance);
             var clipPlaneCameraSpace = Matrix4x4.Transpose(Matrix4x4.Inverse(_camera.worldToCameraMatrix)) * clipPlane;
+            // // Transform the point to camera space
+            // Vector3 pointInCameraSpace = _camera.worldToCameraMatrix.MultiplyPoint(planePoint);
+            //
+            // // Transform the normal to camera space
+            // Vector3 normalInCameraSpace = camera.worldToLocalMatrix.inverse.transpose.MultiplyVector(planeNormal);
+            // normalInCameraSpace.Normalize();
+            // var clipPlaneCameraSpace =_camera.worldToCameraMatrix * clipPlane;
             var newMatrix = _camera.CalculateObliqueMatrix(clipPlaneCameraSpace);
             _camera.projectionMatrix = newMatrix;
         }
