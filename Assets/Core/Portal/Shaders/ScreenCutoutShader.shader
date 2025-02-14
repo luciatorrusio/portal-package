@@ -42,13 +42,12 @@ Shader "Custom/ScreenCutoutShader"
 			
 			sampler2D _MainTex;
 
-			fixed4 frag (v2f i) : SV_Target
+			float4 frag (v2f i) : SV_Target
 			{
 				i.screenPos /= i.screenPos.w;
 				//Performs a texture lookup in a 2d sampler samp using coordinates s.
-				fixed4 col = tex2D(_MainTex, float2(i.screenPos.x, i.screenPos.y));
 				
-				return col;
+				return tex2D(_MainTex, float2(i.screenPos.x, i.screenPos.y));
 			}
 			ENDCG
 		}
