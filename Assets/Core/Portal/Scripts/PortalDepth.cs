@@ -8,7 +8,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace Core.Portal.Scripts
 {
-    public class PortalRecursion : MonoBehaviour
+    public class PortalDepth : MonoBehaviour
     {
         [HideInInspector]
         [SerializeField]private Camera _camera;

@@ -11,12 +11,9 @@ namespace Core.Portal.Scripts
     [RequireComponent(typeof(Collider))]
     public class PortalTransport : MonoBehaviour
     {
-    
-    
-        [HideInInspector]
         [SerializeField] private Portal portal;
         private readonly List<TransitioningObject> _objectsOnPortal = new List<TransitioningObject>();
-        [HideInInspector]
+        
         [SerializeField] private GameObject emptyClone;
 
         private static readonly int PortalNormal = Shader.PropertyToID("_portalNormal");
@@ -73,8 +70,6 @@ namespace Core.Portal.Scripts
             }
         
             ForwardEvents(clone, objectCrossing);
-            // todo
-            // IgnoreCollision( objectCrossing);
             var transitionListener = objectCrossing.GetComponent<TransitionListener>();
         
             var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portal,portal.GetLinkedOutPortal(), originalToClone, transitionListener!=null );
@@ -86,13 +81,6 @@ namespace Core.Portal.Scripts
         public void AddTransitioningObject(TransitioningObject transitioningObject)
         {
             _objectsOnPortal.Add(transitioningObject);
-        }
-
-        //todo
-        private void IgnoreCollision(GameObject objectCrossing)
-        {
-            var collisionHandlerIn = objectCrossing.AddComponent<CollisionHandler>();
-            collisionHandlerIn.SetPortal(portal.transform);
         }
 
         private GameObject CreateGameObjectTree(GameObject objectCrossing, Transform portalOut,List<(Transform original, Transform clone)> originalToClone,  bool firstIteration)
@@ -243,8 +231,7 @@ namespace Core.Portal.Scripts
         private void ForwardEvents(GameObject clone, GameObject objectCrossing)
         {
             var eventForwarder = clone.AddComponent<EventForwarder>();
-            var eventListener = objectCrossing.AddComponent<EventListener>();
-            eventListener.SetEventForwarder(eventForwarder);
+            eventForwarder.SetOriginalObject(objectCrossing);
         }
 
         private void ExitPortal(TransitioningObject leavingPortal)
@@ -253,17 +240,10 @@ namespace Core.Portal.Scripts
                 return;
             StopCropMaterial(leavingPortal);
             TriggerOnPortalExit(leavingPortal);
-            Destroy(leavingPortal.GetClone().gameObject);  
-            DestroyAddedComponents(leavingPortal.GetOriginal());
+            Destroy(leavingPortal.GetClone().gameObject); 
         }
 
-        private void DestroyAddedComponents(Transform original)
-        {
-            Destroy(original.GetComponent<EventListener>());
-            Destroy(original.GetComponent<CollisionHandler>());
-        }
-    
-    
+
         private void OnTriggerExit(Collider other)
         {
             if(!enabled || portal == null || portal.GetLinkedOutPortal() == null)

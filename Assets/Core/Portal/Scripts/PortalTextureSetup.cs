@@ -8,11 +8,11 @@ namespace Core.Portal.Scripts
         private  Camera cameraOut;
         private Material _portalInMat;
         [SerializeField] private Material _defaultMaterial;
-        [HideInInspector]
+        
         [SerializeField] private Shader shader;
 
         private RenderTexture _targetTexture;
-        [HideInInspector]
+        
         [SerializeField] private Renderer renderer;
     
         // crea el material que tendra el plano y se lo pone al plano
