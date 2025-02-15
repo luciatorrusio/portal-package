@@ -1,0 +1,20 @@
+using UnityEngine;
+
+namespace AlsetRGames.Portal.Core
+{
+    public class Transition 
+    {
+        public  Transform _original { get;  }
+        public  Transform _clone { get;}
+        public  Portal  _portalIn { get;  set;}
+        public Portal _portalOut { get; set; }
+
+        public Transition(Transform original, Transform clone, Portal portalIn, Portal portalOut)
+        {
+            _original = original;
+            _clone = clone;
+            _portalIn = portalIn;
+            _portalOut = portalOut;
+        }
+    }
+}
