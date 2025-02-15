@@ -126,7 +126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera: {fileID: 7789804372265317640}
   portalCameraController: {fileID: 7789804372265317645}
-  recursiveIterations: 2
+  portalDepth: 2
   _portalManager: {fileID: 104236919364518333}
 --- !u!114 &7789804372265317645
 MonoBehaviour:

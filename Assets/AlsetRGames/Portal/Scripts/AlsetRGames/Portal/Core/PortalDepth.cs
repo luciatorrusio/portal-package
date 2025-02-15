@@ -15,7 +15,7 @@ namespace AlsetRGames.Portal.Core
         [SerializeField]private Camera _camera;
         [HideInInspector]
         [SerializeField] private PortalCameraController portalCameraController;
-        [SerializeField] private int recursiveIterations;
+        [SerializeField] private int portalDepth;
     
         [HideInInspector]
         [SerializeField] private PortalManager _portalManager;
@@ -79,7 +79,7 @@ namespace AlsetRGames.Portal.Core
         }
         private void RenderCamera(Portal inPortal,  int depth, ScriptableRenderContext context, Camera cameraBeingReplicated)
         {
-            if (depth >= recursiveIterations)
+            if (depth >= portalDepth)
                 return;
             depth++;
             portalCameraController.SetCameraBeingReplicated(cameraBeingReplicated);
@@ -94,7 +94,7 @@ namespace AlsetRGames.Portal.Core
                 Rotation = _camera.transform.rotation,
                 ProjectionMatrix = _camera.projectionMatrix
             };
-            if (depth < recursiveIterations)
+            if (depth < portalDepth)
             {
                 var customFrustumPlanes = _camera.GenerateCustomFrustumPlanes(inPortal.GetLinkedOutPortal());
                 
