@@ -1,0 +1,16 @@
+{
+    "name": "com.alset-r-games.portal.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:becbe1cf8c0a1f84ea8d701116844f0f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
