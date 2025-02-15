@@ -15,5 +15,8 @@
   "keywords": [
     "portal",
     "tool"
+  ],
+  "ignore": [
+    "Demo/"
   ]
 }
