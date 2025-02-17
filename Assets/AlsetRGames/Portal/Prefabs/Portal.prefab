@@ -316,7 +316,7 @@ MonoBehaviour:
   linkedInPortals: []
   defaultMaterial: {fileID: 2100000, guid: 408e824a2eec23b4d8d8513f20b93506, type: 2}
   portalMode: 0
-  portalMaterial: {fileID: 0}
+  portalMaterial: {fileID: 2100000, guid: 59fae5c3f6ec8ff4f9cc02134a60d9c6, type: 2}
   dependencies:
     renderGameObject: {fileID: 7499457454019592065}
 --- !u!65 &8484598221913056764

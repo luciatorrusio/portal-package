@@ -12,7 +12,7 @@ public class Character : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
     }
-
+    
     // Update is called once per frame
     void Update()
     {

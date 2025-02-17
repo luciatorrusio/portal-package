@@ -11,14 +11,17 @@ namespace AlsetRGames.Portal.Core
 {
     public class PortalDepth : MonoBehaviour
     {
-        [HideInInspector]
-        [SerializeField]private Camera _camera;
-        [HideInInspector]
-        [SerializeField] private PortalCameraController portalCameraController;
+        //[HideInInspector]
+        //[SerializeField]
+        private Camera _camera;
+        //[HideInInspector]
+        //[SerializeField] 
+        private PortalCameraController portalCameraController;
         [SerializeField] private int portalDepth;
     
-        [HideInInspector]
-        [SerializeField] private PortalManager _portalManager;
+        //[HideInInspector]
+        //[SerializeField] 
+        private PortalManager _portalManager;
 
         private Material _material;
         
@@ -27,6 +30,9 @@ namespace AlsetRGames.Portal.Core
         void Start()
         {
             RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
+            _camera = gameObject.GetComponent<Camera>();
+            portalCameraController = gameObject.GetComponent<PortalCameraController>();
+            _portalManager = gameObject.GetComponent<PortalManager>();
         }
 
         void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)

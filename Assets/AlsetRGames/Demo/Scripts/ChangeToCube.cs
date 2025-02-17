@@ -8,25 +8,43 @@ public class ChangeToCube : MonoBehaviour, TransitionListener
     private bool firstTime = true;
     public void OnPortalEnter(Transition transitioning)
     {
-        // throw new System.NotImplementedException();
+        print($"ENTERING PORTAL." +
+              $"object: {transitioning._original.name}, " +
+              $"with clone: {transitioning._clone.name}, " +
+              $"is entering portal: {transitioning._portalIn.name}," +
+              $"is coming out of portal: {transitioning._portalOut.name}");
     }
 
     public void OnPortalTransitioning(Transition transitioning)
     {
-        // throw new System.NotImplementedException();
+        print($"TRANSITIONING PORTAL" +
+              $"object: {transitioning._original.name}, " +
+              $"with clone: {transitioning._clone.name}, " +
+              $"is entering portal: {transitioning._portalIn.name}," +
+              $"is coming out of portal: {transitioning._portalOut.name}");
     }
 
     public void OnPortalExit(Transition transitioning)
     {
-        // throw new System.NotImplementedException();
+        print($"EXITING PORTAL" +
+              $"object: {transitioning._original.name}, " +
+              $"with clone: {transitioning._clone.name}, " +
+              $"is entering portal: {transitioning._portalIn.name}, " +
+              $"is coming out of portal: {transitioning._portalOut.name}");
     }
 
     public void OnPortalCrossed(Transition transitioning)
     {
+        print($"CROSSED PORTAL" +
+              $"object: {transitioning._original.name}, " +
+              $"with clone: {transitioning._clone.name}, " +
+              $"is entering portal: {transitioning._portalIn.name}, " +
+              $"is coming out of portal: {transitioning._portalOut.name}");
         if (firstTime)
         {
             meshFilter.mesh = newMesh;
             firstTime = false;
         }
+        
     }
 }

@@ -11,13 +11,16 @@ namespace AlsetRGames.Portal.Core
     {
         private  Camera cameraOut;
         private Material _portalInMat;
-        [SerializeField] private Material _defaultMaterial;
+        private Material _defaultMaterial;
         
         [SerializeField] private Shader shader;
 
         private RenderTexture _targetTexture;
         
-        [SerializeField] private Renderer renderer;
+        private Renderer renderer;
+		void Awake(){
+			renderer = gameObject.GetComponent<Renderer>();
+		}
     
         // crea el material que tendra el plano y se lo pone al plano
         public void SetCameraMaterial()
