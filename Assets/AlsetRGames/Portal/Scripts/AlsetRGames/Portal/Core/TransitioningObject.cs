@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using AlsetRGames.Portal.Support;
+using JetBrains.Annotations;
 
 namespace AlsetRGames.Portal.Core
 {
     public class TransitioningObject 
     {
         private  Transform _original;
-        private  Rigidbody _originalRigidbody;
+        [CanBeNull] private  Rigidbody _originalRigidbody;
+        [CanBeNull] private  CharacterController _characterController;
         private  Transform _clone;
         private readonly GameObject _mainCamera;
         private  Portal  _portalIn;
@@ -36,6 +38,7 @@ namespace AlsetRGames.Portal.Core
             _cloneMaterials.AddRange(SetMaterials(clone.gameObject));
             _originalMaterials.AddRange(SetMaterials(original.gameObject));
             Transition = new Transition(_original, _clone, _portalIn, _portalOut);
+            _characterController = _original.GetComponent<CharacterController>();
         }
     
 
@@ -72,18 +75,27 @@ namespace AlsetRGames.Portal.Core
     
         public void SwitchPortals(Portal portalIn, Portal portalOut)
         {
+            if (_characterController != null)
+            {
+                _characterController.enabled = false;
+                _characterController.Move(Vector3.zero);
+            }
+                
             _original.forward = _clone.forward;
             _original.rotation = _clone.rotation;
             _clone.gameObject.SetActive(false);
             _original.position = _clone.position;
             _original.localScale = _clone.lossyScale;
+            
 
-        
-        
-            var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn.transform, _portalOut.transform);
-            _originalRigidbody.velocity =  newVelocity ;
-            _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
+            if (!_originalRigidbody.Equals(null))
+            {
+                var newVelocity = PortalUtils.GetRelativeWorldDirection(_originalRigidbody.velocity, _portalIn.transform, _portalOut.transform);
+                _originalRigidbody.velocity =  newVelocity ;
+                _originalRigidbody.angularVelocity =   PortalUtils.GetRelativeWorldDirection(_originalRigidbody.angularVelocity, _portalIn.transform, _portalOut.transform); ;
 
+            }
+           
             _portalIn = portalIn;
             _portalOut = portalOut;
             (HasInPortalListener, HasOutPortalListener) = (HasOutPortalListener, HasInPortalListener);
@@ -91,6 +103,8 @@ namespace AlsetRGames.Portal.Core
             Transition._portalOut = portalOut;
             SetPosition();
             _clone.gameObject.SetActive(true);
+            if(_characterController !=null)
+                _characterController.enabled = true;
         }
         
         private void SetPosition()

@@ -15,7 +15,6 @@ namespace AlsetRGames.Portal.Support
         
         public static bool IsInFrontOf(this Vector3 one, Transform other)
         {
-            
             var toOther = one - other.position;
             var dot = Vector3.Dot(other.forward, toOther);
             return dot > 0;

@@ -13,7 +13,7 @@ public class listener : MonoBehaviour, TransitionListener
 
     public void OnPortalTransitioning(Transition transitioning)
     {
-        // print($"{_counter++}.transition portal {transitioning._portalIn.name}");
+        //print($"{_counter++}.transition portal {transitioning._portalIn.name}");
     }
 
     public void OnPortalExit(Transition transitioning)

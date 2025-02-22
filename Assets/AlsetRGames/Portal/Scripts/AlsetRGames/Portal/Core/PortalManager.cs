@@ -48,5 +48,7 @@ namespace AlsetRGames.Portal.Core
             if(allPortals.Remove(portal) && allPortals.Count == 0 && portalCamera!= null)
                 portalCamera.enabled = false;
         }
+
+        
     }
 }

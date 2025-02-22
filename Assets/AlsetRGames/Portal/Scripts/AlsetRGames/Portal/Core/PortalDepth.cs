@@ -40,7 +40,7 @@ namespace AlsetRGames.Portal.Core
             
             if (!(camera == _portalManager.GetMainCamera())) 
                 return;
-            
+           
             foreach (
                 var portal in PortalManager.allPortals.Where(
                     portal => portal.GetLinkedOutPortal() != null 
