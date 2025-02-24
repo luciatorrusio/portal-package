@@ -308,7 +308,7 @@ namespace AlsetRGames.Portal.Core
 
         public void UpdateTransitioningObjects()
         {
-            if(portal.GetLinkedOutPortal().Equals(null))
+            if(portal.GetLinkedOutPortal() ==null)
                 return;
             for (var j = 0; j < objectsOnPortal.Count ; j++)
             {
