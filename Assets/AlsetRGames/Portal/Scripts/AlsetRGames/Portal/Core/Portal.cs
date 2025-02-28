@@ -60,7 +60,9 @@ namespace AlsetRGames.Portal.Core
             
             if (linkedOutPortal != null)
                 SetAsInPortal();
-			else{
+			else
+            {
+                //dependencies.PortalTextureSetup.gameObject.SetActive(true);
 				dependencies.PortalTextureSetup.SetDefaultMaterial();
 			}
         }

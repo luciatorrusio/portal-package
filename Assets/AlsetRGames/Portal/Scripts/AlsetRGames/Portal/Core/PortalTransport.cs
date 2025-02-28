@@ -69,7 +69,7 @@ namespace AlsetRGames.Portal.Core
             ForwardEvents(clone, objectCrossing);
             var transitionListener = objectCrossing.GetComponent<TransitionListener>();
         
-            var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portal,portal.GetLinkedOutPortal(), originalToClone, transitionListener!=null );
+            var objectOnPortal = new TransitioningObject(objectCrossing.transform, clone.transform, portal,portal.GetLinkedOutPortal(), originalToClone, transitionListener);
             objectsOnPortal.Add(objectOnPortal);
             TriggerOnPortalEnter(objectOnPortal);
         
@@ -262,40 +262,42 @@ namespace AlsetRGames.Portal.Core
         # region TRIGGERS
         private void TriggerOnPortalEnter(TransitioningObject enteringPortal)
         {
-            if(enteringPortal.GetImplementsTransitionListener())
-                enteringPortal.GetOriginal().SendMessage("OnPortalEnter", enteringPortal.Transition);
-            if(enteringPortal.HasInPortalListener)
-                enteringPortal.GetPortalIn().SendMessage("OnPortalEnter", enteringPortal.Transition);
-            if(enteringPortal.HasOutPortalListener)
-                enteringPortal.GetPortalOut().SendMessage("OnPortalEnter", enteringPortal.Transition);
+            var objectTransitionListener = enteringPortal.GetTransitionListener();
+            var inPortalTransitionListener = enteringPortal.inPortalListener;
+            var outPortalTransitionListener = enteringPortal.outPortalListener;
+            objectTransitionListener?.OnPortalEnter(enteringPortal.Transition);
+            inPortalTransitionListener?.OnPortalEnter(enteringPortal.Transition);
+            outPortalTransitionListener?.OnPortalEnter(enteringPortal.Transition);
+
         }
         private void TriggerOnPortalExit(TransitioningObject leavingPortal)
         {
-            if(leavingPortal.GetImplementsTransitionListener())
-                leavingPortal.GetOriginal().SendMessage("OnPortalExit", leavingPortal.Transition);
-            if(leavingPortal.HasInPortalListener)
-                leavingPortal.GetPortalIn().SendMessage("OnPortalExit", leavingPortal.Transition);
-            if(leavingPortal.HasOutPortalListener)
-                leavingPortal.GetPortalOut().SendMessage("OnPortalExit", leavingPortal.Transition);
+            var objectTransitionListener = leavingPortal.GetTransitionListener();
+            var inPortalTransitionListener = leavingPortal.inPortalListener;
+            var outPortalTransitionListener = leavingPortal.outPortalListener;
+            objectTransitionListener?.OnPortalExit(leavingPortal.Transition);
+            inPortalTransitionListener?.OnPortalExit(leavingPortal.Transition);
+            outPortalTransitionListener?.OnPortalExit(leavingPortal.Transition);
         }
         private void TriggerOnPortalTransitioning(TransitioningObject transitioningPortal)
         {
-            if(transitioningPortal.GetImplementsTransitionListener())
-                transitioningPortal.GetOriginal().SendMessage("OnPortalTransitioning", transitioningPortal.Transition);
-            if(transitioningPortal.HasInPortalListener)
-                transitioningPortal.GetPortalIn().SendMessage("OnPortalCrossed", transitioningPortal.Transition);
-            if(transitioningPortal.HasOutPortalListener)
-                transitioningPortal.GetPortalOut().SendMessage("OnPortalCrossed", transitioningPortal.Transition);
-        
+            var objectTransitionListener = transitioningPortal.GetTransitionListener();
+            var inPortalTransitionListener = transitioningPortal.inPortalListener;
+            var outPortalTransitionListener = transitioningPortal.outPortalListener;
+            objectTransitionListener?.OnPortalTransitioning(transitioningPortal.Transition);
+            inPortalTransitionListener?.OnPortalTransitioning(transitioningPortal.Transition);
+            outPortalTransitionListener?.OnPortalTransitioning(transitioningPortal.Transition);
+
         }
         private void TriggerOnPortalCrossed(TransitioningObject crossingPortal)
         {
-            if(crossingPortal.GetImplementsTransitionListener())
-                crossingPortal.GetOriginal().SendMessage("OnPortalCrossed", crossingPortal.Transition);
-            if(crossingPortal.HasInPortalListener)
-                crossingPortal.GetPortalIn().SendMessage("OnPortalCrossed", crossingPortal.Transition);
-            if(crossingPortal.HasOutPortalListener)
-                crossingPortal.GetPortalOut().SendMessage("OnPortalCrossed", crossingPortal.Transition);
+            
+            var objectTransitionListener = crossingPortal.GetTransitionListener();
+            var inPortalTransitionListener = crossingPortal.inPortalListener;
+            var outPortalTransitionListener = crossingPortal.outPortalListener;
+            objectTransitionListener?.OnPortalCrossed(crossingPortal.Transition);
+            inPortalTransitionListener?.OnPortalCrossed(crossingPortal.Transition);
+            outPortalTransitionListener?.OnPortalCrossed(crossingPortal.Transition);
         }
     
         # endregion
@@ -310,12 +312,24 @@ namespace AlsetRGames.Portal.Core
         {
             if(portal.GetLinkedOutPortal() ==null)
                 return;
-            for (var j = 0; j < objectsOnPortal.Count ; j++)
+            for (var j = objectsOnPortal.Count - 1; j >= 0; j--)
             {
                 var t = objectsOnPortal[j];
+                if (t.GetClone() == null)
+                    continue;
+
+                if (t.GetOriginal() == null)
+                {
+                    Destroy(t.GetClone().gameObject);
+                    objectsOnPortal.RemoveAt(j); 
+                    continue;
+                }
+
                 CrossPortal(t);
                 TriggerOnPortalTransitioning(t);
             }
+
+            
         }
         private void LateUpdate()
         {
@@ -336,19 +350,7 @@ namespace AlsetRGames.Portal.Core
             }
 
             return false;
-            // if (t.GetMainCamera() != null)
-            // {
-            //     
-            //     if (!t.GetMainCamera().transform.position.IsInFrontOfWithError(portal.transform, 0.1f))
-            //     // if (!t.GetMainCamera().transform.IsInFrontOf(portal.transform))
-            //     {
-            //         t.GetPortalOut().AddTransitioningObject(t);
-            //         t.SwitchPortals( portal.GetLinkedOutPortal(),portal.GetLinkedOutPortal().GetLinkedOutPortal());
-            //         _objectsOnPortal.Remove(t);
-            //         TriggerOnPortalCrossed(t);
-            //         return;
-            //     }
-            // }
+           
         }
 
     
@@ -356,6 +358,7 @@ namespace AlsetRGames.Portal.Core
     
         private void ReplicateTransform(TransitioningObject transitioningObject)
         {
+               
             if(transitioningObject.GetClone()!= null )
             {
                 SetPosition(transitioningObject);

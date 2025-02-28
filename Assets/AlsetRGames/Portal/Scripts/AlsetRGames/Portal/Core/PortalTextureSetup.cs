@@ -46,6 +46,8 @@ namespace AlsetRGames.Portal.Core
 
         public void SetDefaultMaterial()
         {
+            if(renderer == null)
+                renderer = gameObject.GetComponent<Renderer>();
             renderer.material = _defaultMaterial;
         }
 

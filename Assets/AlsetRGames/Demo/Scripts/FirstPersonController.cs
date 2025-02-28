@@ -20,13 +20,6 @@ public class FirstPersonController : MonoBehaviour
 
         // Rotate the player body (horizontal rotation, around the Y-axis)
         playerBody.Rotate(Vector3.up * mouseX);
-        // playerBody.Rotate(Vector3.left * mouseY);
-
-        // // Control vertical rotation (looking up and down)
-        // xRotation -= mouseY;
-        //
-        // // Apply vertical rotation to the camera (not the player body)
-        // transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
         // Keyboard input for moving (using arrow keys)
         float moveX = Input.GetAxis("Horizontal");  // Left/Right arrow (A/D or Left/Right arrow keys)

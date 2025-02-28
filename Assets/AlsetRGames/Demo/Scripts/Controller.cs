@@ -23,6 +23,10 @@ namespace Demo.Scripts
         private bool isGrabbing = false;
         CharacterController controller;
         float verticalSpeed = 0;
+        [SerializeField] private GameObject objectPrefab; // Assign in Inspector
+        [SerializeField] private Transform throwPoint;    // Point where the object will be instantiated
+        [SerializeField] private float throwForce = 10f;  // Adjust force as needed
+
 
         void Start()
         {
@@ -32,13 +36,41 @@ namespace Demo.Scripts
         void Update()
         {
             ComputePickingObjects();
-            
+            ComputeThrowObject();
             var velocity = ComputeWalkVelocity() + ComputeVerticalVelocity();
             transform.forward = ComputeVerticalRecover(transform.forward);
             var collisions = controller.Move(velocity * Time.deltaTime);
             HandleCollisions(collisions);
         }
 
+        private void ComputeThrowObject()
+        {
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                ThrowObject();
+            }
+        }
+        
+        private void ThrowObject()
+        {
+            if (objectPrefab == null || throwPoint == null)
+            {
+                Debug.LogWarning("Object Prefab or Throw Point not assigned!");
+                return;
+            }
+
+            // Instantiate object at throw position
+            GameObject newObject = Instantiate(objectPrefab, throwPoint.position, throwPoint.rotation);
+
+            // Add Rigidbody and apply force
+            Rigidbody rb = newObject.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddForce(throwPoint.forward * throwForce, ForceMode.Impulse);
+            }
+            // Destroy the object after 10 seconds
+            Destroy(newObject, 10f);
+        }
         private void ComputePickingObjects()
         {
             if (Input.GetKeyDown(KeyCode.E) && !isGrabbing)

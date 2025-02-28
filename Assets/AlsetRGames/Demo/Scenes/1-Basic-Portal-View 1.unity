@@ -5198,12 +5198,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 903895545}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &904232118 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7499457454019592065, guid: b4b0b2ed008a95f40a89a95f748a8477,
-    type: 3}
-  m_PrefabInstance: {fileID: 1071703781}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &909330423
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6123,7 +6117,7 @@ PrefabInstance:
         type: 3}
       propertyPath: dependencies.renderGameObject
       value: 
-      objectReference: {fileID: 904232118}
+      objectReference: {fileID: 1071703783}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b4b0b2ed008a95f40a89a95f748a8477, type: 3}
 --- !u!114 &1071703782 stripped
@@ -6138,6 +6132,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74290832ebca10a4db01e4f448886bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1071703783 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 768060124722712019, guid: b4b0b2ed008a95f40a89a95f748a8477,
+    type: 3}
+  m_PrefabInstance: {fileID: 1071703781}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1100718500
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7419,36 +7419,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1474920661}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1298832817 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7499457454019592065, guid: b4b0b2ed008a95f40a89a95f748a8477,
-    type: 3}
-  m_PrefabInstance: {fileID: 1317007072}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1298832819 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7499457454019592071, guid: b4b0b2ed008a95f40a89a95f748a8477,
-    type: 3}
-  m_PrefabInstance: {fileID: 1317007072}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1298832817}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36a4db247345e1a46bf13eabb7432fa8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!23 &1298832820 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 7499457454019592070, guid: b4b0b2ed008a95f40a89a95f748a8477,
-    type: 3}
-  m_PrefabInstance: {fileID: 1317007072}
-  m_PrefabAsset: {fileID: 0}
---- !u!33 &1298832821 stripped
-MeshFilter:
-  m_CorrespondingSourceObject: {fileID: 7499457454019592069, guid: b4b0b2ed008a95f40a89a95f748a8477,
-    type: 3}
-  m_PrefabInstance: {fileID: 1317007072}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1303190054
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7659,22 +7629,22 @@ PrefabInstance:
         type: 3}
       propertyPath: dependencies._renderer
       value: 
-      objectReference: {fileID: 1298832820}
+      objectReference: {fileID: 0}
     - target: {fileID: 8685845199385058114, guid: b4b0b2ed008a95f40a89a95f748a8477,
         type: 3}
       propertyPath: dependencies.renderPlane
       value: 
-      objectReference: {fileID: 1298832821}
+      objectReference: {fileID: 0}
     - target: {fileID: 8685845199385058114, guid: b4b0b2ed008a95f40a89a95f748a8477,
         type: 3}
       propertyPath: dependencies.renderGameObject
       value: 
-      objectReference: {fileID: 1298832817}
+      objectReference: {fileID: 1317007074}
     - target: {fileID: 8685845199385058114, guid: b4b0b2ed008a95f40a89a95f748a8477,
         type: 3}
       propertyPath: dependencies.portalTextureSetup
       value: 
-      objectReference: {fileID: 1298832819}
+      objectReference: {fileID: 0}
     - target: {fileID: 8799631882081772915, guid: b4b0b2ed008a95f40a89a95f748a8477,
         type: 3}
       propertyPath: m_RootOrder
@@ -7694,6 +7664,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74290832ebca10a4db01e4f448886bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1317007074 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 768060124722712019, guid: b4b0b2ed008a95f40a89a95f748a8477,
+    type: 3}
+  m_PrefabInstance: {fileID: 1317007072}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1320409638
 GameObject:
   m_ObjectHideFlags: 0

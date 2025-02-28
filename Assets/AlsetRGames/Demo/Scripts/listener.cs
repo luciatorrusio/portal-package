@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using AlsetRGames.Portal.Core;
 using UnityEngine;
 
-public class listener : MonoBehaviour, TransitionListener
+public class Listener : MonoBehaviour, TransitionListener
 {
     private int _counter = 0;
     public void OnPortalEnter(Transition transitioning)
